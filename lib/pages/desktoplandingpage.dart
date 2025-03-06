@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class Landingpage extends StatelessWidget {
+class Desktoplandingpage extends StatelessWidget {
   List<Widget> pageChildren(double width) {
     return <Widget>[
       SizedBox(
@@ -47,12 +47,12 @@ class Landingpage extends StatelessWidget {
           ],
         ),
       ),
-      // Padding(padding: EdgeInsets.symmetric(horizontal: 5)),
+      // Padding(padding: EdgeInsets.symmetric(horizontal: 60)),
       Padding(
-        padding: EdgeInsets.symmetric(vertical: 40),
+        padding: EdgeInsets.symmetric(vertical: 135),
         child: Transform.rotate(
           angle: -8 * 3.141592653589793 / 180, // 8 degrees in radians
-          child: Image.asset('img/kopi.png', width: 700, height: 572),
+          child: Image.asset('img/kopi.png', width: width),
         ),
       ),
     ];
