@@ -16,7 +16,6 @@ class _HomepageState extends State<Homepage> {
     return Scaffold(
       body: Responsivelayout(
         mobile: Mobilelandingpage(),
-        tablet: Desktoplandingpage2(),
         desktop: Desktoplandingpage2(),
       ),
     );

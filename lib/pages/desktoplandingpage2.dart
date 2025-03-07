@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gcoffee_r/pages/styles/textstyles.dart';
 
 class Desktoplandingpage2 extends StatelessWidget {
   const Desktoplandingpage2({super.key});
@@ -25,28 +26,16 @@ class Desktoplandingpage2 extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  const Text(
-                    'GCoffee',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontFamily: 'Righteous',
-                    ),
-                  ),
+                  Text('GCoffee', style: getTitleWhite(context)),
                   Row(
                     children: <Widget>[
                       TextButton(
                         onPressed: () {
                           debugPrint('Tentang Kami');
                         },
-                        child: const Text(
+                        child: Text(
                           'Tentang kami',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontFamily: 'Oxanium',
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: getDescWhite(context),
                         ),
                       ),
                       const SizedBox(width: 30),
@@ -54,14 +43,9 @@ class Desktoplandingpage2 extends StatelessWidget {
                         onPressed: () {
                           debugPrint('Pesan Sekarang');
                         },
-                        child: const Text(
+                        child: Text(
                           'Pesan Sekarang',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontFamily: 'Oxanium',
-                            fontWeight: FontWeight.w600,
-                          ),
+                          style: getDescWhite(context),
                         ),
                       ),
                       const SizedBox(width: 30),
@@ -69,15 +53,7 @@ class Desktoplandingpage2 extends StatelessWidget {
                         onPressed: () {
                           debugPrint('Login');
                         },
-                        child: const Text(
-                          'Login',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontFamily: 'Oxanium',
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
+                        child: Text('Login', style: getDescWhite(context)),
                       ),
                     ],
                   ),
@@ -145,14 +121,17 @@ class Desktoplandingpage2 extends StatelessWidget {
                         ],
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 0),
-                      child: Transform.rotate(
-                        angle:
-                            -8 *
-                            3.141592653589793 /
-                            180, // 8 degrees in radians
-                        child: Image.asset('img/kopi.png'),
+                    Flexible(
+                      fit: FlexFit.loose,
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 0),
+                        child: Transform.rotate(
+                          angle:
+                              -8 *
+                              3.141592653589793 /
+                              180, // 8 degrees in radians
+                          child: Image.asset('img/kopi.png'),
+                        ),
                       ),
                     ),
                   ],
