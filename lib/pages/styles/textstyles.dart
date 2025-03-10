@@ -32,6 +32,6 @@ getTitleWhite(BuildContext context) {
   );
 }
 
-getTitleBlack(BuildContext context) {
-  return TextStyle(color: Colors.black, fontFamily: 'Righteous', fontSize: 30);
+getTitleBlackOx(BuildContext context) {
+  return TextStyle(color: Colors.black, fontFamily: 'Oxanium', fontSize: 30);
 }
