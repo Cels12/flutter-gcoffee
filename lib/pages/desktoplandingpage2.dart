@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/pages/styles/textstyles.dart';
 
 class Desktoplandingpage2 extends StatelessWidget {
@@ -51,7 +52,12 @@ class Desktoplandingpage2 extends StatelessWidget {
                       const SizedBox(width: 30),
                       TextButton(
                         onPressed: () {
-                          debugPrint('Login');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const Loginpage(),
+                            ),
+                          );
                         },
                         child: Text('Login', style: getDescWhite(context)),
                       ),
@@ -114,6 +120,7 @@ class Desktoplandingpage2 extends StatelessWidget {
                                 style: TextStyle(
                                   fontFamily: 'Oxanium',
                                   color: Colors.white,
+                                  fontSize: 16,
                                 ),
                               ),
                             ),

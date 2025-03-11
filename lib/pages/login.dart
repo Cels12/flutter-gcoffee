@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gcoffee_r/pages/styles/textstyles.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class Loginpage extends StatefulWidget {
   const Loginpage({super.key});
@@ -50,7 +51,7 @@ class _LoginpageState extends State<Loginpage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(right: 155),
+                    padding: const EdgeInsets.only(right: 200),
                     child: Text(
                       'Masukkan detail akun anda',
                       style: TextStyle(
@@ -67,7 +68,7 @@ class _LoginpageState extends State<Loginpage> {
                       style: getTitleBlackOx(context),
                     ),
                   ),
-                  SizedBox(height: 80),
+                  SizedBox(height: 70),
                   SizedBox(
                     width: 450,
                     child: TextField(
@@ -75,7 +76,7 @@ class _LoginpageState extends State<Loginpage> {
                         labelText: 'Alamat Email atau Username',
                         labelStyle: TextStyle(
                           fontFamily: 'Oxanium',
-                          fontSize: 12,
+                          fontSize: 16,
                         ),
                         border: OutlineInputBorder(),
                       ),
@@ -90,7 +91,7 @@ class _LoginpageState extends State<Loginpage> {
                         labelText: 'Password',
                         labelStyle: TextStyle(
                           fontFamily: 'Oxanium',
-                          fontSize: 12,
+                          fontSize: 16,
                         ),
                         border: OutlineInputBorder(gapPadding: 10),
                       ),
@@ -132,7 +133,7 @@ class _LoginpageState extends State<Loginpage> {
                       style: TextStyle(
                         color: Colors.white,
                         fontFamily: 'Oxanium',
-                        fontSize: 15,
+                        fontSize: 16,
                       ),
                     ),
                   ),
@@ -157,6 +158,60 @@ class _LoginpageState extends State<Loginpage> {
                             ),
                           ),
                         ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Container(
+                      width: 445,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Divider(thickness: 1, color: Colors.black45),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 10),
+                            child: Text(
+                              'atau',
+                              style: TextStyle(
+                                color: Colors.black45,
+                                fontFamily: 'Righteous',
+                                fontSize: 15,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            child: Divider(thickness: 1, color: Colors.black45),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      debugPrint('Masuk dengan google');
+                    },
+                    icon: SvgPicture.asset(
+                      'assets/icons/google2.svg',
+                      width: 20,
+                      height: 20,
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 210, 156, 100),
+                      fixedSize: Size(450, 40),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                    label: Text(
+                      'Masuk dengan Google',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Oxanium',
+                        fontSize: 16,
                       ),
                     ),
                   ),

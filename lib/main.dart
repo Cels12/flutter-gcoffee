@@ -12,7 +12,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue),
+      theme: ThemeData(
+        primaryColor: Color.fromARGB(255, 210, 156, 100),
+        inputDecorationTheme: InputDecorationTheme(
+          floatingLabelStyle: TextStyle(
+            color: Color.fromARGB(255, 210, 156, 100),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Color.fromARGB(255, 210, 156, 100)),
+          ),
+        ),
+      ),
       home: Homepage(),
     );
   }
