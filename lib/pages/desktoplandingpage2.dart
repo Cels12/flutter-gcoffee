@@ -52,7 +52,7 @@ class Desktoplandingpage2 extends StatelessWidget {
                       const SizedBox(width: 30),
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                             context,
                             MaterialPageRoute(
                               builder: (context) => const Loginpage(),

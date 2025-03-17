@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gcoffee_r/pages/dashboard.dart';
+import 'package:gcoffee_r/pages/signup.dart';
+import '../auth/auth.dart';
 import 'package:gcoffee_r/pages/styles/textstyles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+void main() async {
+  await dotenv.load(fileName: ".env");
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: Loginpage());
+  }
+}
 
 class Loginpage extends StatefulWidget {
   const Loginpage({super.key});
@@ -10,6 +26,82 @@ class Loginpage extends StatefulWidget {
 }
 
 class _LoginpageState extends State<Loginpage> {
+  final AuthService _auth = AuthService();
+  final TextEditingController emailcontrol = TextEditingController();
+  final TextEditingController passwordcontrol = TextEditingController();
+  String message = '';
+  bool isLoading = false;
+  bool isEmailEmpty = false;
+  bool isPasswordEmpty = false;
+  bool isLoginFailed = false;
+
+  Future<void> login() async {
+    setState(() {
+      isLoading = true;
+      isEmailEmpty = emailcontrol.text.trim().isEmpty;
+      isPasswordEmpty = passwordcontrol.text.trim().isEmpty;
+      isLoginFailed = false;
+    });
+
+    if (isEmailEmpty || isPasswordEmpty) {
+      setState(() {
+        isLoading = false;
+      });
+      return;
+    }
+
+    final adminEmail = dotenv.env['ADMIN_EMAIL'];
+    final adminPassword = dotenv.env['ADMIN_PASSWORD'];
+
+    if (emailcontrol.text.trim() == adminEmail &&
+        passwordcontrol.text.trim() == adminPassword) {
+      setState(() {
+        message = 'Login berhasil!';
+        isLoading = false;
+      });
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return Dashboard();
+          },
+        ),
+      );
+    } else {
+      final hasil = await _auth.signIn(
+        emailcontrol.text.trim(),
+        passwordcontrol.text.trim(),
+      );
+
+      if (hasil == null) {
+        setState(() {
+          isLoginFailed = true;
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          message = 'Login berhasil!';
+          isLoading = false;
+        });
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return Dashboard();
+            },
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    emailcontrol.dispose();
+    passwordcontrol.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,7 +131,7 @@ class _LoginpageState extends State<Loginpage> {
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: Colors.black.withOpacity(0.2),
                   blurRadius: 5,
                   spreadRadius: 2,
                 ),
@@ -72,6 +164,7 @@ class _LoginpageState extends State<Loginpage> {
                   SizedBox(
                     width: 450,
                     child: TextField(
+                      controller: emailcontrol,
                       decoration: InputDecoration(
                         labelText: 'Alamat Email atau Username',
                         labelStyle: TextStyle(
@@ -79,6 +172,8 @@ class _LoginpageState extends State<Loginpage> {
                           fontSize: 16,
                         ),
                         border: OutlineInputBorder(),
+                        errorText:
+                            isEmailEmpty ? 'Email tidak boleh kosong' : null,
                       ),
                     ),
                   ),
@@ -86,6 +181,7 @@ class _LoginpageState extends State<Loginpage> {
                   SizedBox(
                     width: 450,
                     child: TextField(
+                      controller: passwordcontrol,
                       obscureText: true,
                       decoration: InputDecoration(
                         labelText: 'Password',
@@ -94,16 +190,34 @@ class _LoginpageState extends State<Loginpage> {
                           fontSize: 16,
                         ),
                         border: OutlineInputBorder(gapPadding: 10),
+                        errorText:
+                            isPasswordEmpty
+                                ? 'Password tidak boleh kosong'
+                                : null,
                       ),
                     ),
                   ),
                   SizedBox(height: 10),
+                  if (isLoginFailed)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 10),
+                      child: Text(
+                        'Email atau Password salah',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontFamily: 'Oxanium',
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
                   Padding(
                     padding: const EdgeInsets.only(right: 20),
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          debugPrint('Lupa password');
+                        },
                         child: Text(
                           'Lupa Password?',
                           style: TextStyle(
@@ -118,9 +232,7 @@ class _LoginpageState extends State<Loginpage> {
                   ),
                   SizedBox(height: 10),
                   ElevatedButton(
-                    onPressed: () {
-                      debugPrint('Login');
-                    },
+                    onPressed: isLoading ? null : login,
                     style: TextButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 127, 88, 56),
                       fixedSize: Size(450, 40),
@@ -128,17 +240,27 @@ class _LoginpageState extends State<Loginpage> {
                         borderRadius: BorderRadius.circular(5),
                       ),
                     ),
-                    child: Text(
-                      'Masuk',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontFamily: 'Oxanium',
-                        fontSize: 16,
-                      ),
-                    ),
+                    child:
+                        isLoading
+                            ? const CircularProgressIndicator(
+                              color: Color.fromARGB(255, 210, 156, 100),
+                            )
+                            : const Text(
+                              'Masuk',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontFamily: 'Oxanium',
+                                fontSize: 16,
+                              ),
+                            ),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignUpPage()),
+                      );
+                    },
                     child: Text.rich(
                       TextSpan(
                         text: 'Tidak punya akun?',

@@ -40,6 +40,7 @@ dependencies:
   supabase_auth_ui: ^0.5.4
   easy_sidemenu: ^0.6.1
   flutter_svg: ^2.0.17
+  flutter_dotenv: ^5.2.1
 
 dev_dependencies:
   flutter_test:
@@ -68,6 +69,10 @@ flutter:
     - assets/img/kopi.png
     - assets/icons/Google.svg
     - assets/icons/google2.svg
+    - assets/.env
+    - assets/icons/Home.svg
+    - assets/icons/Coffee_cup.svg
+    - assets/icons/Chart_trendUp.svg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
