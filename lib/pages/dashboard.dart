@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gcoffee_r/pages/menupage.dart';
 import 'package:gcoffee_r/pages/styles/textstyles.dart';
 
 class Dashboard extends StatefulWidget {
@@ -502,31 +503,35 @@ class _DashboardState extends State<Dashboard> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     const SizedBox(height: 40),
-                    Tooltip(
-                      message: 'Home',
-                      child: TextButton(
-                        onPressed: () => debugPrint('Home'),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: SvgPicture.asset(
-                            'assets/icons/home.svg',
-                            width: 40,
-                            height: 40,
-                          ),
+                    TextButton(
+                      onPressed: () => debugPrint('Home'),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: SvgPicture.asset(
+                          'assets/icons/home.svg',
+                          width: 40,
+                          height: 40,
                         ),
                       ),
                     ),
-                    Tooltip(
-                      message: 'Hellnaw',
-                      child: TextButton(
-                        onPressed: () => debugPrint('Add menu'),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: Icon(
-                            Icons.add_circle_outline_outlined,
-                            size: 40,
-                            color: Colors.white,
-                          ),
+                    const SizedBox(height: 10),
+                    TextButton(
+                      onPressed: () {
+                        try {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => MenuPage()),
+                          );
+                        } catch (e) {
+                          debugPrint('Nav error $e');
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Icon(
+                          Icons.add_circle_outline_outlined,
+                          size: 40,
+                          color: Colors.white,
                         ),
                       ),
                     ),
@@ -546,15 +551,8 @@ class _DashboardState extends State<Dashboard> {
               icon: Icon(Icons.menu),
             ),
           ),
+
           // Area di luar sidebar untuk menutup menu saat diklik
-          if (_isMenuOpen)
-            Positioned.fill(
-              child: GestureDetector(
-                onTap: _toggleMenu,
-                behavior: HitTestBehavior.opaque,
-                child: Container(color: Colors.transparent),
-              ),
-            ),
         ],
       ),
     );

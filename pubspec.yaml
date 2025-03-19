@@ -41,6 +41,8 @@ dependencies:
   easy_sidemenu: ^0.6.1
   flutter_svg: ^2.0.17
   flutter_dotenv: ^5.2.1
+  image_picker: ^1.1.2
+  permission_handler: ^11.4.0
 
 dev_dependencies:
   flutter_test:
@@ -67,6 +69,10 @@ flutter:
   assets:
     - assets/img/kopi_cropped.png
     - assets/img/kopi.png
+    - assets/img/Cappuccino.jpg
+    - assets/img/Machiato.jpg
+    - assets/img/Mocha2.jpg
+    - assets/img/espresso.jpg
     - assets/icons/Google.svg
     - assets/icons/google2.svg
     - assets/.env
