@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/pages/menupage.dart';
 import 'package:gcoffee_r/pages/styles/textstyles.dart';
+import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:toastification/toastification.dart';
+import 'package:gcoffee_r/pages/styles/notification_styles.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -11,6 +15,80 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  final supabase = Supabase.instance.client;
+
+  // Default values for card info
+  int penjualanHarian = 0;
+  int penjualanBulanan = 0;
+  int jumlahMenu = 0;
+
+  Future<int> getDataHarian() async {
+    try {
+      final hariIni = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final response = await supabase
+          .from('pesanan')
+          .select()
+          .eq('status_pesanan', 'Selesai')
+          .gte('created_at', hariIni);
+      return response.length;
+    } catch (e) {
+      showToast(
+        context,
+        title: 'Error',
+        message: e.toString(),
+        Type: ToastificationType.error,
+      );
+      return 0;
+    }
+  }
+
+  Future<int> getDataBulanan() async {
+    try {
+      final bulanIni = DateFormat('yyyy-MM').format(DateTime.now());
+      final response = await supabase
+          .from('pesanan')
+          .select()
+          .eq('status_pesanan', 'Selesai')
+          .gte('created_at', '$bulanIni-01');
+      return response.length;
+    } catch (e) {
+      showToast(
+        context,
+        title: 'Error',
+        message: e.toString(),
+        Type: ToastificationType.error,
+      );
+      return 0;
+    }
+  }
+
+  Future<int> getDataMenu() async {
+    try {
+      final response = await supabase.from('menu').select();
+      return response.length;
+    } catch (e) {
+      showToast(
+        context,
+        title: 'Error',
+        message: e.toString(),
+        Type: ToastificationType.error,
+      );
+      return 0;
+    }
+  }
+
+  Future<void> fetchDashboardData() async {
+    await getDataHarian();
+    await getDataBulanan();
+    await getDataMenu();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDashboardData();
+  }
+
   final TextEditingController search = TextEditingController();
   bool _isMenuOpen = false;
   final String initialValue = 'Filter';
@@ -26,222 +104,48 @@ class _DashboardState extends State<Dashboard> {
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          // Background utama
-          Container(
-            color: Color.fromARGB(255, 247, 247, 247),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: 50,
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      // Teks GCoffee yang bergeser mengikuti sidebar
-                      AnimatedContainer(
-                        duration: Duration(milliseconds: 300),
-                        padding: EdgeInsets.only(
-                          left: _isMenuOpen ? 50 : 20,
-                        ), // Bergeser
-                        child: Text(
-                          'GCoffee',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 84, 47, 17),
-                            fontSize: 32,
-                            fontFamily: 'Righteous',
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Background
+          Container(color: const Color.fromARGB(255, 247, 247, 247)),
 
-          // Cards information
+          // Cards Information
           Positioned(
             top: 80,
             left: 110,
             child: Column(
               children: [
-                // card untuk penjualan harian
-                SizedBox(
-                  width: 430,
-                  height: 220,
-                  child: Card(
-                    elevation: 3,
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Icon di kiri
-                          Icon(
-                            Icons
-                                .trending_up_rounded, // Ganti dengan sesuai kebutuhan
-                            size: 120,
-                            color: Colors.grey[300], // Warna ikon sesuai gambar
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ), // Spasi antara ikon dan teks
-                          // Kolom teks di kanan
-                          Expanded(
-                            child: Column(
-                              children: [
-                                const SizedBox(
-                                  height: 40,
-                                ), // Spasi antara teks dan angka
-                                const Text(
-                                  "Penjualan hari ini",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Oxanium',
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ), // Spasi antara teks dan angka
-                                const Text(
-                                  "15",
-                                  style: TextStyle(
-                                    fontSize: 40,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Oxanium',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                // Card for daily sales
+                _buildCard(
+                  "Penjualan Hari Ini",
+                  SvgPicture.asset(
+                    'assets/icons/Chart_trendUp.svg',
+                    width: 200,
+                    height: 200,
                   ),
+                  getDataHarian(),
                 ),
-                SizedBox(height: 10), // Spacing
-                // card untuk penjualan bulanan
-                SizedBox(
-                  width: 430,
-                  height: 220,
-                  child: Card(
-                    elevation: 3,
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Icon di kiri
-                          SvgPicture.asset(
-                            'assets/icons/Chart_trendUp.svg',
-                            width: 200,
-                            height: 200,
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ), // Spasi antara ikon dan teks
-                          // Kolom teks di kanan
-                          Expanded(
-                            child: Column(
-                              children: [
-                                const SizedBox(
-                                  height: 40,
-                                ), // Spasi antara teks dan angka
-                                const Text(
-                                  "Penjualan bulan ini",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Oxanium',
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ), // Spasi antara teks dan angka
-                                const Text(
-                                  "412",
-                                  style: TextStyle(
-                                    fontSize: 40,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Oxanium',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                const SizedBox(height: 10),
+
+                // Card for monthly sales
+                _buildCard(
+                  "Penjualan Bulan Ini",
+                  SvgPicture.asset(
+                    'assets/icons/Chart_trendUp.svg',
+                    width: 200,
+                    height: 200,
                   ),
+                  getDataBulanan(),
                 ),
-                SizedBox(height: 10),
-                //card untuk jumlah menu
-                SizedBox(
-                  width: 430,
-                  height: 220,
-                  child: Card(
-                    elevation: 3,
-                    color: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Icon di kiri
-                          SvgPicture.asset(
-                            'assets/icons/Coffee_cup.svg',
-                            width: 80,
-                            height: 80,
-                          ),
-                          const SizedBox(
-                            width: 20,
-                          ), // Spasi antara ikon dan teks
-                          // Kolom teks di kanan
-                          Expanded(
-                            child: Column(
-                              children: [
-                                const SizedBox(
-                                  height: 40,
-                                ), // Spasi antara teks dan angka
-                                const Text(
-                                  "Jumlah menu",
-                                  style: TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Oxanium',
-                                  ),
-                                ),
-                                const SizedBox(
-                                  height: 10,
-                                ), // Spasi antara teks dan angka
-                                const Text(
-                                  "6",
-                                  style: TextStyle(
-                                    fontSize: 40,
-                                    fontWeight: FontWeight.w500,
-                                    fontFamily: 'Oxanium',
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                const SizedBox(height: 10),
+
+                // Card for menu count
+                _buildCard(
+                  "Jumlah Menu",
+                  SvgPicture.asset(
+                    'assets/icons/Coffee_cup.svg',
+                    width: 200,
+                    height: 200,
                   ),
+                  getDataMenu(),
                 ),
               ],
             ),
@@ -559,6 +463,74 @@ class _DashboardState extends State<Dashboard> {
 
           // Area di luar sidebar untuk menutup menu saat diklik
         ],
+      ),
+    );
+  }
+
+  Widget _buildCard(String title, Widget iconWidget, Future<int> futureData) {
+    return SizedBox(
+      width: 430,
+      height: 220,
+      child: Card(
+        elevation: 3,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Icon on the left
+              SizedBox(width: 80, height: 80, child: iconWidget),
+              const SizedBox(width: 20),
+
+              // Text column on the right
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                        fontFamily: 'Oxanium',
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    FutureBuilder<int>(
+                      future: futureData,
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const CircularProgressIndicator();
+                        } else if (snapshot.hasError) {
+                          return const Text(
+                            "0",
+                            style: TextStyle(
+                              fontSize: 40,
+                              fontWeight: FontWeight.w500,
+                              fontFamily: 'Oxanium',
+                            ),
+                          );
+                        }
+                        final data = snapshot.data ?? 0;
+                        return Text(
+                          "$data",
+                          style: const TextStyle(
+                            fontSize: 40,
+                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Oxanium',
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
