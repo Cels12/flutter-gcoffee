@@ -1,9 +1,9 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/pages/dashboard.dart';
 import 'package:gcoffee_r/pages/menupage.dart';
-import 'dart:io';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -15,95 +15,122 @@ class AddMenu extends StatefulWidget {
 }
 
 class _AddMenuState extends State<AddMenu> {
-  File? _imageFile;
+  Uint8List? _imageBytes;
+  String? _imageName;
   final TextEditingController search = TextEditingController();
   final TextEditingController deskripsiController = TextEditingController();
   final TextEditingController namaMenuController = TextEditingController();
   final TextEditingController hargaController = TextEditingController();
 
   Future pickImage() async {
-    //picker
-    final ImagePicker picker = ImagePicker();
+    try {
+      final ImagePicker picker = ImagePicker();
+      final image = await picker.pickImage(source: ImageSource.gallery);
 
-    // pick  from galery
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
-    if (image != null) {
-      setState(() {
-        _imageFile = File(image.path);
-      });
+      if (image != null) {
+        final Uint8List bytes = await image.readAsBytes();
+        setState(() {
+          _imageBytes = bytes;
+          _imageName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
+        });
+      } else {
+        if (kDebugMode) {
+          print('No image selected.');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('gagal memilih gambar: ${e.toString()}')),
+        );
+      }
     }
   }
 
   //upload image to storage supabase
   Future<String?> uploadImage() async {
-    if (_imageFile == null) return null;
-    final fileName = DateTime.now().microsecondsSinceEpoch.toString();
-    final path = 'uploads/$fileName';
+    if (_imageBytes == null || _imageName == null) return null;
+    final path = 'image/$_imageName';
 
     try {
+      // final storageResponse = await Supabase.instance.client.storage
+      //     .from('image')
+      //     .uploadBinary(
+      //       'image/$_imageName',
+      //       _imageBytes!,
+      //       fileOptions: const FileOptions(contentType: 'image/jpg'),
+      //     );
       await Supabase.instance.client.storage
           .from('image')
-          .upload(path, _imageFile!);
-      return path;
+          .uploadBinary(
+            path,
+            _imageBytes!,
+            fileOptions: const FileOptions(contentType: 'image/jpg'),
+          );
+      return Supabase.instance.client.storage.from('image').getPublicUrl(path);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Image gagal di upload: ${e.toString()}')),
         );
+        return null;
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Image berhasil di upload')));
+        }
       }
     }
     return null;
   }
 
   //add the menu to supabase
-  Future<void> _addMenu(String? imagePath) async {
-    final namaMenu = namaMenuController.text;
-    final hargaMenu = hargaController.text;
-    final deskripsiMenu = deskripsiController.text;
+  Future<void> _saveMenu() async {
+    final namaMenu = namaMenuController.text.trim();
+    final hargaMenu = hargaController.text.trim();
+    final deskripsiMenu = deskripsiController.text.trim();
 
     if (namaMenu.isEmpty || hargaMenu.isEmpty || deskripsiMenu.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Nama menu, Harga dan Deskripsi tidak boleh kosong'),
+        SnackBar(
+          content: Text('Nama menu, harga, dan deskripsi tidak boleh kosong'),
         ),
       );
       return;
     }
+    String? imageUrl;
+    if (_imageBytes != null) {
+      imageUrl = await uploadImage();
+      if (imageUrl == null) return;
+    }
 
     try {
-      //insert menu to supabase
-      final response = await Supabase.instance.client.from('menu').insert({
+      await Supabase.instance.client.from('menu').insert({
         'nama_menu': namaMenu,
         'deskripsi': deskripsiMenu,
         'harga': hargaMenu,
-        'gambar': imagePath,
+        'gambar': imageUrl,
       });
-      // Feedback to user
-      if (mounted) {
-        if (response.isNotEmpty) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Diary added successfully!')),
-          );
-          Navigator.pop(context);
-        } else {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Failed to add diary')));
-        }
-      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Image gagal di upload: ${e.toString()}')),
+          SnackBar(content: Text('Gagal menambahkan menu : ${e.toString()}')),
         );
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Menu berhasil di tambahkan')));
+        }
       }
     }
   }
 
-  Future<void> _saveMenu() async {
-    final imagePath = await uploadImage();
-    await _addMenu(imagePath);
+  void showMessage(String message) {
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   bool _isMenuOpen = false;
@@ -181,21 +208,14 @@ class _AddMenuState extends State<AddMenu> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   // Gambar Menu
-                                  _imageFile != null
-                                      ? SizedBox(
+                                  _imageBytes != null
+                                      ? Image.memory(
+                                        _imageBytes!,
                                         width: 220,
                                         height: 200,
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            10,
-                                          ),
-                                          child: Image.file(
-                                            fit: BoxFit.cover,
-                                            _imageFile!,
-                                          ),
-                                        ),
+                                        fit: BoxFit.cover,
                                       )
-                                      : const Text('No image selected'),
+                                      : const Text('Belum ada gambar'),
                                   const SizedBox(height: 10),
 
                                   // disini tombol untuk memilih image
@@ -238,9 +258,9 @@ class _AddMenuState extends State<AddMenu> {
                                       width: 800,
                                       child: TextField(
                                         controller: namaMenuController,
-                                        inputFormatters: [
-                                          LengthLimitingTextInputFormatter(20),
-                                        ],
+                                        // inputFormatters: [
+                                        //   LengthLimitingTextInputFormatter(20),
+                                        // ],
                                         maxLines: 1,
                                         decoration: InputDecoration(
                                           label: Text(
@@ -263,9 +283,9 @@ class _AddMenuState extends State<AddMenu> {
                                       width: 800,
                                       child: TextField(
                                         controller: hargaController,
-                                        inputFormatters: [
-                                          LengthLimitingTextInputFormatter(20),
-                                        ],
+                                        // inputFormatters: [
+                                        //   LengthLimitingTextInputFormatter(20),
+                                        // ],
                                         maxLines: 1,
                                         decoration: InputDecoration(
                                           label: Text(
@@ -287,9 +307,9 @@ class _AddMenuState extends State<AddMenu> {
                                       width: 800,
                                       child: TextField(
                                         controller: deskripsiController,
-                                        inputFormatters: [
-                                          LengthLimitingTextInputFormatter(20),
-                                        ],
+                                        // inputFormatters: [
+                                        //   LengthLimitingTextInputFormatter(20),
+                                        // ],
                                         maxLines: 4,
                                         decoration: InputDecoration(
                                           label: Text(
@@ -316,6 +336,7 @@ class _AddMenuState extends State<AddMenu> {
                                         ElevatedButton(
                                           onPressed: () {
                                             _saveMenu();
+                                            Navigator.pop(context);
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.green,
@@ -346,7 +367,7 @@ class _AddMenuState extends State<AddMenu> {
                                             fixedSize: const Size(120, 40),
                                           ),
                                           child: const Text(
-                                            'Hapus',
+                                            'Reset',
                                             style: TextStyle(
                                               color: Colors.white,
                                             ),

@@ -504,7 +504,12 @@ class _DashboardState extends State<Dashboard> {
                   children: [
                     const SizedBox(height: 40),
                     TextButton(
-                      onPressed: () => debugPrint('Home'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => Dashboard()),
+                        );
+                      },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         child: SvgPicture.asset(

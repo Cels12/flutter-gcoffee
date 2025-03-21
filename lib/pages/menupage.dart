@@ -1,8 +1,12 @@
+import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+// import 'package:flutter/services.dart';
+// import 'dart:convert';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gcoffee_r/pages/add_menu.dart';
 import 'package:gcoffee_r/pages/dashboard.dart';
+import 'package:intl/intl.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
@@ -12,7 +16,51 @@ class MenuPage extends StatefulWidget {
 }
 
 class _MenuPageState extends State<MenuPage> {
+  final SupabaseClient supabase = Supabase.instance.client;
+
+  // Fungsi untuk delete menu
+  Future<void> _deleteMenu(BuildContext context, int id) async {
+    try {
+      final supabase = Supabase.instance.client;
+      final response =
+          await supabase.from('menu').select('gambar').eq('id', id).single();
+      if (response['gambar'] != null) {
+        final imageUrl = response['gambar'];
+        final imagePath = Uri.parse(imageUrl).pathSegments.last;
+
+        await supabase.storage.from('image').remove([imagePath]);
+      }
+      await supabase.from('menu').delete().match({'id': id});
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Menu berhasil di hapus')));
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('error deleting menu $e');
+      }
+      if (context.mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Gagal menghapus menu')));
+      }
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchMenu() async {
+    final response = await supabase.from('menu').select();
+    return response;
+  }
+
+  String formatCurrency(int amount) {
+    final format = NumberFormat('#,###', 'id_ID');
+    return 'Rp. ${format.format(amount)}';
+  }
+
   final TextEditingController search = TextEditingController();
+
   bool _isMenuOpen = false;
   void _toggleMenu() {
     setState(() {
@@ -60,7 +108,7 @@ class _MenuPageState extends State<MenuPage> {
             ),
           ),
 
-          // card CRUD
+          // card Read, Update dan Delete
           Positioned.fill(
             child: SingleChildScrollView(
               child: Padding(
@@ -68,6 +116,7 @@ class _MenuPageState extends State<MenuPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    //Tombol tambah menu
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
@@ -103,510 +152,202 @@ class _MenuPageState extends State<MenuPage> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    SizedBox(
-                      width: 1300,
-                      height: 350,
-                      child: Card(
-                        elevation: 3,
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Bagian Gambar + Nama + Harga
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Gambar Menu
-                                  SizedBox(
-                                    width: 220,
-                                    height: 200,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.asset(
-                                        fit: BoxFit.cover,
-                                        'assets/img/Cappuccino.jpg',
+                    FutureBuilder(
+                      future: _fetchMenu(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return Center(child: CircularProgressIndicator());
+                        } else if (snapshot.hasError) {
+                          return Center(
+                            child: Text('error : ${snapshot.error}'),
+                          );
+                        } else {
+                          final menuList = snapshot.data ?? [];
+                          return Column(
+                            children:
+                                menuList.map((menu) {
+                                  return SizedBox(
+                                    width: 1300,
+                                    child: Card(
+                                      elevation: 3,
+                                      color: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      child: Padding(
+                                        padding: const EdgeInsets.all(20),
+                                        child: Row(
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                SizedBox(
+                                                  width: 220,
+                                                  height: 200,
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          10,
+                                                        ),
+                                                    child:
+                                                        menu['gambar'] !=
+                                                                    null &&
+                                                                menu['gambar']
+                                                                    .isNotEmpty
+                                                            ? Image.network(
+                                                              menu['gambar'],
+                                                              fit: BoxFit.cover,
+                                                            )
+                                                            : Placeholder(),
+                                                  ),
+                                                ),
+                                                const SizedBox(height: 10),
+                                                Text(
+                                                  menu['nama_menu'],
+                                                  style: TextStyle(
+                                                    fontFamily: 'Oxanium',
+                                                    fontSize: 30,
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
+                                                Text(
+                                                  formatCurrency(menu['harga']),
+                                                  style: TextStyle(
+                                                    fontFamily: 'Oxanium',
+                                                    fontSize: 24,
+                                                    fontWeight: FontWeight.w600,
+                                                    color: Color.fromARGB(
+                                                      255,
+                                                      84,
+                                                      47,
+                                                      17,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(width: 20),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    'Deskripsi :',
+                                                    style: TextStyle(
+                                                      fontFamily: 'Oxanium',
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 18,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(height: 10),
+                                                  Text(menu['deskripsi']),
+                                                  const SizedBox(height: 160),
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .center,
+                                                    children: [
+                                                      ElevatedButton(
+                                                        onPressed: () {},
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.green,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  10,
+                                                                ),
+                                                          ),
+                                                          fixedSize: const Size(
+                                                            120,
+                                                            40,
+                                                          ),
+                                                        ),
+                                                        child: const Text(
+                                                          'Simpan',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      ElevatedButton(
+                                                        onPressed: () {},
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              Colors.brown,
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  10,
+                                                                ),
+                                                          ),
+                                                          fixedSize: const Size(
+                                                            120,
+                                                            40,
+                                                          ),
+                                                        ),
+                                                        child: const Text(
+                                                          'Edit',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 10),
+                                                      ElevatedButton(
+                                                        onPressed: () {
+                                                          _deleteMenu(
+                                                            context,
+                                                            menu['id'],
+                                                          );
+                                                        },
+                                                        style: ElevatedButton.styleFrom(
+                                                          backgroundColor:
+                                                              const Color.fromARGB(
+                                                                255,
+                                                                249,
+                                                                66,
+                                                                0,
+                                                              ),
+                                                          shape: RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius.circular(
+                                                                  10,
+                                                                ),
+                                                          ),
+                                                          fixedSize: const Size(
+                                                            120,
+                                                            40,
+                                                          ),
+                                                        ),
+                                                        child: const Text(
+                                                          'Hapus',
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(height: 10),
-
-                                  // Nama Menu
-                                  Text(
-                                    'Cappuccino',
-                                    style: TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-
-                                  // Harga Menu
-                                  Text(
-                                    'Rp. 18,000',
-                                    style: TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color.fromARGB(255, 84, 47, 17),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                width: 20,
-                              ), // Jarak antara gambar dan deskripsi
-                              // Bagian Deskripsi dan Tombol
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Label Deskripsi
-                                    Text(
-                                      'Deskripsi :',
-                                      style: TextStyle(
-                                        fontFamily: 'Oxanium',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-
-                                    // TextField Deskripsi
-                                    SizedBox(
-                                      width: 800, // Sesuaikan lebar jika perlu
-                                      child: TextField(
-                                        inputFormatters: [
-                                          LengthLimitingTextInputFormatter(20),
-                                        ],
-                                        maxLines: 1,
-                                        decoration: InputDecoration(
-                                          hintText:
-                                              'Masukkan deskripsi menu...',
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 160),
-
-                                    // Row Tombol
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        // Tombol Simpan
-                                        ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.green,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            fixedSize: const Size(120, 40),
-                                          ),
-                                          child: const Text(
-                                            'Simpan',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        // Tombol Edit
-                                        ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.brown,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            fixedSize: const Size(120, 40),
-                                          ),
-                                          child: const Text(
-                                            'Edit',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        // Tombol Hapus
-                                        ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.red,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            fixedSize: const Size(120, 40),
-                                          ),
-                                          child: const Text(
-                                            'Hapus',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                                  );
+                                }).toList(),
+                          );
+                        }
+                      },
                     ),
-
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: 1300,
-                      height: 350,
-                      child: Card(
-                        elevation: 3,
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Bagian Gambar + Nama + Harga
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Gambar Menu
-                                  SizedBox(
-                                    width: 220,
-                                    height: 200,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.asset(
-                                        fit: BoxFit.cover,
-                                        'assets/img/Cappuccino.jpg',
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-
-                                  // Nama Menu
-                                  Text(
-                                    'Cappuccino',
-                                    style: TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-
-                                  // Harga Menu
-                                  Text(
-                                    'Rp. 18,000',
-                                    style: TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color.fromARGB(255, 84, 47, 17),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                width: 20,
-                              ), // Jarak antara gambar dan deskripsi
-                              // Bagian Deskripsi dan Tombol
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Label Deskripsi
-                                    Text(
-                                      'Deskripsi :',
-                                      style: TextStyle(
-                                        fontFamily: 'Oxanium',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-
-                                    // TextField Deskripsi
-                                    SizedBox(
-                                      width: 800, // Sesuaikan lebar jika perlu
-                                      child: TextField(
-                                        inputFormatters: [
-                                          LengthLimitingTextInputFormatter(20),
-                                        ],
-                                        maxLines: 1,
-                                        decoration: InputDecoration(
-                                          hintText:
-                                              'Masukkan deskripsi menu...',
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 160),
-
-                                    // Row Tombol
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        // Tombol Simpan
-                                        ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.green,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            fixedSize: const Size(120, 40),
-                                          ),
-                                          child: const Text(
-                                            'Simpan',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        // Tombol Edit
-                                        ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.brown,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            fixedSize: const Size(120, 40),
-                                          ),
-                                          child: const Text(
-                                            'Edit',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        // Tombol Hapus
-                                        ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.red,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            fixedSize: const Size(120, 40),
-                                          ),
-                                          child: const Text(
-                                            'Hapus',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: 1300,
-                      height: 350,
-                      child: Card(
-                        elevation: 3,
-                        color: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              // Bagian Gambar + Nama + Harga
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Gambar Menu
-                                  SizedBox(
-                                    width: 220,
-                                    height: 200,
-                                    child: ClipRRect(
-                                      borderRadius: BorderRadius.circular(10),
-                                      child: Image.asset(
-                                        fit: BoxFit.cover,
-                                        'assets/img/Cappuccino.jpg',
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 10),
-
-                                  // Nama Menu
-                                  Text(
-                                    'Cappuccino',
-                                    style: TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 30,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-
-                                  // Harga Menu
-                                  Text(
-                                    'Rp. 18,000',
-                                    style: TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color.fromARGB(255, 84, 47, 17),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(
-                                width: 20,
-                              ), // Jarak antara gambar dan deskripsi
-                              // Bagian Deskripsi dan Tombol
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Label Deskripsi
-                                    Text(
-                                      'Deskripsi :',
-                                      style: TextStyle(
-                                        fontFamily: 'Oxanium',
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 10),
-
-                                    // TextField Deskripsi
-                                    SizedBox(
-                                      width: 800, // Sesuaikan lebar jika perlu
-                                      child: TextField(
-                                        inputFormatters: [
-                                          LengthLimitingTextInputFormatter(20),
-                                        ],
-                                        maxLines: 1,
-                                        decoration: InputDecoration(
-                                          hintText:
-                                              'Masukkan deskripsi menu...',
-                                          border: OutlineInputBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(height: 160),
-
-                                    // Row Tombol
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        // Tombol Simpan
-                                        ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.green,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            fixedSize: const Size(120, 40),
-                                          ),
-                                          child: const Text(
-                                            'Simpan',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        // Tombol Edit
-                                        ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.brown,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            fixedSize: const Size(120, 40),
-                                          ),
-                                          child: const Text(
-                                            'Edit',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 10),
-
-                                        // Tombol Hapus
-                                        ElevatedButton(
-                                          onPressed: () {},
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.red,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(10),
-                                            ),
-                                            fixedSize: const Size(120, 40),
-                                          ),
-                                          child: const Text(
-                                            'Hapus',
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    //Card untuk show Menu
                   ],
                 ),
               ),
@@ -652,9 +393,14 @@ class _MenuPageState extends State<MenuPage> {
                       ),
                     ),
                     Tooltip(
-                      message: 'Hellnaw',
+                      message: 'Add menu',
                       child: TextButton(
-                        onPressed: () => debugPrint('Add menu'),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => AddMenu()),
+                          );
+                        },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           child: Icon(

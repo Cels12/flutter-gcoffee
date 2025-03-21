@@ -12,6 +12,8 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(home: Loginpage());
@@ -83,14 +85,16 @@ class _LoginpageState extends State<Loginpage> {
           message = 'Login berhasil!';
           isLoading = false;
         });
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) {
-              return Dashboard();
-            },
-          ),
-        );
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return Dashboard();
+              },
+            ),
+          );
+        }
       }
     }
   }
@@ -131,7 +135,7 @@ class _LoginpageState extends State<Loginpage> {
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 5,
                   spreadRadius: 2,
                 ),
@@ -285,7 +289,7 @@ class _LoginpageState extends State<Loginpage> {
                   ),
                   const SizedBox(height: 20),
                   Center(
-                    child: Container(
+                    child: SizedBox(
                       width: 445,
                       child: Row(
                         children: [

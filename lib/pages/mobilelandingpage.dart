@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 class Mobilelandingpage extends StatefulWidget {
+  const Mobilelandingpage({super.key});
+
   @override
-  _Mobilelandingpage createState() => _Mobilelandingpage();
+  State<Mobilelandingpage> createState() => _Mobilelandingpage();
 }
 
 class _Mobilelandingpage extends State<Mobilelandingpage> {
