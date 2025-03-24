@@ -17,6 +17,8 @@ class Dashboard extends StatefulWidget {
 class _DashboardState extends State<Dashboard> {
   final supabase = Supabase.instance.client;
 
+  List<Map<String, dynamic>> _pesananList = [];
+
   // Default values for card info
   int penjualanHarian = 0;
   int penjualanBulanan = 0;
@@ -83,9 +85,104 @@ class _DashboardState extends State<Dashboard> {
     await getDataMenu();
   }
 
+  Future<void> fetchPesanan() async {
+    try {
+      final response = await supabase
+          .from('pesanan')
+          .select()
+          .order('created_at', ascending: false);
+
+      if (mounted) {
+        setState(() {
+          _pesananList = response;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      showToast(
+        context,
+        title: 'Error',
+        message: e.toString(),
+        Type: ToastificationType.error,
+      );
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  //fungsi untuk mengganti status pesanan ke selesai
+  Future<void> updateStatusSelesai() async {
+    try {
+      final response = await supabase
+          .from('pesanan')
+          .update({'status_pesanan': 'Selesai'})
+          .eq('status_pesanan', 'Siap Diambil');
+      if (response != null) {
+        showToast(
+          context,
+          title: 'Error',
+          message: response.error.message,
+          Type: ToastificationType.error,
+        );
+      } else {
+        showToast(
+          context,
+          title: 'Berhasil',
+          message: 'Berhasil mengubah status pesanan',
+          Type: ToastificationType.success,
+        );
+      }
+    } catch (e) {
+      showToast(
+        context,
+        title: "Error",
+        message: e.toString(),
+        Type: ToastificationType.error,
+      );
+    }
+  }
+
+  //fungsi untuk mengganti status pesanan ke selesai
+  Future<void> updateStatusAmbil() async {
+    try {
+      final response = await supabase
+          .from('pesanan')
+          .update({'status_pesanan': 'Siap Diambil'})
+          .eq('status_pesanan', 'Sedang dibuat');
+      if (response != null) {
+        showToast(
+          context,
+          title: 'Error',
+          message: response.error.message,
+          Type: ToastificationType.error,
+        );
+      } else {
+        showToast(
+          context,
+          title: 'Berhasil',
+          message: 'Berhasil mengubah status pesanan',
+          Type: ToastificationType.success,
+        );
+      }
+    } catch (e) {
+      showToast(
+        context,
+        title: "Error",
+        message: e.toString(),
+        Type: ToastificationType.error,
+      );
+    }
+  }
+
+  bool _isLoading = false;
+
   @override
   void initState() {
     super.initState();
+    fetchPesanan();
     fetchDashboardData();
   }
 
@@ -273,119 +370,130 @@ class _DashboardState extends State<Dashboard> {
             left: 565,
             child: Container(
               color: Colors.white,
-              child: DataTable(
-                sortAscending: true,
-                border: TableBorder.all(
-                  color: const Color.fromARGB(255, 0, 0, 0), // Garis antar sel
-                  width: 1,
-                ),
-                // Judul dari data table
-                columns: [
-                  DataColumn(
-                    label: Text('ID Pemesanan', style: getDescBlack(context)),
-                  ),
-                  DataColumn(
-                    label: Text('Username', style: getDescBlack(context)),
-                  ),
-                  DataColumn(
-                    label: Text('Pesanan', style: getDescBlack(context)),
-                  ),
-                  DataColumn(
-                    label: Text('Nomor Meja', style: getDescBlack(context)),
-                  ),
-                  DataColumn(
-                    label: Text('Total', style: getDescBlack(context)),
-                  ),
-                  DataColumn(
-                    label: Text(
-                      'Status Pemesanan',
-                      style: getDescBlack(context),
-                    ),
-                  ),
-                  DataColumn(
-                    label: Padding(
-                      padding: EdgeInsets.only(left: 30),
-                      child: Text('Aksi', style: getDescBlack(context)),
-                    ),
-                  ),
-                ],
-                //isi dari table
-                rows: [
-                  DataRow(
-                    cells: [
-                      DataCell(Text('P0001', style: getDescBlack(context))),
-                      DataCell(
-                        Text('UjangGatotkaca', style: getDescBlack(context)),
-                      ),
-                      DataCell(Text('Cappucino', style: getDescBlack(context))),
-                      DataCell(Text('M03', style: getDescBlack(context))),
-                      DataCell(
-                        Text('Rp. 21,000', style: getDescBlack(context)),
-                      ),
-                      DataCell(
-                        Text('Sedang dibuat', style: getDescBlack(context)),
-                      ),
-                      DataCell(
-                        Row(
-                          children: [
-                            Text('Dibayar', style: getDescBlack(context)),
-                            const SizedBox(height: 10, width: 5),
-                            Text('Selesai', style: getDescBlack(context)),
-                          ],
+              child:
+                  _isLoading
+                      ? Center(child: CircularProgressIndicator())
+                      : DataTable(
+                        sortAscending: true,
+                        border: TableBorder.all(
+                          color: const Color.fromARGB(
+                            255,
+                            0,
+                            0,
+                            0,
+                          ), // Garis antar sel
+                          width: 1,
                         ),
+                        columns: [
+                          DataColumn(
+                            label: Text(
+                              'ID pemesanan',
+                              style: getDescBlack(context),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Username',
+                              style: getDescBlack(context),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Pesanan',
+                              style: getDescBlack(context),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Nomor Meja',
+                              style: getDescBlack(context),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Text('Total', style: getDescBlack(context)),
+                          ),
+                          DataColumn(
+                            label: Text(
+                              'Status Pemesanan',
+                              style: getDescBlack(context),
+                            ),
+                          ),
+                          DataColumn(
+                            label: Padding(
+                              padding: const EdgeInsets.only(left: 90.0),
+                              child: Text('Aksi', style: getDescBlack(context)),
+                            ),
+                          ),
+                        ],
+                        rows:
+                            _pesananList.map((pesanan) {
+                              return DataRow(
+                                cells: [
+                                  DataCell(
+                                    Text(
+                                      pesanan['id'].toString(),
+                                      style: getDescBlack(context),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      pesanan['username'].toString(),
+                                      style: getDescBlack(context),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      pesanan['pesanan'].toString(),
+                                      style: getDescBlack(context),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      pesanan['nomor_meja'].toString(),
+                                      style: getDescBlack(context),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      pesanan['total'].toString(),
+                                      style: getDescBlack(context),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Text(
+                                      pesanan['status_pesanan'].toString(),
+                                      style: getDescBlack(context),
+                                    ),
+                                  ),
+                                  DataCell(
+                                    Row(
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            updateStatusAmbil();
+                                          },
+                                          child: Text(
+                                            'Siap Diambil',
+                                            style: getDescBlack(context),
+                                          ),
+                                        ),
+                                        const SizedBox(height: 10, width: 5),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            updateStatusSelesai();
+                                          },
+                                          child: Text(
+                                            'Selesai',
+                                            style: getDescBlack(context),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              );
+                            }).toList(),
                       ),
-                    ],
-                  ),
-                  DataRow(
-                    cells: [
-                      DataCell(Text('P0002', style: getDescBlack(context))),
-                      DataCell(
-                        Text('DikaSlebew', style: getDescBlack(context)),
-                      ),
-                      DataCell(Text('Americano', style: getDescBlack(context))),
-                      DataCell(Text('M13', style: getDescBlack(context))),
-                      DataCell(
-                        Text('Rp. 18,000', style: getDescBlack(context)),
-                      ),
-                      DataCell(
-                        Text('Sedang dibuat', style: getDescBlack(context)),
-                      ),
-                      DataCell(
-                        Row(
-                          children: [
-                            Text('Dibayar', style: getDescBlack(context)),
-                            const SizedBox(height: 10, width: 5),
-                            Text('Selesai', style: getDescBlack(context)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  DataRow(
-                    cells: [
-                      DataCell(Text('P0003', style: getDescBlack(context))),
-                      DataCell(Text('USA911', style: getDescBlack(context))),
-                      DataCell(Text('Mochacino', style: getDescBlack(context))),
-                      DataCell(Text('M02', style: getDescBlack(context))),
-                      DataCell(
-                        Text('Rp. 18,000', style: getDescBlack(context)),
-                      ),
-                      DataCell(
-                        Text('Sedang dibuat', style: getDescBlack(context)),
-                      ),
-                      DataCell(
-                        Row(
-                          children: [
-                            Text('Dibayar', style: getDescBlack(context)),
-                            const SizedBox(height: 10, width: 5),
-                            Text('Selesai', style: getDescBlack(context)),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
             ),
           ),
 

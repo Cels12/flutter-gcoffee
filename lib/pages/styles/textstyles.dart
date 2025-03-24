@@ -5,7 +5,7 @@ getDescWhite(BuildContext context) {
 }
 
 getDescBlack(BuildContext context) {
-  return TextStyle(color: Colors.black, fontFamily: 'Oxanium', fontSize: 12);
+  return TextStyle(color: Colors.black, fontFamily: 'Oxanium', fontSize: 10);
 }
 
 getDescChocoDesktop(BuildContext context) {
