@@ -1,6 +1,6 @@
-# gcoffee_r
+# gcoffe
 
-A new Flutter project.
+Main branch GCoffee, Web App pemesanan kopi.
 
 ## Getting Started
 
