@@ -1,12 +1,13 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-// import 'package:flutter/services.dart';
-// import 'dart:convert';
+import 'package:gcoffee_r/pages/styles/notification_styles.dart' as showtoast;
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gcoffee_r/pages/edit_menu.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gcoffee_r/pages/add_menu.dart';
 import 'package:gcoffee_r/pages/dashboard.dart';
 import 'package:intl/intl.dart';
+import 'package:toastification/toastification.dart';
 
 class MenuPage extends StatefulWidget {
   const MenuPage({super.key});
@@ -251,32 +252,43 @@ class _MenuPageState extends State<MenuPage> {
                                                         MainAxisAlignment
                                                             .center,
                                                     children: [
-                                                      ElevatedButton(
-                                                        onPressed: () {},
-                                                        style: ElevatedButton.styleFrom(
-                                                          backgroundColor:
-                                                              Colors.green,
-                                                          shape: RoundedRectangleBorder(
-                                                            borderRadius:
-                                                                BorderRadius.circular(
-                                                                  10,
-                                                                ),
-                                                          ),
-                                                          fixedSize: const Size(
-                                                            120,
-                                                            40,
-                                                          ),
-                                                        ),
-                                                        child: const Text(
-                                                          'Simpan',
-                                                          style: TextStyle(
-                                                            color: Colors.white,
-                                                          ),
-                                                        ),
-                                                      ),
                                                       const SizedBox(width: 10),
                                                       ElevatedButton(
-                                                        onPressed: () {},
+                                                        onPressed: () async {
+                                                          final updated = await Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(
+                                                              builder:
+                                                                  (
+                                                                    context,
+                                                                  ) => EditMenu(
+                                                                    id:
+                                                                        menu['id'],
+                                                                    intialNamaMenu:
+                                                                        menu['nama_menu'],
+                                                                    initialDesk:
+                                                                        menu['deskripsi'],
+                                                                    initialHarga:
+                                                                        menu['harga']
+                                                                            .toString(),
+                                                                    initialGambar:
+                                                                        menu['gambar'],
+                                                                  ),
+                                                            ),
+                                                          );
+                                                          if (updated == true) {
+                                                            showtoast.showToast(
+                                                              context,
+                                                              title:
+                                                                  'Berhasil mengubah menu',
+                                                              message:
+                                                                  'Success',
+                                                              Type:
+                                                                  ToastificationType
+                                                                      .success,
+                                                            );
+                                                          }
+                                                        },
                                                         style: ElevatedButton.styleFrom(
                                                           backgroundColor:
                                                               Colors.brown,
@@ -300,8 +312,9 @@ class _MenuPageState extends State<MenuPage> {
                                                       ),
                                                       const SizedBox(width: 10),
                                                       ElevatedButton(
-                                                        onPressed: () {
-                                                          _deleteMenu(
+                                                        onPressed: () async {
+                                                          await _fetchMenu();
+                                                          await _deleteMenu(
                                                             context,
                                                             menu['id'],
                                                           );

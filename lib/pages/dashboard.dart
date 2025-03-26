@@ -116,25 +116,35 @@ class _DashboardState extends State<Dashboard> {
   //fungsi untuk mengganti status pesanan ke selesai
   Future<void> updateStatusSelesai() async {
     try {
-      final response = await supabase
+      final response =
+          await supabase
+              .from('pesanan')
+              .select('status_pesanan')
+              .eq('status_pesanan', 'Siap Diambil')
+              .maybeSingle();
+
+      if (response == null) {
+        showToast(
+          context,
+          title: 'Gagal',
+          message: 'Tidak dapat mengubah status pesanan Selesai',
+          Type: ToastificationType.warning,
+        );
+        return;
+      }
+
+      // Update the status to "Siap Diambil"
+      await supabase
           .from('pesanan')
           .update({'status_pesanan': 'Selesai'})
           .eq('status_pesanan', 'Siap Diambil');
-      if (response != null) {
-        showToast(
-          context,
-          title: 'Error',
-          message: response.error.message,
-          Type: ToastificationType.error,
-        );
-      } else {
-        showToast(
-          context,
-          title: 'Berhasil',
-          message: 'Berhasil mengubah status pesanan',
-          Type: ToastificationType.success,
-        );
-      }
+
+      showToast(
+        context,
+        title: 'Berhasil',
+        message: 'Berhasil mengubah status pesanan menjadi Selesai',
+        Type: ToastificationType.success,
+      );
     } catch (e) {
       showToast(
         context,
@@ -145,28 +155,40 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  //fungsi untuk mengganti status pesanan ke selesai
+  //fungsi untuk mengganti status pesanan ke siap diambil
   Future<void> updateStatusAmbil() async {
     try {
-      final response = await supabase
+      // Fetch the current status of the order
+      final response =
+          await supabase
+              .from('pesanan')
+              .select('status_pesanan')
+              .eq('status_pesanan', 'Sedang dibuat')
+              .maybeSingle();
+
+      // Check if no rows were returned
+      if (response == null) {
+        showToast(
+          context,
+          title: 'Gagal',
+          message: 'Tidak dapat mengubah status pesanan Selesai',
+          Type: ToastificationType.warning,
+        );
+        return;
+      }
+
+      // Update the status to "Siap Diambil"
+      await supabase
           .from('pesanan')
           .update({'status_pesanan': 'Siap Diambil'})
           .eq('status_pesanan', 'Sedang dibuat');
-      if (response != null) {
-        showToast(
-          context,
-          title: 'Error',
-          message: response.error.message,
-          Type: ToastificationType.error,
-        );
-      } else {
-        showToast(
-          context,
-          title: 'Berhasil',
-          message: 'Berhasil mengubah status pesanan',
-          Type: ToastificationType.success,
-        );
-      }
+
+      showToast(
+        context,
+        title: 'Berhasil',
+        message: 'Berhasil mengubah status pesanan menjadi siap diambil',
+        Type: ToastificationType.success,
+      );
     } catch (e) {
       showToast(
         context,
@@ -469,8 +491,9 @@ class _DashboardState extends State<Dashboard> {
                                     Row(
                                       children: [
                                         ElevatedButton(
-                                          onPressed: () {
-                                            updateStatusAmbil();
+                                          onPressed: () async {
+                                            await updateStatusAmbil();
+                                            await fetchPesanan();
                                           },
                                           child: Text(
                                             'Siap Diambil',
@@ -479,8 +502,9 @@ class _DashboardState extends State<Dashboard> {
                                         ),
                                         const SizedBox(height: 10, width: 5),
                                         ElevatedButton(
-                                          onPressed: () {
-                                            updateStatusSelesai();
+                                          onPressed: () async {
+                                            await updateStatusSelesai();
+                                            await fetchPesanan();
                                           },
                                           child: Text(
                                             'Selesai',

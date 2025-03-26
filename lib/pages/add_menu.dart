@@ -53,13 +53,6 @@ class _AddMenuState extends State<AddMenu> {
     final path = 'image/$_imageName';
 
     try {
-      // final storageResponse = await Supabase.instance.client.storage
-      //     .from('image')
-      //     .uploadBinary(
-      //       'image/$_imageName',
-      //       _imageBytes!,
-      //       fileOptions: const FileOptions(contentType: 'image/jpg'),
-      //     );
       await Supabase.instance.client.storage
           .from('image')
           .uploadBinary(
@@ -215,7 +208,15 @@ class _AddMenuState extends State<AddMenu> {
                                         height: 200,
                                         fit: BoxFit.cover,
                                       )
-                                      : const Text('Belum ada gambar'),
+                                      : SizedBox(
+                                        width: 218,
+                                        height: 220,
+                                        child: const Placeholder(
+                                          child: Center(
+                                            child: Text('Belum ada gambar'),
+                                          ),
+                                        ),
+                                      ),
                                   const SizedBox(height: 10),
 
                                   // disini tombol untuk memilih image
