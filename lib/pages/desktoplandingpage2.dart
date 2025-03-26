@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gcoffee_r/pages/homepage_cust.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/pages/styles/textstyles.dart';
 
@@ -32,17 +33,24 @@ class Desktoplandingpage2 extends StatelessWidget {
                     children: <Widget>[
                       TextButton(
                         onPressed: () {
-                          debugPrint('Tentang Kami');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const homePageCust(),
+                            ),
+                          );
                         },
-                        child: Text(
-                          'Tentang kami',
-                          style: getDescWhite(context),
-                        ),
+                        child: Text('Pesan Kopi', style: getDescWhite(context)),
                       ),
                       const SizedBox(width: 30),
                       TextButton(
                         onPressed: () {
-                          debugPrint('Pesan Sekarang');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const homePageCust(),
+                            ),
+                          );
                         },
                         child: Text(
                           'Pesan Sekarang',
