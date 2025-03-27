@@ -47,6 +47,7 @@ dependencies:
   intl: ^0.20.2
   path_provider: ^2.1.5
   toastification: ^3.0.2
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
@@ -79,6 +80,7 @@ flutter:
     - assets/img/espresso.jpg
     - assets/icons/Google.svg
     - assets/icons/google2.svg
+    - assets/icons/minus-sm.svg
     - assets/.env
     - assets/icons/Home.svg
     - assets/icons/Coffee_cup.svg

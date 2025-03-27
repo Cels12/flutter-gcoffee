@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:gcoffee_r/pages/dashboard.dart';
+import 'package:gcoffee_r/pages/admin/dashboard.dart';
 import 'package:gcoffee_r/pages/signup.dart';
 import '../auth/auth.dart';
 import 'package:gcoffee_r/pages/styles/textstyles.dart';

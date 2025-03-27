@@ -5,6 +5,7 @@ void showToast(
   BuildContext context, {
   required String title,
   required String message,
+  // ignore: non_constant_identifier_names
   ToastificationType Type = ToastificationType.info,
 }) {
   toastification.show(

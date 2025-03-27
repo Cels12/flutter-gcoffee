@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gcoffee_r/pages/menupage.dart';
+import 'package:gcoffee_r/pages/admin/menupage.dart';
 import 'package:gcoffee_r/pages/styles/textstyles.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -34,12 +34,14 @@ class _DashboardState extends State<Dashboard> {
           .gte('created_at', hariIni);
       return response.length;
     } catch (e) {
-      showToast(
-        context,
-        title: 'Error',
-        message: e.toString(),
-        Type: ToastificationType.error,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Error',
+          message: e.toString(),
+          Type: ToastificationType.error,
+        );
+      }
       return 0;
     }
   }
@@ -54,12 +56,15 @@ class _DashboardState extends State<Dashboard> {
           .gte('created_at', '$bulanIni-01');
       return response.length;
     } catch (e) {
-      showToast(
-        context,
-        title: 'Error',
-        message: e.toString(),
-        Type: ToastificationType.error,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Error',
+          message: e.toString(),
+          Type: ToastificationType.error,
+        );
+      }
+
       return 0;
     }
   }
@@ -69,12 +74,14 @@ class _DashboardState extends State<Dashboard> {
       final response = await supabase.from('menu').select();
       return response.length;
     } catch (e) {
-      showToast(
-        context,
-        title: 'Error',
-        message: e.toString(),
-        Type: ToastificationType.error,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Error',
+          message: e.toString(),
+          Type: ToastificationType.error,
+        );
+      }
       return 0;
     }
   }
@@ -99,12 +106,14 @@ class _DashboardState extends State<Dashboard> {
         });
       }
     } catch (e) {
-      showToast(
-        context,
-        title: 'Error',
-        message: e.toString(),
-        Type: ToastificationType.error,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Error',
+          message: e.toString(),
+          Type: ToastificationType.error,
+        );
+      }
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -124,12 +133,14 @@ class _DashboardState extends State<Dashboard> {
               .maybeSingle();
 
       if (response == null) {
-        showToast(
-          context,
-          title: 'Gagal',
-          message: 'Tidak dapat mengubah status pesanan Selesai',
-          Type: ToastificationType.warning,
-        );
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Gagal',
+            message: 'Tidak dapat mengubah status pesanan Selesai',
+            Type: ToastificationType.warning,
+          );
+        }
         return;
       }
 
@@ -139,19 +150,23 @@ class _DashboardState extends State<Dashboard> {
           .update({'status_pesanan': 'Selesai'})
           .eq('status_pesanan', 'Siap Diambil');
 
-      showToast(
-        context,
-        title: 'Berhasil',
-        message: 'Berhasil mengubah status pesanan menjadi Selesai',
-        Type: ToastificationType.success,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Berhasil',
+          message: 'Berhasil mengubah status pesanan menjadi Selesai',
+          Type: ToastificationType.success,
+        );
+      }
     } catch (e) {
-      showToast(
-        context,
-        title: "Error",
-        message: e.toString(),
-        Type: ToastificationType.error,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: "Error",
+          message: e.toString(),
+          Type: ToastificationType.error,
+        );
+      }
     }
   }
 
@@ -168,12 +183,14 @@ class _DashboardState extends State<Dashboard> {
 
       // Check if no rows were returned
       if (response == null) {
-        showToast(
-          context,
-          title: 'Gagal',
-          message: 'Tidak dapat mengubah status pesanan Selesai',
-          Type: ToastificationType.warning,
-        );
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Gagal',
+            message: 'Tidak dapat mengubah status pesanan Selesai',
+            Type: ToastificationType.warning,
+          );
+        }
         return;
       }
 
@@ -183,19 +200,23 @@ class _DashboardState extends State<Dashboard> {
           .update({'status_pesanan': 'Siap Diambil'})
           .eq('status_pesanan', 'Sedang dibuat');
 
-      showToast(
-        context,
-        title: 'Berhasil',
-        message: 'Berhasil mengubah status pesanan menjadi siap diambil',
-        Type: ToastificationType.success,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Berhasil',
+          message: 'Berhasil mengubah status pesanan menjadi siap diambil',
+          Type: ToastificationType.success,
+        );
+      }
     } catch (e) {
-      showToast(
-        context,
-        title: "Error",
-        message: e.toString(),
-        Type: ToastificationType.error,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: "Error",
+          message: e.toString(),
+          Type: ToastificationType.error,
+        );
+      }
     }
   }
 
@@ -581,6 +602,7 @@ class _DashboardState extends State<Dashboard> {
               ),
             ),
           ),
+
           //sidebar
           Positioned(
             top: 12,

@@ -4,18 +4,28 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 
-class homePageCust extends StatefulWidget {
-  const homePageCust({super.key});
+// ignore: camel_case_types
+class homePagecust extends StatefulWidget {
+  const homePagecust({super.key});
 
   @override
-  State<homePageCust> createState() => _homePageCustState();
+  State<homePagecust> createState() => _homePagecustState();
 }
 
-class _homePageCustState extends State<homePageCust> {
+// ignore: camel_case_types
+class _homePagecustState extends State<homePagecust> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _menuList = [];
   bool _isLoading = true;
   bool _isMenuOpen = false;
+  bool _isCartOpen = false;
+
+  void _toggleCart() {
+    setState(() {
+      _isCartOpen = !_isCartOpen;
+    });
+  }
+
   void _toggleMenu() {
     setState(() {
       _isMenuOpen = !_isMenuOpen;
@@ -117,7 +127,225 @@ class _homePageCustState extends State<homePageCust> {
                   ),
                 ),
               ),
-
+          //cart
+          AnimatedPositioned(
+            duration: Duration(milliseconds: 300),
+            top: 0,
+            left: _isCartOpen ? 80 : -600,
+            child: ClipRRect(
+              borderRadius: BorderRadius.only(
+                topRight: Radius.circular(8),
+                bottomRight: Radius.circular(8),
+              ),
+              child: Container(
+                width: 500,
+                height: MediaQuery.of(context).size.height,
+                color: Color.fromRGBO(255, 255, 255, 1),
+                child: Stack(
+                  children: [
+                    // Close button in the top-right corner
+                    Positioned(
+                      top: 10,
+                      right: 10,
+                      child: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _isCartOpen = false;
+                          });
+                        },
+                        icon: Icon(Icons.close, size: 40),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 80.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15.0),
+                            child: Text(
+                              'Pesananmu',
+                              style: TextStyle(
+                                fontFamily: 'Oxanium',
+                                fontSize: 32,
+                                fontWeight: FontWeight.bold,
+                                color: const Color.fromARGB(255, 155, 155, 155),
+                              ),
+                            ),
+                          ),
+                          //teks list menu di cart
+                          Divider(
+                            thickness: 1,
+                            color: Color.fromARGB(255, 155, 155, 155),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Cappuccino',
+                                  style: TextStyle(
+                                    fontFamily: 'Oxanium',
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      155,
+                                      155,
+                                      155,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.add_box_outlined,
+                                  size: 25,
+                                  color: Color.fromARGB(255, 0, 255, 55),
+                                  weight: 1,
+                                ),
+                                Text('1', style: TextStyle(fontSize: 16)),
+                                SvgPicture.asset(
+                                  'assets/icons/minus-sm.svg',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                Text(
+                                  'Rp. 18.000',
+                                  style: TextStyle(
+                                    fontFamily: 'Oxanium',
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      155,
+                                      155,
+                                      155,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10.0),
+                                  child: Icon(
+                                    Icons.delete_outline_outlined,
+                                    size: 30,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            thickness: 1,
+                            color: Color.fromARGB(255, 155, 155, 155),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Americano',
+                                  style: TextStyle(
+                                    fontFamily: 'Oxanium',
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w500,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      155,
+                                      155,
+                                      155,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.add_box_outlined,
+                                  size: 25,
+                                  color: Color.fromARGB(255, 0, 255, 55),
+                                  weight: 1,
+                                ),
+                                Text('1', style: TextStyle(fontSize: 16)),
+                                SvgPicture.asset(
+                                  'assets/icons/minus-sm.svg',
+                                  width: 20,
+                                  height: 20,
+                                ),
+                                Text(
+                                  'Rp. 18.000',
+                                  style: TextStyle(
+                                    fontFamily: 'Oxanium',
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      155,
+                                      155,
+                                      155,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10.0),
+                                  child: Icon(
+                                    Icons.delete_outline_outlined,
+                                    size: 30,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Divider(
+                            thickness: 1,
+                            color: Color.fromARGB(255, 155, 155, 155),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Sub Total :',
+                                  style: TextStyle(
+                                    fontFamily: 'Oxanium',
+                                    fontSize: 32,
+                                    fontWeight: FontWeight.bold,
+                                    color: const Color.fromARGB(
+                                      255,
+                                      155,
+                                      155,
+                                      155,
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.only(right: 10.0),
+                                  child: Text(
+                                    'Rp. 36.000',
+                                    style: TextStyle(
+                                      fontFamily: 'Oxanium',
+                                      fontSize: 32,
+                                      fontWeight: FontWeight.bold,
+                                      color: const Color.fromARGB(
+                                        255,
+                                        155,
+                                        155,
+                                        155,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          //sidebar
           AnimatedPositioned(
             duration: Duration(milliseconds: 300),
             top: 0,
@@ -143,7 +371,7 @@ class _homePageCustState extends State<homePageCust> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => homePageCust(),
+                              builder: (context) => homePagecust(),
                             ),
                           );
                         },
@@ -162,12 +390,7 @@ class _homePageCustState extends State<homePageCust> {
                       message: 'Show Cart',
                       child: TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Placeholder(),
-                            ),
-                          );
+                          _toggleCart();
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20),

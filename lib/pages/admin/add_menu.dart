@@ -2,55 +2,25 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gcoffee_r/pages/dashboard.dart';
-import 'package:gcoffee_r/pages/menupage.dart';
+import 'package:gcoffee_r/pages/admin/dashboard.dart';
+import 'package:gcoffee_r/pages/admin/menupage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-// import 'package:toastification/toastification.dart' as showtoast;
-// import 'package:gcoffee_r/pages/styles/notification_styles.dart';
 
-class EditMenu extends StatefulWidget {
-  final int id;
-  final String intialNamaMenu;
-  final String initialHarga;
-  final String initialDesk;
-  final String initialGambar;
-
-  const EditMenu({
-    super.key,
-    required this.id,
-    required this.intialNamaMenu,
-    required this.initialHarga,
-    required this.initialDesk,
-    required this.initialGambar,
-  });
+class AddMenu extends StatefulWidget {
+  const AddMenu({super.key});
 
   @override
-  State<EditMenu> createState() => _EditMenuState();
+  State<AddMenu> createState() => _AddMenuState();
 }
 
-class _EditMenuState extends State<EditMenu> {
+class _AddMenuState extends State<AddMenu> {
   Uint8List? _imageBytes;
   String? _imageName;
   final TextEditingController search = TextEditingController();
   final TextEditingController deskripsiController = TextEditingController();
   final TextEditingController namaMenuController = TextEditingController();
   final TextEditingController hargaController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    namaMenuController.text = widget.intialNamaMenu;
-    deskripsiController.text = widget.initialDesk;
-    hargaController.text = widget.initialHarga;
-
-    _imageName =
-        widget.initialGambar.isNotEmpty
-            ? Supabase.instance.client.storage
-                .from('image')
-                .getPublicUrl(widget.initialGambar)
-            : null;
-  }
 
   Future pickImage() async {
     try {
@@ -80,19 +50,17 @@ class _EditMenuState extends State<EditMenu> {
   //upload image to storage supabase
   Future<String?> uploadImage() async {
     if (_imageBytes == null || _imageName == null) return null;
-    final newPath = 'image/$_imageName';
+    final path = 'image/$_imageName';
 
     try {
       await Supabase.instance.client.storage
           .from('image')
           .uploadBinary(
-            newPath,
+            path,
             _imageBytes!,
             fileOptions: const FileOptions(contentType: 'image/jpg'),
           );
-      return Supabase.instance.client.storage
-          .from('image')
-          .getPublicUrl(newPath);
+      return Supabase.instance.client.storage.from('image').getPublicUrl(path);
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -111,7 +79,7 @@ class _EditMenuState extends State<EditMenu> {
   }
 
   //add the menu to supabase
-  Future<void> _updateMenu() async {
+  Future<void> _saveMenu() async {
     final namaMenu = namaMenuController.text.trim();
     final hargaMenu = hargaController.text.trim();
     final deskripsiMenu = deskripsiController.text.trim();
@@ -131,15 +99,12 @@ class _EditMenuState extends State<EditMenu> {
     }
 
     try {
-      await Supabase.instance.client
-          .from('menu')
-          .update({
-            'nama_menu': namaMenu,
-            'deskripsi': deskripsiMenu,
-            'harga': hargaMenu,
-            'gambar': imageUrl,
-          })
-          .eq('id', widget.id);
+      await Supabase.instance.client.from('menu').insert({
+        'nama_menu': namaMenu,
+        'deskripsi': deskripsiMenu,
+        'harga': hargaMenu,
+        'gambar': imageUrl,
+      });
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -149,7 +114,7 @@ class _EditMenuState extends State<EditMenu> {
         if (mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('Menu berhasil di Update')));
+          ).showSnackBar(SnackBar(content: Text('Menu berhasil di tambahkan')));
         }
       }
     }
@@ -247,7 +212,9 @@ class _EditMenuState extends State<EditMenu> {
                                         width: 218,
                                         height: 220,
                                         child: const Placeholder(
-                                          child: Text('Belum ada gambar'),
+                                          child: Center(
+                                            child: Text('Belum ada gambar'),
+                                          ),
                                         ),
                                       ),
                                   const SizedBox(height: 10),
@@ -369,7 +336,7 @@ class _EditMenuState extends State<EditMenu> {
                                         // Tombol Simpan
                                         ElevatedButton(
                                           onPressed: () {
-                                            _updateMenu();
+                                            _saveMenu();
                                             Navigator.pop(context);
                                           },
                                           style: ElevatedButton.styleFrom(
@@ -389,7 +356,7 @@ class _EditMenuState extends State<EditMenu> {
                                         ),
                                         const SizedBox(width: 50),
 
-                                        // Tombol reset
+                                        // Tombol Hapus
                                         ElevatedButton(
                                           onPressed: () {},
                                           style: ElevatedButton.styleFrom(

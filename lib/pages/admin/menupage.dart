@@ -2,10 +2,10 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:gcoffee_r/pages/styles/notification_styles.dart' as showtoast;
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gcoffee_r/pages/edit_menu.dart';
+import 'package:gcoffee_r/pages/admin/edit_menu.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:gcoffee_r/pages/add_menu.dart';
-import 'package:gcoffee_r/pages/dashboard.dart';
+import 'package:gcoffee_r/pages/admin/add_menu.dart';
+import 'package:gcoffee_r/pages/admin/dashboard.dart';
 import 'package:intl/intl.dart';
 import 'package:toastification/toastification.dart';
 
@@ -277,16 +277,19 @@ class _MenuPageState extends State<MenuPage> {
                                                             ),
                                                           );
                                                           if (updated == true) {
-                                                            showtoast.showToast(
-                                                              context,
-                                                              title:
-                                                                  'Berhasil mengubah menu',
-                                                              message:
-                                                                  'Success',
-                                                              Type:
-                                                                  ToastificationType
-                                                                      .success,
-                                                            );
+                                                            if (context
+                                                                .mounted) {
+                                                              showtoast.showToast(
+                                                                context,
+                                                                title:
+                                                                    'Berhasil mengubah menu',
+                                                                message:
+                                                                    'Success',
+                                                                Type:
+                                                                    ToastificationType
+                                                                        .success,
+                                                              );
+                                                            }
                                                           }
                                                         },
                                                         style: ElevatedButton.styleFrom(
@@ -314,10 +317,12 @@ class _MenuPageState extends State<MenuPage> {
                                                       ElevatedButton(
                                                         onPressed: () async {
                                                           await _fetchMenu();
-                                                          await _deleteMenu(
-                                                            context,
-                                                            menu['id'],
-                                                          );
+                                                          if (context.mounted) {
+                                                            await _deleteMenu(
+                                                              context,
+                                                              menu['id'],
+                                                            );
+                                                          }
                                                         },
                                                         style: ElevatedButton.styleFrom(
                                                           backgroundColor:

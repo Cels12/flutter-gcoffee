@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/pages/homepage_cust.dart';
+import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
 import 'package:gcoffee_r/pages/login.dart';
+import 'package:gcoffee_r/pages/signup.dart';
 import 'package:gcoffee_r/pages/styles/textstyles.dart';
 
 class Desktoplandingpage2 extends StatelessWidget {
@@ -36,7 +37,7 @@ class Desktoplandingpage2 extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const homePageCust(),
+                              builder: (context) => const homePagecust(),
                             ),
                           );
                         },
@@ -48,14 +49,11 @@ class Desktoplandingpage2 extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const homePageCust(),
+                              builder: (context) => const SignUpPage(),
                             ),
                           );
                         },
-                        child: Text(
-                          'Pesan Sekarang',
-                          style: getDescWhite(context),
-                        ),
+                        child: Text('Daftar', style: getDescWhite(context)),
                       ),
                       const SizedBox(width: 30),
                       TextButton(
@@ -116,7 +114,12 @@ class Desktoplandingpage2 extends StatelessWidget {
                               ),
                             ),
                             onPressed: () {
-                              debugPrint('Tombol ditekan');
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const homePagecust(),
+                                ),
+                              );
                             },
                             child: const Padding(
                               padding: EdgeInsets.symmetric(
