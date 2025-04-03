@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
+import 'package:gcoffee_r/pages/customer/meja.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/pages/signup.dart';
 import 'package:gcoffee_r/pages/styles/textstyles.dart';
@@ -37,7 +38,7 @@ class Desktoplandingpage2 extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const homePagecust(),
+                              builder: (context) => const mejaInput(),
                             ),
                           );
                         },
@@ -117,7 +118,7 @@ class Desktoplandingpage2 extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const homePagecust(),
+                                  builder: (context) => const mejaInput(),
                                 ),
                               );
                             },

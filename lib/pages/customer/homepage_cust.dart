@@ -3,19 +3,54 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 // ignore: camel_case_types
-class homePagecust extends StatefulWidget {
-  const homePagecust({super.key});
+class homePageCust extends StatefulWidget {
+  final String idMeja;
+  const homePageCust({Key? key, required this.idMeja});
 
   @override
-  State<homePagecust> createState() => _homePagecustState();
+  State<homePageCust> createState() => _homePageCustState();
+}
+
+class CartProvider with ChangeNotifier {
+  final List<Map<String, dynamic>> _cartItems = [];
+
+  List<Map<String, dynamic>> get cartItems => _cartItems;
+
+  void addToCart(Map<String, dynamic> item) {
+    _cartItems.add({
+      'id': item['id'],
+      'name': item['nama_menu'],
+      'harga': item['harga'],
+    });
+    notifyListeners();
+  }
+
+  void removeFromCart(int index) {
+    _cartItems.removeAt(index);
+    notifyListeners();
+  }
+
+  double getTotalPrice() {
+    return _cartItems.fold(
+      0,
+      (total, item) => total + (item['harga'] as double),
+    );
+  }
+
+  void clearCart() {
+    _cartItems.clear();
+    notifyListeners();
+  }
 }
 
 // ignore: camel_case_types
-class _homePagecustState extends State<homePagecust> {
+class _homePageCustState extends State<homePageCust> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _menuList = [];
+  List<Map<String, dynamic>> get cartItems => _menuList;
   bool _isLoading = true;
   bool _isMenuOpen = false;
   bool _isCartOpen = false;
@@ -56,6 +91,60 @@ class _homePagecustState extends State<homePagecust> {
     }
   }
 
+  Future<void> checkout(BuildContext context) async {
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final cartItems = cartProvider.cartItems;
+    final totalPrice = cartProvider.getTotalPrice();
+
+    if (cartItems.isEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Keranjang kosong!')));
+      return;
+    }
+
+    try {
+      // Combine all menu names into a single string
+      final pesanan = cartItems.map((item) => item['name']).join(', ');
+
+      // Insert the main pesanan row
+      final response =
+          await supabase
+              .from('pesanan')
+              .insert({
+                'username': 'guest',
+                'pesanan': pesanan,
+                'nomor_meja': widget.idMeja,
+                'total': totalPrice,
+                'status_pesanan': 'Sedang dibuat',
+              })
+              .select('id')
+              .single();
+
+      // Get the inserted pesanan ID
+      final pesananId = response['id'];
+
+      // Insert each id_menu into the pesanan_menu table
+      for (final item in cartItems) {
+        await supabase.from('pesanan_menu').insert({
+          'id_pesanan': pesananId,
+          'id_menu': item['id'],
+        });
+      }
+
+      // Clear the cart after successful checkout
+      cartProvider.clearCart();
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Pesanan berhasil dibuat!')));
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Gagal membuat pesanan: $e')));
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -64,6 +153,8 @@ class _homePagecustState extends State<homePagecust> {
 
   @override
   Widget build(BuildContext context) {
+    final cartProvider = Provider.of<CartProvider>(context);
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: Stack(
@@ -178,120 +269,36 @@ class _homePagecustState extends State<homePagecust> {
                             thickness: 1,
                             color: Color.fromARGB(255, 155, 155, 155),
                           ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Cappuccino',
-                                  style: TextStyle(
-                                    fontFamily: 'Oxanium',
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color.fromARGB(
-                                      255,
-                                      155,
-                                      155,
-                                      155,
+                          Expanded(
+                            child: ListView.builder(
+                              itemCount: cartProvider.cartItems.length,
+                              itemBuilder: (context, index) {
+                                final item = cartProvider.cartItems[index];
+                                return ListTile(
+                                  title: Text(
+                                    item['name'], // Display the name of the item
+                                    style: const TextStyle(
+                                      fontFamily: 'Oxanium',
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
                                     ),
                                   ),
-                                ),
-                                Icon(
-                                  Icons.add_box_outlined,
-                                  size: 25,
-                                  color: Color.fromARGB(255, 0, 255, 55),
-                                  weight: 1,
-                                ),
-                                Text('1', style: TextStyle(fontSize: 16)),
-                                SvgPicture.asset(
-                                  'assets/icons/minus-sm.svg',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                Text(
-                                  'Rp. 18.000',
-                                  style: TextStyle(
-                                    fontFamily: 'Oxanium',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color.fromARGB(
-                                      255,
-                                      155,
-                                      155,
-                                      155,
+                                  subtitle: Text(
+                                    'Rp. ${item['harga']}', // Display the price of the item
+                                    style: const TextStyle(
+                                      fontFamily: 'Oxanium',
+                                      fontSize: 16,
+                                      color: Colors.grey,
                                     ),
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 10.0),
-                                  child: Icon(
-                                    Icons.delete_outline_outlined,
-                                    size: 30,
-                                    color: Colors.red,
+                                  trailing: IconButton(
+                                    icon: const Icon(Icons.remove_circle),
+                                    onPressed: () {
+                                      cartProvider.removeFromCart(index);
+                                    },
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Divider(
-                            thickness: 1,
-                            color: Color.fromARGB(255, 155, 155, 155),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Americano',
-                                  style: TextStyle(
-                                    fontFamily: 'Oxanium',
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.w500,
-                                    color: const Color.fromARGB(
-                                      255,
-                                      155,
-                                      155,
-                                      155,
-                                    ),
-                                  ),
-                                ),
-                                Icon(
-                                  Icons.add_box_outlined,
-                                  size: 25,
-                                  color: Color.fromARGB(255, 0, 255, 55),
-                                  weight: 1,
-                                ),
-                                Text('1', style: TextStyle(fontSize: 16)),
-                                SvgPicture.asset(
-                                  'assets/icons/minus-sm.svg',
-                                  width: 20,
-                                  height: 20,
-                                ),
-                                Text(
-                                  'Rp. 18.000',
-                                  style: TextStyle(
-                                    fontFamily: 'Oxanium',
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w700,
-                                    color: const Color.fromARGB(
-                                      255,
-                                      155,
-                                      155,
-                                      155,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 10.0),
-                                  child: Icon(
-                                    Icons.delete_outline_outlined,
-                                    size: 30,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ],
+                                );
+                              },
                             ),
                           ),
                           Divider(
@@ -320,7 +327,7 @@ class _homePagecustState extends State<homePagecust> {
                                 Padding(
                                   padding: const EdgeInsets.only(right: 10.0),
                                   child: Text(
-                                    'Rp. 36.000',
+                                    'Rp. ${cartProvider.getTotalPrice()}',
                                     style: TextStyle(
                                       fontFamily: 'Oxanium',
                                       fontSize: 32,
@@ -335,6 +342,33 @@ class _homePagecustState extends State<homePagecust> {
                                   ),
                                 ),
                               ],
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          Center(
+                            child: ElevatedButton(
+                              onPressed: () => checkout(context),
+                              style: ElevatedButton.styleFrom(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                backgroundColor: const Color.fromARGB(
+                                  255,
+                                  127,
+                                  88,
+                                  56,
+                                ),
+                                fixedSize: const Size(300, 40),
+                              ),
+                              child: Text(
+                                'Checkout',
+                                style: TextStyle(
+                                  fontFamily: 'Oxanium',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.normal,
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
                           ),
                         ],
@@ -371,7 +405,9 @@ class _homePagecustState extends State<homePagecust> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => homePagecust(),
+                              builder:
+                                  (context) =>
+                                      homePageCust(idMeja: widget.idMeja),
                             ),
                           );
                         },
@@ -612,7 +648,10 @@ class _homePagecustState extends State<homePagecust> {
               // Order button
               ElevatedButton(
                 onPressed: () {
-                  debugPrint('Order ${menu['nama_menu']}');
+                  Provider.of<CartProvider>(
+                    context,
+                    listen: false,
+                  ).addToCart(menu);
                 },
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(
