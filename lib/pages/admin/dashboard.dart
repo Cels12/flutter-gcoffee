@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/pages/admin/menupage.dart';
+import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/pages/styles/textstyles.dart';
+import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:gcoffee_r/pages/styles/notification_styles.dart';
+import 'package:gcoffee_r/auth/auth.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -229,6 +232,13 @@ class _DashboardState extends State<Dashboard> {
     fetchDashboardData();
   }
 
+  bool _isProfileOpen = false;
+  void _toogleProfile() {
+    setState(() {
+      _isProfileOpen = !_isProfileOpen;
+    });
+  }
+
   final TextEditingController search = TextEditingController();
   bool _isMenuOpen = false;
   final String initialValue = 'Filter';
@@ -246,6 +256,16 @@ class _DashboardState extends State<Dashboard> {
         children: [
           // Background
           Container(color: const Color.fromARGB(255, 247, 247, 247)),
+
+          Positioned(
+            //left: 1460,
+            right: 20,
+            top: 70,
+            child: IconButton(
+              onPressed: _toogleProfile,
+              icon: HeroIcon(HeroIcons.user, size: 40, color: Colors.grey),
+            ),
+          ),
 
           // Cards Information
           Positioned(
@@ -539,6 +559,53 @@ class _DashboardState extends State<Dashboard> {
                               );
                             }).toList(),
                       ),
+            ),
+          ),
+
+          //profile dropdown menu
+          AnimatedPositioned(
+            duration: Duration(microseconds: 300),
+            top: _isProfileOpen ? 135 : -200,
+            // bottom: 120,
+            right: 20,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Container(
+                width: 200,
+                height: 100,
+                color: const Color.fromARGB(255, 210, 156, 108),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12.0),
+                      child: TextButton(
+                        onPressed: () async {
+                          final authService = AuthService();
+                          await authService.signOut();
+
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Loginpage(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Logout',
+                          style: TextStyle(
+                            fontFamily: 'Oxanium',
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           ),
 

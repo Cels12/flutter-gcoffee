@@ -67,7 +67,9 @@ class _mejaInputState extends State<mejaInput> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => homePageCust(idMeja: response['id_meja']),
+            builder:
+                (context) =>
+                    homePageCust(idMeja: response['nomor_meja'].toString()),
           ),
         );
       } else {

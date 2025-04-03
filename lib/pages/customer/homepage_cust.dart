@@ -292,7 +292,8 @@ class _homePageCustState extends State<homePageCust> {
                                     ),
                                   ),
                                   trailing: IconButton(
-                                    icon: const Icon(Icons.remove_circle),
+                                    icon: const Icon(Icons.delete),
+                                    color: Colors.red,
                                     onPressed: () {
                                       cartProvider.removeFromCart(index);
                                     },
