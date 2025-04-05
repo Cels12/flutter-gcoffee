@@ -20,11 +20,21 @@ class CartProvider with ChangeNotifier {
   List<Map<String, dynamic>> get cartItems => _cartItems;
 
   void addToCart(Map<String, dynamic> item) {
-    _cartItems.add({
-      'id': item['id'],
-      'name': item['nama_menu'],
-      'harga': item['harga'],
-    });
+    final existingIndex = _cartItems.indexWhere(
+      (cartItem) => cartItem['id'] == item['id'],
+    );
+    if (existingIndex != -1) {
+      // If the item already exists in the cart, increase its quantity
+      _cartItems[existingIndex]['quantity'] += 1;
+    } else {
+      // Add a new item to the cart with an initial quantity of 1
+      _cartItems.add({
+        'id': item['id'],
+        'name': item['nama_menu'],
+        'harga': item['harga'],
+        'quantity': 1,
+      });
+    }
     notifyListeners();
   }
 
@@ -33,10 +43,15 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateQuantity(int index, int newQuantity) {
+    _cartItems[index]['quantity'] = newQuantity;
+    notifyListeners();
+  }
+
   double getTotalPrice() {
     return _cartItems.fold(
       0,
-      (total, item) => total + (item['harga'] as double),
+      (total, item) => total + (item['harga'] * item['quantity']),
     );
   }
 
@@ -157,178 +172,251 @@ class _homePageCustState extends State<homePageCust> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          // Background
-          Container(
-            color: const Color.fromARGB(255, 247, 247, 247),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: 50,
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      // Teks GCoffee yang bergeser mengikuti sidebar
-                      AnimatedContainer(
-                        duration: Duration(milliseconds: 300),
-                        padding: EdgeInsets.only(
-                          left: _isMenuOpen ? 50 : 20,
-                        ), // Bergeser
-                        child: Text(
-                          'GCoffee',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 84, 47, 17),
-                            fontSize: 32,
-                            fontFamily: 'Righteous',
-                          ),
-                        ),
-                      ),
-                    ],
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // Background
+            Container(color: const Color.fromARGB(255, 247, 247, 247)),
+
+            // Fixed GCoffee Text
+            Positioned(
+              top: 15, // Adjust the vertical position
+              left: 50, // Adjust the horizontal position
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                padding: EdgeInsets.only(left: _isMenuOpen ? 50 : 20),
+                child: Text(
+                  'GCoffee',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 84, 47, 17),
+                    fontSize: 32,
+                    fontFamily: 'Righteous',
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
 
-          // Menu Cards
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 80.0, left: 100),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Varian Kopi',
-                        style: const TextStyle(
-                          fontFamily: 'Oxanium',
-                          fontSize: 32,
-                          fontWeight: FontWeight.w500,
-                          color: Color.fromARGB(255, 127, 88, 56),
+            // Scrollable Content
+            Padding(
+              padding: const EdgeInsets.only(
+                top: 80.0,
+              ), // Add padding to avoid overlap
+              child:
+                  _isLoading
+                      ? const Center(child: CircularProgressIndicator())
+                      : SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 100),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Varian Kopi',
+                                style: const TextStyle(
+                                  fontFamily: 'Oxanium',
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color.fromARGB(255, 127, 88, 56),
+                                ),
+                              ),
+
+                              // Dynamically generate rows of cards
+                              ..._buildCards(),
+                            ],
+                          ),
                         ),
                       ),
+            ),
 
-                      // Dynamically generate rows of cards
-                      ..._buildCards(),
-                    ],
-                  ),
+            // Other widgets like cart, sidebar, etc.
+            // ...
+            //cart
+            AnimatedPositioned(
+              duration: Duration(milliseconds: 300),
+              top: 0,
+              left: _isCartOpen ? 80 : -600,
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(8),
+                  bottomRight: Radius.circular(8),
                 ),
-              ),
-          //cart
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 300),
-            top: 0,
-            left: _isCartOpen ? 80 : -600,
-            child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(8),
-                bottomRight: Radius.circular(8),
-              ),
-              child: Container(
-                width: 500,
-                height: MediaQuery.of(context).size.height,
-                color: Color.fromRGBO(255, 255, 255, 1),
-                child: Stack(
-                  children: [
-                    // Close button in the top-right corner
-                    Positioned(
-                      top: 10,
-                      right: 10,
-                      child: IconButton(
-                        onPressed: () {
-                          setState(() {
-                            _isCartOpen = false;
-                          });
-                        },
-                        icon: Icon(Icons.close, size: 40),
+                child: Container(
+                  width: 500,
+                  height: MediaQuery.of(context).size.height,
+                  color: Color.fromRGBO(255, 255, 255, 1),
+                  child: Stack(
+                    children: [
+                      // Close button in the top-right corner
+                      Positioned(
+                        top: 10,
+                        right: 10,
+                        child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _isCartOpen = false;
+                            });
+                          },
+                          icon: Icon(Icons.close, size: 40),
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 80.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: Text(
-                              'Pesananmu',
-                              style: TextStyle(
-                                fontFamily: 'Oxanium',
-                                fontSize: 32,
-                                fontWeight: FontWeight.bold,
-                                color: const Color.fromARGB(255, 155, 155, 155),
-                              ),
-                            ),
-                          ),
-                          //teks list menu di cart
-                          Divider(
-                            thickness: 1,
-                            color: Color.fromARGB(255, 155, 155, 155),
-                          ),
-                          Expanded(
-                            child: ListView.builder(
-                              itemCount: cartProvider.cartItems.length,
-                              itemBuilder: (context, index) {
-                                final item = cartProvider.cartItems[index];
-                                return ListTile(
-                                  title: Text(
-                                    item['name'], // Display the name of the item
-                                    style: const TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  subtitle: Text(
-                                    'Rp. ${item['harga']}', // Display the price of the item
-                                    style: const TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 16,
-                                      color: Colors.grey,
-                                    ),
-                                  ),
-                                  trailing: IconButton(
-                                    icon: const Icon(Icons.delete),
-                                    color: Colors.red,
-                                    onPressed: () {
-                                      cartProvider.removeFromCart(index);
-                                    },
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                          Divider(
-                            thickness: 1,
-                            color: Color.fromARGB(255, 155, 155, 155),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 15.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  'Sub Total :',
-                                  style: TextStyle(
-                                    fontFamily: 'Oxanium',
-                                    fontSize: 32,
-                                    fontWeight: FontWeight.bold,
-                                    color: const Color.fromARGB(
-                                      255,
-                                      155,
-                                      155,
-                                      155,
-                                    ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 80.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.only(left: 15.0),
+                              child: Text(
+                                'Pesananmu',
+                                style: TextStyle(
+                                  fontFamily: 'Oxanium',
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.bold,
+                                  color: const Color.fromARGB(
+                                    255,
+                                    155,
+                                    155,
+                                    155,
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(right: 10.0),
-                                  child: Text(
-                                    'Rp. ${cartProvider.getTotalPrice()}',
+                              ),
+                            ),
+                            //teks list menu di cart
+                            Divider(
+                              thickness: 1,
+                              color: Color.fromARGB(255, 155, 155, 155),
+                            ),
+                            Expanded(
+                              child: ListView.separated(
+                                shrinkWrap: true,
+                                itemCount: cartProvider.cartItems.length,
+                                itemBuilder: (context, index) {
+                                  final item = cartProvider.cartItems[index];
+                                  return Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 15.0,
+                                      vertical: 8.0,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        // Item Name
+                                        Expanded(
+                                          flex: 3,
+                                          child: Text(
+                                            item['name'], // Display the name of the item
+                                            style: const TextStyle(
+                                              fontFamily: 'Oxanium',
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+
+                                        // Quantity Controls
+                                        Expanded(
+                                          flex: 2,
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              // Reduce Quantity Button
+                                              IconButton(
+                                                icon: Icon(
+                                                  Icons.remove_circle_outline,
+                                                  color:
+                                                      item['quantity'] > 1
+                                                          ? Colors.red
+                                                          : Colors
+                                                              .grey, // Grey when disabled
+                                                ),
+                                                onPressed:
+                                                    item['quantity'] > 1
+                                                        ? () {
+                                                          cartProvider
+                                                              .updateQuantity(
+                                                                index,
+                                                                item['quantity'] -
+                                                                    1,
+                                                              );
+                                                        }
+                                                        : null, // Disable the button when quantity <= 1
+                                              ),
+
+                                              // Quantity Display
+                                              Text(
+                                                '${item['quantity']}',
+                                                style: const TextStyle(
+                                                  fontFamily: 'Oxanium',
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+
+                                              // Add Quantity Button
+                                              IconButton(
+                                                icon: const Icon(
+                                                  Icons.add_circle_outline,
+                                                ),
+                                                color: Colors.green,
+                                                onPressed: () {
+                                                  cartProvider.updateQuantity(
+                                                    index,
+                                                    item['quantity'] + 1,
+                                                  );
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                        // Item Price
+                                        Expanded(
+                                          flex: 2,
+                                          child: Text(
+                                            'Rp. ${item['harga'] * item['quantity']}', // Display the total price for the item
+                                            style: const TextStyle(
+                                              fontFamily: 'Oxanium',
+                                              fontSize: 16,
+                                              color: Colors.grey,
+                                            ),
+                                            textAlign: TextAlign.right,
+                                          ),
+                                        ),
+
+                                        // Remove Item Button
+                                        IconButton(
+                                          icon: const Icon(Icons.delete),
+                                          color: Colors.red,
+                                          onPressed: () {
+                                            cartProvider.removeFromCart(index);
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                separatorBuilder:
+                                    (context, index) => const Divider(
+                                      thickness: 1,
+                                      color: Color.fromARGB(255, 155, 155, 155),
+                                    ),
+                              ),
+                            ),
+
+                            Divider(
+                              thickness: 1,
+                              color: Color.fromARGB(255, 155, 155, 155),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 15.0),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Sub Total :',
                                     style: TextStyle(
                                       fontFamily: 'Oxanium',
                                       fontSize: 32,
@@ -341,187 +429,207 @@ class _homePageCustState extends State<homePageCust> {
                                       ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: 20),
-                          Center(
-                            child: ElevatedButton(
-                              onPressed: () => checkout(context),
-                              style: ElevatedButton.styleFrom(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                backgroundColor: const Color.fromARGB(
-                                  255,
-                                  127,
-                                  88,
-                                  56,
-                                ),
-                                fixedSize: const Size(300, 40),
-                              ),
-                              child: Text(
-                                'Checkout',
-                                style: TextStyle(
-                                  fontFamily: 'Oxanium',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.normal,
-                                  color: Colors.white,
-                                ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 10.0),
+                                    child: Text(
+                                      'Rp. ${cartProvider.getTotalPrice()}',
+                                      style: TextStyle(
+                                        fontFamily: 'Oxanium',
+                                        fontSize: 32,
+                                        fontWeight: FontWeight.bold,
+                                        color: const Color.fromARGB(
+                                          255,
+                                          155,
+                                          155,
+                                          155,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                          ),
-                        ],
+                            SizedBox(height: 20),
+                            Center(
+                              child: Padding(
+                                padding: const EdgeInsets.only(bottom: 20.0),
+                                child: ElevatedButton(
+                                  onPressed: () => checkout(context),
+                                  style: ElevatedButton.styleFrom(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    backgroundColor: const Color.fromARGB(
+                                      255,
+                                      127,
+                                      88,
+                                      56,
+                                    ),
+                                    fixedSize: const Size(300, 40),
+                                  ),
+                                  child: Text(
+                                    'Checkout',
+                                    style: TextStyle(
+                                      fontFamily: 'Oxanium',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.normal,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          //sidebar
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 300),
-            top: 0,
-            left: _isMenuOpen ? 0 : -200,
-            child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(8),
-                bottomRight: Radius.circular(8),
-              ),
-              child: Container(
-                width: 80,
-                height: MediaQuery.of(context).size.height,
-                color: Color.fromARGB(255, 84, 47, 17),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 40),
-                    //home
-                    Tooltip(
-                      message: 'Home',
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) =>
-                                      homePageCust(idMeja: widget.idMeja),
+            //sidebar
+            AnimatedPositioned(
+              duration: Duration(milliseconds: 300),
+              top: 0,
+              left: _isMenuOpen ? 0 : -200,
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(8),
+                  bottomRight: Radius.circular(8),
+                ),
+                child: Container(
+                  width: 80,
+                  height: MediaQuery.of(context).size.height,
+                  color: Color.fromARGB(255, 84, 47, 17),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 40),
+                      //home
+                      Tooltip(
+                        message: 'Home',
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (context) =>
+                                        homePageCust(idMeja: widget.idMeja),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: SvgPicture.asset(
+                              'assets/icons/home.svg',
+                              width: 40,
+                              height: 40,
                             ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: SvgPicture.asset(
-                            'assets/icons/home.svg',
-                            width: 40,
-                            height: 40,
                           ),
                         ),
                       ),
-                    ),
-                    //show cart
-                    Tooltip(
-                      message: 'Show Cart',
-                      child: TextButton(
-                        onPressed: () {
-                          _toggleCart();
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: HeroIcon(
-                            HeroIcons.shoppingCart,
-                            size: 40,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                    //Favorit
-                    Tooltip(
-                      message: 'Favorit',
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Placeholder(),
+                      //show cart
+                      Tooltip(
+                        message: 'Show Cart',
+                        child: TextButton(
+                          onPressed: () {
+                            _toggleCart();
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: HeroIcon(
+                              HeroIcons.shoppingCart,
+                              size: 40,
+                              color: Colors.white,
                             ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: HeroIcon(
-                            HeroIcons.heart,
-                            size: 40,
-                            color: Colors.white,
                           ),
                         ),
                       ),
-                    ),
-                    //Reviews
-                    Tooltip(
-                      message: 'Reviews',
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Placeholder(),
+                      //Favorit
+                      Tooltip(
+                        message: 'Favorit',
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Placeholder(),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: HeroIcon(
+                              HeroIcons.heart,
+                              size: 40,
+                              color: Colors.white,
                             ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: Icon(
-                            Icons.reviews_outlined,
-                            size: 40,
-                            color: Colors.white,
-                            weight: 1,
                           ),
                         ),
                       ),
-                    ),
-                    //about
-                    Tooltip(
-                      message: 'About',
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Placeholder(),
+                      //Reviews
+                      Tooltip(
+                        message: 'Reviews',
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Placeholder(),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Icon(
+                              Icons.reviews_outlined,
+                              size: 40,
+                              color: Colors.white,
+                              weight: 1,
                             ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: HeroIcon(
-                            HeroIcons.informationCircle,
-                            size: 45,
-                            color: Colors.white,
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      //about
+                      Tooltip(
+                        message: 'About',
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Placeholder(),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: HeroIcon(
+                              HeroIcons.informationCircle,
+                              size: 45,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Positioned(
-            top: 12,
-            left: 10,
-            child: IconButton(
-              iconSize: 40,
-              color: Color.fromARGB(255, 210, 156, 108),
-              onPressed: _toggleMenu,
-              icon: Icon(Icons.menu),
+            Positioned(
+              top: 12,
+              left: 10,
+              child: IconButton(
+                iconSize: 40,
+                color: Color.fromARGB(255, 210, 156, 108),
+                onPressed: _toggleMenu,
+                icon: Icon(Icons.menu),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -562,7 +670,7 @@ class _homePageCustState extends State<homePageCust> {
   Widget _buildCard(Map<String, dynamic> menu) {
     return SizedBox(
       width: 315,
-      height: 550,
+      height: 565,
       child: Card(
         elevation: 3,
         color: Colors.white,

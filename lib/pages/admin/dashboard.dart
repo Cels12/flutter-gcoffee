@@ -432,132 +432,183 @@ class _DashboardState extends State<Dashboard> {
             top: 220,
             left: 565,
             child: Container(
-              color: Colors.white,
+              width:
+                  MediaQuery.of(context).size.width -
+                  565, // Adjust width dynamically
+              height:
+                  MediaQuery.of(context).size.height -
+                  300, // Adjust height dynamically
               child:
                   _isLoading
                       ? Center(child: CircularProgressIndicator())
-                      : DataTable(
-                        sortAscending: true,
-                        border: TableBorder.all(
-                          color: const Color.fromARGB(
-                            255,
-                            0,
-                            0,
-                            0,
-                          ), // Garis antar sel
-                          width: 1,
+                      : SingleChildScrollView(
+                        scrollDirection:
+                            Axis.vertical, // Enable vertical scrolling
+                        child: SingleChildScrollView(
+                          scrollDirection:
+                              Axis.horizontal, // Enable horizontal scrolling
+                          child: DataTable(
+                            sortAscending: true,
+                            columnSpacing: 25, // Reduce spacing between columns
+                            dataRowMinHeight:
+                                40, // Reduce the height of data rows
+                            headingRowHeight: 50,
+                            border: TableBorder.all(
+                              color: const Color.fromARGB(
+                                255,
+                                0,
+                                0,
+                                0,
+                              ), // Border color
+                              width: 1, // Border width
+                            ),
+                            columns: [
+                              DataColumn(
+                                label: Text(
+                                  'ID pemesanan',
+                                  style: getDescBlack(context),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Username',
+                                  style: getDescBlack(context),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Pesanan',
+                                  style: getDescBlack(context),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Nomor Meja',
+                                  style: getDescBlack(context),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Total',
+                                  style: getDescBlack(context),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Text(
+                                  'Status Pemesanan',
+                                  style: getDescBlack(context),
+                                ),
+                              ),
+                              DataColumn(
+                                label: Padding(
+                                  padding: const EdgeInsets.only(left: 90.0),
+                                  child: Text(
+                                    'Aksi',
+                                    style: getDescBlack(context),
+                                  ),
+                                ),
+                              ),
+                            ],
+                            rows:
+                                _pesananList.map((pesanan) {
+                                  return DataRow(
+                                    cells: [
+                                      DataCell(
+                                        Text(
+                                          pesanan['id'].toString(),
+                                          style: getDescBlack(context),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          pesanan['username'].toString(),
+                                          style: getDescBlack(context),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        SizedBox(
+                                          width: 150,
+                                          child: Tooltip(
+                                            message:
+                                                pesanan['pesanan'].toString(),
+                                            child: Text(
+                                              pesanan['pesanan'].toString(),
+                                              style: getDescBlack(context),
+                                              overflow: TextOverflow.ellipsis,
+                                              maxLines: 1,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          pesanan['nomor_meja'].toString(),
+                                          style: getDescBlack(context),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          pesanan['total'].toString(),
+                                          style: getDescBlack(context),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Text(
+                                          pesanan['status_pesanan'].toString(),
+                                          style: getDescBlack(context),
+                                        ),
+                                      ),
+                                      DataCell(
+                                        Row(
+                                          children: [
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                await updateStatusAmbil();
+                                                await fetchPesanan();
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Color.fromARGB(
+                                                  255,
+                                                  127,
+                                                  88,
+                                                  56,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                'Siap Diambil',
+                                                style: getButtonWhite(context),
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 10,
+                                              width: 5,
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                await updateStatusSelesai();
+                                                await fetchPesanan();
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Color.fromARGB(
+                                                  255,
+                                                  127,
+                                                  88,
+                                                  56,
+                                                ),
+                                              ),
+                                              child: Text(
+                                                'Selesai',
+                                                style: getButtonWhite(context),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }).toList(),
+                          ),
                         ),
-                        columns: [
-                          DataColumn(
-                            label: Text(
-                              'ID pemesanan',
-                              style: getDescBlack(context),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Text(
-                              'Username',
-                              style: getDescBlack(context),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Text(
-                              'Pesanan',
-                              style: getDescBlack(context),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Text(
-                              'Nomor Meja',
-                              style: getDescBlack(context),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Text('Total', style: getDescBlack(context)),
-                          ),
-                          DataColumn(
-                            label: Text(
-                              'Status Pemesanan',
-                              style: getDescBlack(context),
-                            ),
-                          ),
-                          DataColumn(
-                            label: Padding(
-                              padding: const EdgeInsets.only(left: 90.0),
-                              child: Text('Aksi', style: getDescBlack(context)),
-                            ),
-                          ),
-                        ],
-                        rows:
-                            _pesananList.map((pesanan) {
-                              return DataRow(
-                                cells: [
-                                  DataCell(
-                                    Text(
-                                      pesanan['id'].toString(),
-                                      style: getDescBlack(context),
-                                    ),
-                                  ),
-                                  DataCell(
-                                    Text(
-                                      pesanan['username'].toString(),
-                                      style: getDescBlack(context),
-                                    ),
-                                  ),
-                                  DataCell(
-                                    Text(
-                                      pesanan['pesanan'].toString(),
-                                      style: getDescBlack(context),
-                                    ),
-                                  ),
-                                  DataCell(
-                                    Text(
-                                      pesanan['nomor_meja'].toString(),
-                                      style: getDescBlack(context),
-                                    ),
-                                  ),
-                                  DataCell(
-                                    Text(
-                                      pesanan['total'].toString(),
-                                      style: getDescBlack(context),
-                                    ),
-                                  ),
-                                  DataCell(
-                                    Text(
-                                      pesanan['status_pesanan'].toString(),
-                                      style: getDescBlack(context),
-                                    ),
-                                  ),
-                                  DataCell(
-                                    Row(
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            await updateStatusAmbil();
-                                            await fetchPesanan();
-                                          },
-                                          child: Text(
-                                            'Siap Diambil',
-                                            style: getDescBlack(context),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 10, width: 5),
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            await updateStatusSelesai();
-                                            await fetchPesanan();
-                                          },
-                                          child: Text(
-                                            'Selesai',
-                                            style: getDescBlack(context),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              );
-                            }).toList(),
                       ),
             ),
           ),
@@ -670,7 +721,7 @@ class _DashboardState extends State<Dashboard> {
             ),
           ),
 
-          //sidebar
+          //sidebar menu icon
           Positioned(
             top: 12,
             left: 10,
