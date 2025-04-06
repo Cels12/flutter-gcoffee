@@ -431,7 +431,7 @@ class _DashboardState extends State<Dashboard> {
           Positioned(
             top: 220,
             left: 565,
-            child: Container(
+            child: SizedBox(
               width:
                   MediaQuery.of(context).size.width -
                   565, // Adjust width dynamically

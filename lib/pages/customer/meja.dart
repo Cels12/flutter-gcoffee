@@ -186,20 +186,6 @@ class _mejaInputState extends State<mejaInput> {
                   SizedBox(height: 20),
 
                   SizedBox(height: 10),
-                  if (isMejaCorrect)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Text(
-                        'Kode meja tidak valid',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontFamily: 'Oxanium',
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-
-                  SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: isLoading ? null : _checkMeja,
                     style: TextButton.styleFrom(

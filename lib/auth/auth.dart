@@ -42,7 +42,8 @@ class AuthService {
           'id': userId,
           'full_name': fullName,
           'username': username,
-          'role': 'user',
+          'email': email,
+          'roles': 'user',
         });
       }
 

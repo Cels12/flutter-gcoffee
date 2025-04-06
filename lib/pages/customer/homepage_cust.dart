@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/auth/auth.dart';
 import 'package:gcoffee_r/pages/login.dart';
+import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:toastification/toastification.dart';
 
 // ignore: camel_case_types
 class homePageCust extends StatefulWidget {
@@ -67,10 +69,18 @@ class CartProvider with ChangeNotifier {
 class _homePageCustState extends State<homePageCust> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _menuList = [];
+  Map<int, bool> _favoriteStates = {};
   List<Map<String, dynamic>> get cartItems => _menuList;
   bool _isLoading = true;
   bool _isMenuOpen = false;
   bool _isCartOpen = false;
+
+  bool _isProfileOpen = false;
+  void _toogleProfile() {
+    setState(() {
+      _isProfileOpen = !_isProfileOpen;
+    });
+  }
 
   void _toggleCart() {
     setState(() {
@@ -78,12 +88,23 @@ class _homePageCustState extends State<homePageCust> {
     });
   }
 
-  Map<String, bool> _favoriteStates = {};
-  void _toggleFavorited(String menuId, Map<String, dynamic> menu) async {
+  void _toggleMenu() {
+    setState(() {
+      _isMenuOpen = !_isMenuOpen;
+    });
+  }
+
+  void _toggleFavorited(int menuId, Map<String, dynamic> menu) async {
     final authService = AuthService();
 
+    // Redirect to LoginPage if the user is not logged in
     if (!authService.isLoggedIn()) {
-      // Redirect to LoginPage if the user is not logged in
+      showToast(
+        context,
+        title: "Perlu Login",
+        message: "Kamu harus login dulu!",
+        Type: ToastificationType.warning,
+      );
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => Loginpage()),
@@ -91,38 +112,57 @@ class _homePageCustState extends State<homePageCust> {
       return;
     }
 
-    // If the user is logged in, toggle the favorite state
+    // Toggle the favorite state in UI immediately for responsiveness
     setState(() {
       _favoriteStates[menuId] = !(_favoriteStates[menuId] ?? false);
     });
 
     try {
       if (_favoriteStates[menuId] == true) {
-        // Add the menu to the favoriteMenus table
-        await supabase.from('favoriteMenus').insert({
+        // Add the menu to the favoritemenus table
+        await supabase.from('favoritemenus').insert({
           'user_id': supabase.auth.currentUser!.id, // Current user's ID
           'menu_id': menuId, // Menu ID
           'menu_name': menu['nama_menu'], // Menu name
           'menu_price': menu['harga'], // Menu price
           'menu_image': menu['gambar'], // Menu image URL
         });
+
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text('Menu added to favorites')));
+        }
       } else {
-        // Remove the menu from the favoriteMenus table
+        // Remove the menu from the favoritemenus table
         await supabase
-            .from('favoriteMenus')
+            .from('favoritemenus')
             .delete()
             .eq('user_id', supabase.auth.currentUser!.id)
             .eq('menu_id', menuId);
+
+        // Show success message
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Menu removed from favorites')),
+          );
+        }
       }
     } catch (e) {
-      debugPrint('Error updating favoriteMenus: $e');
-    }
-  }
+      // If there's an error, revert the UI change
+      if (mounted) {
+        setState(() {
+          _favoriteStates[menuId] = !(_favoriteStates[menuId] ?? false);
+        });
 
-  void _toggleMenu() {
-    setState(() {
-      _isMenuOpen = !_isMenuOpen;
-    });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Error updating favorites: $e')));
+
+        debugPrint('Error updating favoritemenus: $e');
+      }
+    }
   }
 
   String formatCurrency(int amount) {
@@ -203,10 +243,38 @@ class _homePageCustState extends State<homePageCust> {
     }
   }
 
+  Future<void> _loadFavorites() async {
+    final authService = AuthService();
+
+    if (authService.isLoggedIn()) {
+      try {
+        // Fetch all favorites for the current user
+        final response = await supabase
+            .from('favoritemenus')
+            .select('menu_id')
+            .eq('user_id', supabase.auth.currentUser!.id);
+
+        // Create a map of menu IDs to favorite status
+        if (mounted) {
+          setState(() {
+            for (var item in response) {
+              // Make sure to use the correct type for the menu_id
+              int menuId = item['menu_id'];
+              _favoriteStates[menuId] = true;
+            }
+          });
+        }
+      } catch (e) {
+        debugPrint('Error loading favorites: $e');
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     fetchMenu();
+    _loadFavorites();
   }
 
   @override
@@ -236,6 +304,17 @@ class _homePageCustState extends State<homePageCust> {
                     fontFamily: 'Righteous',
                   ),
                 ),
+              ),
+            ),
+
+            //profile button
+            Positioned(
+              //left: 1460,
+              right: 30,
+              top: 20,
+              child: IconButton(
+                onPressed: _toogleProfile,
+                icon: HeroIcon(HeroIcons.user, size: 40, color: Colors.grey),
               ),
             ),
 
@@ -269,6 +348,52 @@ class _homePageCustState extends State<homePageCust> {
                           ),
                         ),
                       ),
+            ),
+
+            //profile dropdown menu
+            AnimatedPositioned(
+              duration: Duration(microseconds: 300),
+              top: _isProfileOpen ? 80 : -200,
+              right: 40,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Container(
+                  width: 200,
+                  height: 100,
+                  color: const Color.fromARGB(255, 210, 156, 108),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12.0),
+                        child: TextButton(
+                          onPressed: () async {
+                            final authService = AuthService();
+                            await authService.signOut();
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Loginpage(),
+                              ),
+                            );
+                          },
+                          child: Text(
+                            'Logout',
+                            style: TextStyle(
+                              fontFamily: 'Oxanium',
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
 
             //cart
@@ -709,8 +834,6 @@ class _homePageCustState extends State<homePageCust> {
   }
 
   Widget _buildCard(Map<String, dynamic> menu) {
-    final menuId = menu['id']; // Unique identifier for the menu item
-
     return SizedBox(
       width: 315,
       height: 565,
@@ -758,17 +881,20 @@ class _homePageCustState extends State<homePageCust> {
                       ),
                       child: IconButton(
                         onPressed: () {
-                          _toggleFavorited(menuId, menu); // Pass the menu ID
+                          _toggleFavorited(
+                            menu['id'],
+                            menu,
+                          ); // Pass the menu ID and the menu object
                         },
                         icon: HeroIcon(
                           HeroIcons.heart,
                           style:
-                              (_favoriteStates[menuId] ?? false)
+                              (_favoriteStates[menu['id']] ?? false)
                                   ? HeroIconStyle.solid
                                   : HeroIconStyle.outline,
                           size: 20,
                           color:
-                              (_favoriteStates[menuId] ?? false)
+                              (_favoriteStates[menu['id']] ?? false)
                                   ? Colors.red
                                   : Colors.white,
                         ),

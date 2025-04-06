@@ -74,11 +74,11 @@ class _LoginpageState extends State<Loginpage> {
     } else {
       // Check if the input is a username or email
       final input = emailcontrol.text.trim();
-      final SupabaseClient _supabase = Supabase.instance.client;
+      final SupabaseClient supabase = Supabase.instance.client;
       final response =
-          await _supabase
+          await supabase
               .from('profiles')
-              .select('id, roles')
+              .select('id, roles, email')
               .or('username.eq.$input,email.eq.$input')
               .single();
 
@@ -91,7 +91,6 @@ class _LoginpageState extends State<Loginpage> {
         return;
       }
 
-      final userId = response['id'];
       final role = response['roles'];
 
       // Attempt to log in with the retrieved user ID
@@ -114,7 +113,7 @@ class _LoginpageState extends State<Loginpage> {
         // Redirect based on role
         if (mounted) {
           if (role == 'admin') {
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) {
@@ -123,7 +122,7 @@ class _LoginpageState extends State<Loginpage> {
               ),
             );
           } else if (role == 'user') {
-            Navigator.pushReplacement(
+            Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) {
