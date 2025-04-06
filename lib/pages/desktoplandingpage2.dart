@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
 import 'package:gcoffee_r/pages/customer/meja.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/pages/signup.dart';
-import 'package:gcoffee_r/pages/styles/textstyles.dart';
+import 'package:gcoffee_r/styles/textstyles.dart';
 
 class Desktoplandingpage2 extends StatelessWidget {
   const Desktoplandingpage2({super.key});
@@ -59,7 +58,7 @@ class Desktoplandingpage2 extends StatelessWidget {
                       const SizedBox(width: 30),
                       TextButton(
                         onPressed: () {
-                          Navigator.pushReplacement(
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (context) => const Loginpage(),

@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gcoffee_r/pages/admin/dashboard.dart';
+import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
 import 'package:gcoffee_r/pages/signup.dart';
 import '../auth/auth.dart';
-import 'package:gcoffee_r/pages/styles/textstyles.dart';
+import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -70,8 +72,31 @@ class _LoginpageState extends State<Loginpage> {
         ),
       );
     } else {
+      // Check if the input is a username or email
+      final input = emailcontrol.text.trim();
+      final SupabaseClient _supabase = Supabase.instance.client;
+      final response =
+          await _supabase
+              .from('profiles')
+              .select('id, roles')
+              .or('username.eq.$input,email.eq.$input')
+              .single();
+
+      // ignore: unnecessary_null_comparison
+      if (response == null) {
+        setState(() {
+          isLoginFailed = true;
+          isLoading = false;
+        });
+        return;
+      }
+
+      final userId = response['id'];
+      final role = response['roles'];
+
+      // Attempt to log in with the retrieved user ID
       final hasil = await _auth.signIn(
-        emailcontrol.text.trim(),
+        input.contains('@') ? input : response['email'],
         passwordcontrol.text.trim(),
       );
 
@@ -85,15 +110,30 @@ class _LoginpageState extends State<Loginpage> {
           message = 'Login berhasil!';
           isLoading = false;
         });
+
+        // Redirect based on role
         if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return Dashboard();
-              },
-            ),
-          );
+          if (role == 'admin') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return Dashboard(); // Admin dashboard
+                },
+              ),
+            );
+          } else if (role == 'user') {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) {
+                  return homePageCust(
+                    idMeja: response['nomor_meja'].toString(),
+                  ); // Customer homepage
+                },
+              ),
+            );
+          }
         }
       }
     }

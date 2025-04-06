@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
-import 'package:gcoffee_r/pages/styles/notification_styles.dart';
-import 'package:gcoffee_r/pages/styles/textstyles.dart';
+import 'package:gcoffee_r/styles/notification_styles.dart';
+import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 

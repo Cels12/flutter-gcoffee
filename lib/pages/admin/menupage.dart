@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/pages/styles/notification_styles.dart' as showtoast;
+import 'package:gcoffee_r/styles/notification_styles.dart' as showtoast;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/pages/admin/edit_menu.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

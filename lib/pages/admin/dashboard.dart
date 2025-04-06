@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/pages/admin/menupage.dart';
 import 'package:gcoffee_r/pages/login.dart';
-import 'package:gcoffee_r/pages/styles/textstyles.dart';
+import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
-import 'package:gcoffee_r/pages/styles/notification_styles.dart';
+import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:gcoffee_r/auth/auth.dart';
 
 class Dashboard extends StatefulWidget {

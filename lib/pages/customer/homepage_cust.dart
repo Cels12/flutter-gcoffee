@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gcoffee_r/auth/auth.dart';
+import 'package:gcoffee_r/pages/login.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
@@ -74,6 +76,47 @@ class _homePageCustState extends State<homePageCust> {
     setState(() {
       _isCartOpen = !_isCartOpen;
     });
+  }
+
+  Map<String, bool> _favoriteStates = {};
+  void _toggleFavorited(String menuId, Map<String, dynamic> menu) async {
+    final authService = AuthService();
+
+    if (!authService.isLoggedIn()) {
+      // Redirect to LoginPage if the user is not logged in
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => Loginpage()),
+      );
+      return;
+    }
+
+    // If the user is logged in, toggle the favorite state
+    setState(() {
+      _favoriteStates[menuId] = !(_favoriteStates[menuId] ?? false);
+    });
+
+    try {
+      if (_favoriteStates[menuId] == true) {
+        // Add the menu to the favoriteMenus table
+        await supabase.from('favoriteMenus').insert({
+          'user_id': supabase.auth.currentUser!.id, // Current user's ID
+          'menu_id': menuId, // Menu ID
+          'menu_name': menu['nama_menu'], // Menu name
+          'menu_price': menu['harga'], // Menu price
+          'menu_image': menu['gambar'], // Menu image URL
+        });
+      } else {
+        // Remove the menu from the favoriteMenus table
+        await supabase
+            .from('favoriteMenus')
+            .delete()
+            .eq('user_id', supabase.auth.currentUser!.id)
+            .eq('menu_id', menuId);
+      }
+    } catch (e) {
+      debugPrint('Error updating favoriteMenus: $e');
+    }
   }
 
   void _toggleMenu() {
@@ -228,8 +271,6 @@ class _homePageCustState extends State<homePageCust> {
                       ),
             ),
 
-            // Other widgets like cart, sidebar, etc.
-            // ...
             //cart
             AnimatedPositioned(
               duration: Duration(milliseconds: 300),
@@ -668,6 +709,8 @@ class _homePageCustState extends State<homePageCust> {
   }
 
   Widget _buildCard(Map<String, dynamic> menu) {
+    final menuId = menu['id']; // Unique identifier for the menu item
+
     return SizedBox(
       width: 315,
       height: 565,
@@ -680,43 +723,63 @@ class _homePageCustState extends State<homePageCust> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image
-              Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                width: 350,
-                height: 280,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: Image.network(
-                    menu['gambar'],
-                    fit: BoxFit.cover,
-                    errorBuilder:
-                        (context, error, stackTrace) => const Icon(
-                          Icons.broken_image,
-                          size: 100,
-                          color: Colors.grey,
-                        ),
+              Stack(
+                children: [
+                  // Image
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    width: 350,
+                    height: 280,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        menu['gambar'],
+                        fit: BoxFit.cover,
+                        errorBuilder:
+                            (context, error, stackTrace) => const Icon(
+                              Icons.broken_image,
+                              size: 100,
+                              color: Colors.grey,
+                            ),
+                      ),
+                    ),
                   ),
-                ),
+
+                  // Favorite Button
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(77, 51, 51, 51),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          _toggleFavorited(menuId, menu); // Pass the menu ID
+                        },
+                        icon: HeroIcon(
+                          HeroIcons.heart,
+                          style:
+                              (_favoriteStates[menuId] ?? false)
+                                  ? HeroIconStyle.solid
+                                  : HeroIconStyle.outline,
+                          size: 20,
+                          color:
+                              (_favoriteStates[menuId] ?? false)
+                                  ? Colors.red
+                                  : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 15),
 
-              // Rating stars
-              Row(
-                children: List.generate(
-                  5,
-                  (index) => const Icon(
-                    Icons.star,
-                    color: Colors.amberAccent,
-                    size: 20,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 5),
-
-              // Menu name
+              // Other card content...
               Text(
                 menu['nama_menu'], // Replace with your menu name field
                 style: const TextStyle(
@@ -726,8 +789,6 @@ class _homePageCustState extends State<homePageCust> {
                 ),
               ),
               const SizedBox(height: 5),
-
-              // Menu description
               Text(
                 menu['deskripsi'], // Replace with your menu description field
                 style: const TextStyle(
@@ -739,12 +800,8 @@ class _homePageCustState extends State<homePageCust> {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 15),
-
-              // Price
               Text(
-                formatCurrency(
-                  menu['harga'],
-                ), // Replace with your menu price field
+                formatCurrency(menu['harga']),
                 style: const TextStyle(
                   fontFamily: 'Oxanium',
                   fontSize: 30,
@@ -753,8 +810,6 @@ class _homePageCustState extends State<homePageCust> {
                 ),
               ),
               const SizedBox(height: 15),
-
-              // Order button
               ElevatedButton(
                 onPressed: () {
                   Provider.of<CartProvider>(

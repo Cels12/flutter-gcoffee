@@ -36,6 +36,14 @@ getTitleWhite(BuildContext context) {
   );
 }
 
+getTitleBlack(BuildContext context) {
+  return TextStyle(
+    color: Color.fromRGBO(0, 0, 0, 1),
+    fontFamily: 'Righteous',
+    fontSize: 30,
+  );
+}
+
 getTitleBlackOx(BuildContext context) {
   return TextStyle(
     color: Colors.black,
