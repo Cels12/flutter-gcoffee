@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gcoffee_r/styles/textstyles.dart';
 
 class PopUpOrderType extends StatefulWidget {
   final Function(String) onOrderTypeSelected;
@@ -23,20 +24,25 @@ class _PopUpOrderTypeState extends State<PopUpOrderType> {
             height: MediaQuery.of(context).size.height * 0.6,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              color: Colors.brown,
+              color: const Color.fromARGB(255, 84, 47, 17),
             ),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'Minum disini atau take away?',
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                Align(
+                  alignment: Alignment.topRight,
+                  child: IconButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
+                    icon: Icon(Icons.close, size: 30, color: Colors.white),
                   ),
                 ),
-                SizedBox(height: 50),
+
+                Text(
+                  'Minum disini atau take away?',
+                  style: getTitleWhiteOx(context),
+                ),
+                SizedBox(height: 40),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -63,19 +69,12 @@ class _PopUpOrderTypeState extends State<PopUpOrderType> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/iconCoffee.svg',
-                              width: 40,
-                              height: 40,
+                              'assets/icons/coffeedinein.svg',
+                              width: 120,
+                              height: 120,
                             ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Minum disini',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
+                            SizedBox(height: 20),
+                            Text('Minum disini', style: getDescBlack2(context)),
                           ],
                         ),
                       ),
@@ -104,19 +103,12 @@ class _PopUpOrderTypeState extends State<PopUpOrderType> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             SvgPicture.asset(
-                              'assets/icons/iconCoffeeCup.svg',
-                              width: 30,
-                              height: 30,
+                              'assets/icons/coffeetakeaway.svg',
+                              width: 120,
+                              height: 120,
                             ),
-                            SizedBox(height: 10),
-                            Text(
-                              'Take away',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
+                            SizedBox(height: 20),
+                            Text('Take away', style: getDescBlack2(context)),
                           ],
                         ),
                       ),

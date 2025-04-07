@@ -55,7 +55,7 @@ class _mejaInputState extends State<mejaInput> {
               .from('meja')
               .select('*')
               .ilike('id_meja', nomorMejaController.text.trim())
-              .maybeSingle(); // Handle no rows gracefully
+              .maybeSingle();
 
       if (response != null &&
           response['id_meja'] == nomorMejaController.text.trim()) {

@@ -84,8 +84,8 @@ flutter:
     - assets/icons/Home.svg
     - assets/icons/Coffee_cup.svg
     - assets/icons/Chart_trendUp.svg
-    - assets/icons/iconCupCoffee.svg
-    - assets/icons/iconCoffee.svg
+    - assets/icons/coffeedinein.svg
+    - assets/icons/coffeetakeaway.svg
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

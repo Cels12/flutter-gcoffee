@@ -73,8 +73,8 @@ class _LoginpageState extends State<Loginpage> {
           },
         ),
       );
-    } else if (emailcontrol.text.trim() != adminEmail ||
-        passwordcontrol.text.trim() != adminPassword) {
+    } else if (emailcontrol.text.trim() == adminEmail ||
+        passwordcontrol.text.trim() == adminPassword) {
       // Jika email admin benar tetapi password salah
       setState(() {
         isLoginFailed = true;

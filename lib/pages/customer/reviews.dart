@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/auth/auth.dart';
-import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
-import 'package:gcoffee_r/pages/homepage_responsive.dart';
+import 'package:gcoffee_r/pages/customer/favoritepage.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,20 +13,19 @@ import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';
 
 // ignore: camel_case_types
-class PageFavorite extends StatefulWidget {
+class ReviewsPage extends StatefulWidget {
   final String idMeja;
-  const PageFavorite({Key? key, required this.idMeja});
+  const ReviewsPage({Key? key, required this.idMeja});
 
   @override
-  State<PageFavorite> createState() => _PageFavoriteState();
+  State<ReviewsPage> createState() => _ReviewsPageState();
 }
 
-// ignore: camel_case_types
-class _PageFavoriteState extends State<PageFavorite> {
+// Remove CartProvider class here and continue with _ReviewsPageState
+class _ReviewsPageState extends State<ReviewsPage> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _menuList = [];
   Map<int, bool> _favoriteStates = {};
-  List<Map<String, dynamic>> get cartItems => _menuList;
   bool _isLoading = true;
   bool _isMenuOpen = false;
   bool _isCartOpen = false;
@@ -127,57 +125,21 @@ class _PageFavoriteState extends State<PageFavorite> {
     return 'Rp. ${format.format(amount)}';
   }
 
-  Future<void> fetchFavorite() async {
+  Future<void> fetchMenu() async {
     try {
-      final currentUser = supabase.auth.currentUser;
-
-      if (currentUser != null) {
-        // Mengambil data menu favorit berdasarkan user yang sedang login
-        final response = await supabase
-            .from('favoritemenus')
-            .select('''
-            *,
-            menu:menu_id (
-              id,
-              nama_menu,
-              deskripsi,
-              harga,
-              gambar
-            )
-          ''')
-            .eq('user_id', currentUser.id);
-
-        if (mounted) {
-          setState(() {
-            // Mengubah format data untuk menyesuaikan dengan struktur yang digunakan di _buildCard
-            _menuList = List<Map<String, dynamic>>.from(
-              response.map(
-                (item) => {
-                  'id': item['menu']['id'],
-                  'nama_menu': item['menu']['nama_menu'],
-                  'deskripsi': item['menu']['deskripsi'],
-                  'harga': item['menu']['harga'],
-                  'gambar': item['menu']['gambar'],
-                },
-              ),
-            );
-            _isLoading = false;
-          });
-        }
+      final response = await supabase.from('menu').select();
+      if (mounted) {
+        setState(() {
+          _menuList = List<Map<String, dynamic>>.from(response);
+          _isLoading = false;
+        });
       }
     } catch (e) {
-      debugPrint('Error fetching favorites: $e');
+      debugPrint('Error fetching menu: $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
-
-        showToast(
-          context,
-          title: 'Error',
-          message: 'Gagal mengambil data menu favorit: $e',
-          Type: ToastificationType.error,
-        );
       }
     }
   }
@@ -307,7 +269,7 @@ class _PageFavoriteState extends State<PageFavorite> {
   @override
   void initState() {
     super.initState();
-    fetchFavorite(); // Mengganti fetchMenu() dengan fetchFavorite()
+    fetchMenu();
     _loadFavorites();
   }
 
@@ -715,7 +677,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                               MaterialPageRoute(
                                 builder:
                                     (context) =>
-                                        homePageCust(idMeja: widget.idMeja),
+                                        ReviewsPage(idMeja: widget.idMeja),
                               ),
                             );
                           },
@@ -792,12 +754,31 @@ class _PageFavoriteState extends State<PageFavorite> {
                         message: 'Reviews',
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Placeholder(),
-                              ),
-                            );
+                            final supabase = Supabase.instance.client;
+                            if (supabase.auth.currentUser != null) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          ReviewsPage(idMeja: widget.idMeja),
+                                ),
+                              );
+                            } else {
+                              showToast(
+                                context,
+                                title: "Harus Login",
+                                message:
+                                    'Kamu harus login untuk mengakses favorit!',
+                                Type: ToastificationType.warning,
+                              );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Loginpage(),
+                                ),
+                              );
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),
@@ -805,7 +786,6 @@ class _PageFavoriteState extends State<PageFavorite> {
                               Icons.reviews_outlined,
                               size: 40,
                               color: Colors.white,
-                              weight: 1,
                             ),
                           ),
                         ),

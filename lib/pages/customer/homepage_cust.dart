@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/auth/auth.dart';
+import 'package:gcoffee_r/pages/customer/favoritepage.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -9,6 +10,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
+import 'package:gcoffee_r/providers/cart_provider.dart';
 
 // ignore: camel_case_types
 class homePageCust extends StatefulWidget {
@@ -19,59 +21,11 @@ class homePageCust extends StatefulWidget {
   State<homePageCust> createState() => _homePageCustState();
 }
 
-class CartProvider with ChangeNotifier {
-  final List<Map<String, dynamic>> _cartItems = [];
-
-  List<Map<String, dynamic>> get cartItems => _cartItems;
-
-  void addToCart(Map<String, dynamic> item) {
-    final existingIndex = _cartItems.indexWhere(
-      (cartItem) => cartItem['id'] == item['id'],
-    );
-    if (existingIndex != -1) {
-      // If the item already exists in the cart, increase its quantity
-      _cartItems[existingIndex]['quantity'] += 1;
-    } else {
-      // Add a new item to the cart with an initial quantity of 1
-      _cartItems.add({
-        'id': item['id'],
-        'name': item['nama_menu'],
-        'harga': item['harga'],
-        'quantity': 1,
-      });
-    }
-    notifyListeners();
-  }
-
-  void removeFromCart(int index) {
-    _cartItems.removeAt(index);
-    notifyListeners();
-  }
-
-  void updateQuantity(int index, int newQuantity) {
-    _cartItems[index]['quantity'] = newQuantity;
-    notifyListeners();
-  }
-
-  double getTotalPrice() {
-    return _cartItems.fold(
-      0,
-      (total, item) => total + (item['harga'] * item['quantity']),
-    );
-  }
-
-  void clearCart() {
-    _cartItems.clear();
-    notifyListeners();
-  }
-}
-
-// ignore: camel_case_types
+// Remove CartProvider class here and continue with _homePageCustState
 class _homePageCustState extends State<homePageCust> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _menuList = [];
   Map<int, bool> _favoriteStates = {};
-  List<Map<String, dynamic>> get cartItems => _menuList;
   bool _isLoading = true;
   bool _isMenuOpen = false;
   bool _isCartOpen = false;
@@ -759,12 +713,31 @@ class _homePageCustState extends State<homePageCust> {
                         message: 'Favorit',
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Placeholder(),
-                              ),
-                            );
+                            final supabase = Supabase.instance.client;
+                            if (supabase.auth.currentUser != null) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          PageFavorite(idMeja: widget.idMeja),
+                                ),
+                              );
+                            } else {
+                              showToast(
+                                context,
+                                title: "Harus Login",
+                                message:
+                                    'Kamu harus login untuk mengakses favorit!',
+                                Type: ToastificationType.warning,
+                              );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Loginpage(),
+                                ),
+                              );
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),
@@ -781,41 +754,37 @@ class _homePageCustState extends State<homePageCust> {
                         message: 'Reviews',
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Placeholder(),
-                              ),
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: Icon(
-                              Icons.reviews_outlined,
-                              size: 40,
-                              color: Colors.white,
-                              weight: 1,
-                            ),
-                          ),
-                        ),
-                      ),
-                      //about
-                      Tooltip(
-                        message: 'About',
-                        child: TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Placeholder(),
-                              ),
-                            );
+                            final supabase = Supabase.instance.client;
+                            if (supabase.auth.currentUser != null) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) =>
+                                          PageFavorite(idMeja: widget.idMeja),
+                                ),
+                              );
+                            } else {
+                              showToast(
+                                context,
+                                title: "Harus Login",
+                                message:
+                                    'Kamu harus login untuk mengakses favorit!',
+                                Type: ToastificationType.warning,
+                              );
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Loginpage(),
+                                ),
+                              );
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),
                             child: HeroIcon(
-                              HeroIcons.informationCircle,
-                              size: 45,
+                              HeroIcons.heart,
+                              size: 40,
                               color: Colors.white,
                             ),
                           ),

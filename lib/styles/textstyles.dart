@@ -4,6 +4,10 @@ getDescWhite(BuildContext context) {
   return TextStyle(color: Colors.white, fontFamily: 'Oxanium', fontSize: 18);
 }
 
+getDescBlack2(BuildContext context) {
+  return TextStyle(color: Colors.black, fontFamily: 'Oxanium', fontSize: 18);
+}
+
 getDescBlack(BuildContext context) {
   return TextStyle(color: Colors.black, fontFamily: 'Oxanium', fontSize: 13);
 }
@@ -49,6 +53,15 @@ getTitleBlackOx(BuildContext context) {
     color: Colors.black,
     fontFamily: 'Oxanium',
     fontSize: 38,
+    fontWeight: FontWeight.bold,
+  );
+}
+
+getTitleWhiteOx(BuildContext context) {
+  return TextStyle(
+    color: const Color.fromARGB(255, 255, 255, 255),
+    fontFamily: 'Oxanium',
+    fontSize: 30,
     fontWeight: FontWeight.bold,
   );
 }

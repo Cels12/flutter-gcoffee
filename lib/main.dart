@@ -3,7 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gcoffee_r/pages/homepage_responsive.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
+import 'package:gcoffee_r/providers/cart_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +21,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => CartProvider(),
+    return MultiProvider(
+      providers: [ChangeNotifierProvider(create: (_) => CartProvider())],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
