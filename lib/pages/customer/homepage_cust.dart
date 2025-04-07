@@ -8,6 +8,7 @@ import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
+import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
 
 // ignore: camel_case_types
 class homePageCust extends StatefulWidget {
@@ -201,20 +202,55 @@ class _homePageCustState extends State<homePageCust> {
       return;
     }
 
+    // Tampilkan dialog untuk memilih tipe pesanan
+    String? orderType;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return PopUpOrderType(
+          onOrderTypeSelected: (type) {
+            orderType = type;
+          },
+        );
+      },
+    );
+
+    // Jika user tidak memilih tipe pesanan (menutup dialog), keluar dari fungsi
+    if (orderType == null) return;
+
     try {
-      // Combine all menu names into a single string
+      String username = 'guest';
+      String? userId;
+      final currentUser = supabase.auth.currentUser;
+
+      if (currentUser != null) {
+        userId = currentUser.id;
+        final profileData =
+            await supabase
+                .from('profiles')
+                .select('username')
+                .eq('id', userId)
+                .single();
+
+        if (profileData['username'] != null) {
+          username = profileData['username'];
+        }
+      }
+
       final pesanan = cartItems.map((item) => item['name']).join(', ');
 
-      // Insert the main pesanan row
       final response =
           await supabase
               .from('pesanan')
               .insert({
-                'username': 'guest',
+                'username': username,
                 'pesanan': pesanan,
                 'nomor_meja': widget.idMeja,
                 'total': totalPrice,
                 'status_pesanan': 'Sedang dibuat',
+                'tipe_pesanan':
+                    orderType, // Menggunakan tipe pesanan yang dipilih
               })
               .select('id')
               .single();
@@ -233,13 +269,19 @@ class _homePageCustState extends State<homePageCust> {
       // Clear the cart after successful checkout
       cartProvider.clearCart();
 
-      ScaffoldMessenger.of(
+      showToast(
         context,
-      ).showSnackBar(SnackBar(content: Text('Pesanan berhasil dibuat!')));
+        title: 'Pesanan berhasil dibuat!',
+        message: 'Silahkan untuk menunggu pesanan',
+        Type: ToastificationType.success,
+      );
     } catch (e) {
-      ScaffoldMessenger.of(
+      showToast(
         context,
-      ).showSnackBar(SnackBar(content: Text('Gagal membuat pesanan: $e')));
+        title: 'Gagal membuat pesanan',
+        message: 'user id tidak ditemukan. Error : $e',
+        Type: ToastificationType.error,
+      );
     }
   }
 

@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gcoffee_r/pages/admin/dashboard.dart';
-import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
+import 'package:gcoffee_r/pages/customer/meja.dart';
 import 'package:gcoffee_r/pages/signup.dart';
+import 'package:gcoffee_r/styles/notification_styles.dart';
+import 'package:toastification/toastification.dart';
 import '../auth/auth.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -71,6 +73,14 @@ class _LoginpageState extends State<Loginpage> {
           },
         ),
       );
+    } else if (emailcontrol.text.trim() != adminEmail ||
+        passwordcontrol.text.trim() != adminPassword) {
+      // Jika email admin benar tetapi password salah
+      setState(() {
+        isLoginFailed = true;
+        isLoading = false;
+      });
+      return;
     } else {
       // Check if the input is a username or email
       final input = emailcontrol.text.trim();
@@ -82,15 +92,6 @@ class _LoginpageState extends State<Loginpage> {
               .or('username.eq.$input,email.eq.$input')
               .single();
 
-      // ignore: unnecessary_null_comparison
-      if (response == null) {
-        setState(() {
-          isLoginFailed = true;
-          isLoading = false;
-        });
-        return;
-      }
-
       final role = response['roles'];
 
       // Attempt to log in with the retrieved user ID
@@ -100,35 +101,35 @@ class _LoginpageState extends State<Loginpage> {
       );
 
       if (hasil == null) {
+        showToast(
+          context,
+          title: 'Login gagal',
+          message: 'Email, username atau password salah',
+          Type: ToastificationType.error,
+        );
         setState(() {
           isLoginFailed = true;
           isLoading = false;
         });
       } else {
         setState(() {
-          message = 'Login berhasil!';
+          showToast(
+            context,
+            title: 'Login berhasil',
+            message: 'Selamat datang!',
+            Type: ToastificationType.success,
+          );
           isLoading = false;
         });
 
         // Redirect based on role
         if (mounted) {
-          if (role == 'admin') {
+          if (role == 'user') {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return Dashboard(); // Admin dashboard
-                },
-              ),
-            );
-          } else if (role == 'user') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) {
-                  return homePageCust(
-                    idMeja: response['nomor_meja'].toString(),
-                  ); // Customer homepage
+                  return mejaInput(); // Customer homepage
                 },
               ),
             );
