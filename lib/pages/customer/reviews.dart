@@ -878,7 +878,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
     }
 
     return Card(
-      color: Colors.white,
+      color: Colors.black,
       elevation: 4,
       margin: EdgeInsets.only(bottom: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
