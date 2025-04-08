@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/auth/auth.dart';
 import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
-import 'package:gcoffee_r/pages/homepage_responsive.dart';
+import 'package:gcoffee_r/pages/customer/reviews.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -16,7 +16,7 @@ import 'package:gcoffee_r/providers/cart_provider.dart';
 // ignore: camel_case_types
 class PageFavorite extends StatefulWidget {
   final String idMeja;
-  const PageFavorite({Key? key, required this.idMeja});
+  const PageFavorite({super.key, required this.idMeja});
 
   @override
   State<PageFavorite> createState() => _PageFavoriteState();
@@ -367,7 +367,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Varian Kopi',
+                                'Menu Favoritku',
                                 style: const TextStyle(
                                   fontFamily: 'Oxanium',
                                   fontSize: 32,
@@ -795,7 +795,9 @@ class _PageFavoriteState extends State<PageFavorite> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => Placeholder(),
+                                builder:
+                                    (context) =>
+                                        ReviewsPage(idMeja: widget.idMeja),
                               ),
                             );
                           },

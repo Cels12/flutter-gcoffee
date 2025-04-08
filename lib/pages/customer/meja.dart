@@ -81,7 +81,7 @@ class _mejaInputState extends State<mejaInput> {
         showToast(
           context,
           title: 'Kode Meja Tidak Valid!',
-          message: '$response',
+          message: 'Tolong masukkan kode meja yang valid',
           Type: ToastificationType.error,
         );
       }

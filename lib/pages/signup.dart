@@ -1,6 +1,8 @@
 // pages/signup_page.dart
 import 'package:flutter/material.dart';
 import 'package:gcoffee_r/pages/login.dart';
+import 'package:gcoffee_r/styles/notification_styles.dart';
+import 'package:toastification/toastification.dart';
 import '../auth/auth.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
 
@@ -32,12 +34,32 @@ class _SignUpPageState extends State<SignUpPage> {
     );
 
     if (result != null) {
-      setState(() => message = result);
+      setState(() {
+        message = result;
+        isLoading = false;
+        showToast(
+          context,
+          title: 'Berhasil!',
+          message: 'Registrasi akun berhasil!',
+          Type: ToastificationType.success,
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => Loginpage()),
+        );
+      });
     } else {
-      setState(() => message = "Registrasi berhasil! Periksa email Anda.");
+      setState(() {
+        message = "Registrasi gagal!";
+        isLoading = false;
+      });
+      showToast(
+        context,
+        title: 'Gagal',
+        message: 'Registrasi akun gagal, mohon menunggu sebelum mencoba lagi',
+        Type: ToastificationType.error,
+      );
     }
-
-    setState(() => isLoading = false);
   }
 
   @override
@@ -112,8 +134,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
 
                   const SizedBox(height: 70),
-                  if (message.isNotEmpty)
-                    Text(message, style: const TextStyle(color: Colors.red)),
                   SizedBox(
                     width: 450,
                     child: Column(
@@ -162,14 +182,13 @@ class _SignUpPageState extends State<SignUpPage> {
                           controller: passwordController,
                           decoration: const InputDecoration(
                             labelText: 'Password',
-
                             labelStyle: TextStyle(
                               fontFamily: 'Oxanium',
                               fontSize: 16,
                             ),
                             border: OutlineInputBorder(),
                           ),
-                          obscureText: false,
+                          obscureText: true,
                         ),
                       ],
                     ),

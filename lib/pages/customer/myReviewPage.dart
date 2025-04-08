@@ -3,12 +3,11 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/auth/auth.dart';
 import 'package:gcoffee_r/pages/customer/favoritepage.dart';
 import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
-import 'package:gcoffee_r/pages/customer/myReviewPage.dart';
 import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
+import 'package:gcoffee_r/pages/customer/reviews.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
-import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -16,18 +15,19 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 
 // ignore: camel_case_types
-class ReviewsPage extends StatefulWidget {
+class myReviewsPage extends StatefulWidget {
   final String idMeja;
-  const ReviewsPage({Key? key, required this.idMeja});
+  const myReviewsPage({Key? key, required this.idMeja});
 
   @override
-  State<ReviewsPage> createState() => _ReviewsPageState();
+  State<myReviewsPage> createState() => _myReviewsPageState();
 }
 
-// Remove CartProvider class here and continue with _ReviewsPageState
-class _ReviewsPageState extends State<ReviewsPage> {
+// Remove CartProvider class here and continue with _myReviewsPageState
+class _myReviewsPageState extends State<myReviewsPage> {
   final supabase = Supabase.instance.client;
-  List<Map<String, dynamic>> _menuList = [];
+  List<Map<String, dynamic>> _reviewList = [];
+  final TextEditingController deskripsiReview = TextEditingController();
   Map<int, bool> _favoriteStates = {};
   bool _isLoading = true;
   bool _isMenuOpen = false;
@@ -52,102 +52,74 @@ class _ReviewsPageState extends State<ReviewsPage> {
     });
   }
 
-  // void _toggleFavorited(int menuId, Map<String, dynamic> menu) async {
-  //   final authService = AuthService();
-
-  //   // Redirect to LoginPage if the user is not logged in
-  //   if (!authService.isLoggedIn()) {
-  //     showToast(
-  //       context,
-  //       title: "Perlu Login",
-  //       message: "Kamu harus login dulu!",
-  //       Type: ToastificationType.warning,
-  //     );
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(builder: (context) => Loginpage()),
-  //     );
-  //     return;
-  //   }
-
-  //   // Toggle the favorite state in UI immediately for responsiveness
-  //   setState(() {
-  //     _favoriteStates[menuId] = !(_favoriteStates[menuId] ?? false);
-  //   });
-
-  //   try {
-  //     if (_favoriteStates[menuId] == true) {
-  //       // Add the menu to the favoritemenus table
-  //       await supabase.from('favoritemenus').insert({
-  //         'user_id': supabase.auth.currentUser!.id, // Current user's ID
-  //         'menu_id': menuId, // Menu ID
-  //         'menu_name': menu['nama_menu'], // Menu name
-  //         'menu_price': menu['harga'], // Menu price
-  //         'menu_image': menu['gambar'], // Menu image URL
-  //       });
-
-  //       // Show success message
-  //       if (mounted) {
-  //         showToast(
-  //           context,
-  //           title: 'Berhasil!',
-  //           message: 'Menu berhasil ditambahkan ke favorit!',
-  //           Type: ToastificationType.success,
-  //         );
-  //       }
-  //     } else {
-  //       // Remove the menu from the favoritemenus table
-  //       await supabase
-  //           .from('favoritemenus')
-  //           .delete()
-  //           .eq('user_id', supabase.auth.currentUser!.id)
-  //           .eq('menu_id', menuId);
-
-  //       // Show success message
-  //       if (mounted) {
-  //         showToast(
-  //           context,
-  //           title: 'Berhasil!',
-  //           message: 'Menu berhasil dihapus ke favorit!',
-  //           Type: ToastificationType.success,
-  //         );
-  //       }
-  //     }
-  //   } catch (e) {
-  //     // If there's an error, revert the UI change
-  //     if (mounted) {
-  //       setState(() {
-  //         _favoriteStates[menuId] = !(_favoriteStates[menuId] ?? false);
-  //       });
-
-  //       showToast(
-  //         context,
-  //         title: 'Gagai!',
-  //         message: 'Error menghapus favorite',
-  //         Type: ToastificationType.error,
-  //       );
-
-  //       debugPrint('Error updating favoritemenus: $e');
-  //     }
-  //   }
-  // }
-
   String formatCurrency(int amount) {
     final format = NumberFormat('#,###', 'id_ID');
     return 'Rp. ${format.format(amount)}';
   }
 
-  List<Map<String, dynamic>> _reviewsList = [];
-
-  Future<void> fetchAllReviews() async {
+  Future<void> fetchReviews() async {
     try {
-      final response = await supabase.from('review').select();
+      final currentUser = supabase.auth.currentUser;
+      if (currentUser != null) {
+        // Ambil username dari profile user saat ini
+        final profileData =
+            await supabase
+                .from('profiles')
+                .select('username')
+                .eq('id', currentUser.id)
+                .single();
 
-      if (mounted) {
-        setState(() {
-          _reviewsList = List<Map<String, dynamic>>.from(response);
-          _isLoading = false;
-        });
+        final username = profileData['username'];
+
+        // Ambil menu yang sudah dipesan dan selesai
+        final response = await supabase
+            .from('pesanan')
+            .select('''
+              pesanan_menu!inner(
+                menu!inner(
+                  id,
+                  name,
+                  harga,
+                  image_url
+                )
+              )
+            ''')
+            .eq('username', username)
+            .eq('status_pesanan', 'Selesai');
+
+        // Ubah format data untuk ditampilkan
+        List<Map<String, dynamic>> menuList = [];
+
+        if (response != null) {
+          for (var pesanan in response) {
+            for (var pesananMenu in pesanan['pesanan_menu']) {
+              final menu = pesananMenu['menu'];
+              // Periksa apakah menu sudah ada di list untuk menghindari duplikat
+              if (!menuList.any((item) => item['menu_id'] == menu['id'])) {
+                menuList.add({
+                  'menu_id': menu['id'],
+                  'menu_name': menu['name'],
+                  'menu_price': menu['harga'],
+                  'menu_image': menu['image_url'],
+                  // Tambahkan field lain yang diperlukan
+                });
+              }
+            }
+          }
+        }
+
+        if (mounted) {
+          setState(() {
+            _reviewList = menuList;
+            _isLoading = false;
+          });
+        }
+
+        // Tambahkan logging untuk debug
+        print('Current user: ${currentUser?.id}');
+        print('Username: $username');
+        print('Pesanan response: $response');
+        print('Menu list: $menuList');
       }
     } catch (e) {
       debugPrint('Error fetching reviews: $e');
@@ -163,6 +135,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final cartItems = cartProvider.cartItems;
     final totalPrice = cartProvider.getTotalPrice();
+    final currentUser = supabase.auth.currentUser;
 
     if (cartItems.isEmpty) {
       showToast(
@@ -192,61 +165,42 @@ class _ReviewsPageState extends State<ReviewsPage> {
     if (orderType == null) return;
 
     try {
-      String username = 'guest';
-      String? userId;
-      final currentUser = supabase.auth.currentUser;
-
       if (currentUser != null) {
-        userId = currentUser.id;
-        final profileData =
+        final response =
             await supabase
-                .from('profiles')
-                .select('username')
-                .eq('id', userId)
+                .from('pesanan')
+                .insert({
+                  'user_id': currentUser.id, // Simpan user_id saat checkout
+                  'pesanan': cartItems.map((item) => item['name']).join(', '),
+                  'nomor_meja': widget.idMeja,
+                  'total': totalPrice,
+                  'status_pesanan': 'Sedang dibuat',
+                  'tipe_pesanan': orderType,
+                })
+                .select('id')
                 .single();
 
-        if (profileData['username'] != null) {
-          username = profileData['username'];
+        // Get the inserted pesanan ID
+        final pesananId = response['id'];
+
+        // Insert each id_menu into the pesanan_menu table
+        for (final item in cartItems) {
+          await supabase.from('pesanan_menu').insert({
+            'id_pesanan': pesananId,
+            'id_menu': item['id'],
+          });
         }
+
+        // Clear the cart after successful checkout
+        cartProvider.clearCart();
+
+        showToast(
+          context,
+          title: 'Pesanan berhasil dibuat!',
+          message: 'Silahkan untuk menunggu pesanan',
+          Type: ToastificationType.success,
+        );
       }
-
-      final pesanan = cartItems.map((item) => item['name']).join(', ');
-
-      final response =
-          await supabase
-              .from('pesanan')
-              .insert({
-                'username': username,
-                'pesanan': pesanan,
-                'nomor_meja': widget.idMeja,
-                'total': totalPrice,
-                'status_pesanan': 'Sedang dibuat',
-                'tipe_pesanan':
-                    orderType, // Menggunakan tipe pesanan yang dipilih
-              })
-              .select('id')
-              .single();
-
-      // Get the inserted pesanan ID
-      final pesananId = response['id'];
-
-      // Insert each id_menu into the pesanan_menu table
-      for (final item in cartItems) {
-        await supabase.from('pesanan_menu').insert({
-          'id_pesanan': pesananId,
-          'id_menu': item['id'],
-        });
-      }
-
-      // Clear the cart after successful checkout
-      cartProvider.clearCart();
-
-      showToast(
-        context,
-        title: 'Pesanan berhasil dibuat!',
-        message: 'Silahkan untuk menunggu pesanan',
-        Type: ToastificationType.success,
-      );
     } catch (e) {
       showToast(
         context,
@@ -257,38 +211,122 @@ class _ReviewsPageState extends State<ReviewsPage> {
     }
   }
 
-  Future<void> _loadFavorites() async {
-    final authService = AuthService();
+  Future<void> saveReview(int menuId, String reviewText, int rating) async {
+    try {
+      final currentUser = supabase.auth.currentUser;
+      if (currentUser != null) {
+        // Periksa apakah review sudah ada
+        final existingReview =
+            await supabase
+                .from('review')
+                .select()
+                .eq('user_id', currentUser.id)
+                .eq('menu_id', menuId)
+                .maybeSingle();
 
-    if (authService.isLoggedIn()) {
-      try {
-        // Fetch all favorites for the current user
-        final response = await supabase
-            .from('favoritemenus')
-            .select('menu_id')
-            .eq('user_id', supabase.auth.currentUser!.id);
-
-        // Create a map of menu IDs to favorite status
-        if (mounted) {
-          setState(() {
-            for (var item in response) {
-              // Make sure to use the correct type for the menu_id
-              int menuId = item['menu_id'];
-              _favoriteStates[menuId] = true;
-            }
+        if (existingReview != null) {
+          // Update review yang sudah ada
+          await supabase
+              .from('review')
+              .update({'review': reviewText, 'rating': rating})
+              .eq('id', existingReview['id']);
+        } else {
+          // Buat review baru
+          await supabase.from('review').insert({
+            'user_id': currentUser.id,
+            'menu_id': menuId,
+            'review': reviewText,
+            'rating': rating,
           });
         }
-      } catch (e) {
-        debugPrint('Error loading favorites: $e');
+
+        showToast(
+          context,
+          title: 'Berhasil!',
+          message: 'Review berhasil disimpan!',
+          Type: ToastificationType.success,
+        );
+
+        // Refresh data setelah menyimpan
+        fetchReviews();
       }
+    } catch (e) {
+      showToast(
+        context,
+        title: 'Gagal!',
+        message: 'Error menyimpan review: $e',
+        Type: ToastificationType.error,
+      );
+    }
+  }
+
+  Future<void> updateReview(int reviewId, String reviewText, int rating) async {
+    try {
+      await supabase
+          .from('review')
+          .update({'review': reviewText, 'rating': rating})
+          .eq('id', reviewId);
+
+      showToast(
+        context,
+        title: 'Berhasil!',
+        message: 'Review berhasil diubah!',
+        Type: ToastificationType.success,
+      );
+    } catch (e) {
+      showToast(
+        context,
+        title: 'Gagal!',
+        message: 'Error mengubah review: $e',
+        Type: ToastificationType.error,
+      );
+    }
+  }
+
+  Future<void> deleteReview(int reviewId) async {
+    try {
+      await supabase.from('review').delete().eq('id', reviewId);
+
+      showToast(
+        context,
+        title: 'Berhasil!',
+        message: 'Review berhasil dihapus!',
+        Type: ToastificationType.success,
+      );
+    } catch (e) {
+      showToast(
+        context,
+        title: 'Gagal!',
+        message: 'Error menghapus review: $e',
+        Type: ToastificationType.error,
+      );
     }
   }
 
   @override
   void initState() {
     super.initState();
-    fetchAllReviews();
-    _loadFavorites();
+    fetchReviews();
+  }
+
+  int _selectedRating = 0;
+
+  Widget _buildStarRating(int menuId) {
+    return Row(
+      children: List.generate(5, (index) {
+        return IconButton(
+          icon: Icon(
+            Icons.star,
+            color: index < _selectedRating ? Colors.amber : Colors.grey,
+          ),
+          onPressed: () {
+            setState(() {
+              _selectedRating = index + 1;
+            });
+          },
+        );
+      }),
+    );
   }
 
   @override
@@ -342,66 +380,31 @@ class _ReviewsPageState extends State<ReviewsPage> {
                       ? const Center(child: CircularProgressIndicator())
                       : SingleChildScrollView(
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 100, right: 100),
+                          padding: const EdgeInsets.only(left: 100),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Reviews',
-                                    style: const TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color.fromARGB(255, 127, 88, 56),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder:
-                                              (context) => myReviewsPage(
-                                                idMeja: widget.idMeja,
-                                              ),
-                                        ),
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      fixedSize: Size(150, 48),
-                                      backgroundColor: Color.fromARGB(
-                                        255,
-                                        127,
-                                        88,
-                                        56,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'ReviewKu',
-                                      style: TextStyle(
-                                        fontFamily: 'Oxanium',
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              // Menampilkan cards dalam Column
-                              ..._reviewsList.map(
-                                (review) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 20.0),
-                                  child: _buildReviewCard(review),
+                              Text(
+                                'Review',
+                                style: const TextStyle(
+                                  fontFamily: 'Oxanium',
+                                  fontSize: 32,
+                                  fontWeight: FontWeight.w500,
+                                  color: Color.fromARGB(255, 127, 88, 56),
                                 ),
                               ),
+                              const SizedBox(height: 20),
+                              // Menampilkan cards dalam Column
+                              ..._reviewList
+                                  .map(
+                                    (review) => Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 20.0,
+                                      ),
+                                      child: _buildCard(review),
+                                    ),
+                                  )
+                                  .toList(),
                             ],
                           ),
                         ),
@@ -873,31 +876,157 @@ class _ReviewsPageState extends State<ReviewsPage> {
     );
   }
 
-  Widget _buildReviewCard(Map<String, dynamic> review) {
+  Widget _buildCard(Map<String, dynamic> review) {
     return Card(
       elevation: 3,
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
           children: [
-            Text(
-              review['review'],
-              style: TextStyle(
-                fontFamily: 'Oxanium',
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 220,
+                  height: 200,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child:
+                        review['menu_image'] != null &&
+                                review['menu_image'].isNotEmpty
+                            ? Image.network(
+                              review['menu_image'],
+                              fit: BoxFit.cover,
+                            )
+                            : Placeholder(),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  review['menu_name'],
+                  style: TextStyle(
+                    fontFamily: 'Oxanium',
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  formatCurrency(review['menu_price']),
+                  style: TextStyle(
+                    fontFamily: 'Oxanium',
+                    fontSize: 24,
+                    fontWeight: FontWeight.w600,
+                    color: Color.fromARGB(255, 84, 47, 17),
+                  ),
+                ),
+              ],
             ),
-            Row(
-              children: List.generate(5, (index) {
-                return Icon(
-                  Icons.star,
-                  color: index < review['rating'] ? Colors.amber : Colors.grey,
-                );
-              }),
+            const SizedBox(width: 20),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Beri rating :',
+                    style: TextStyle(
+                      fontFamily: 'Oxanium',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  _buildStarRating(review['menu_id']),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Deskripsikan pengalamanmu :',
+                    style: TextStyle(
+                      fontFamily: 'Oxanium',
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: deskripsiReview,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Tulis deskripsi review',
+                    ),
+                  ),
+                  const SizedBox(height: 160),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          saveReview(
+                            review['menu_id'],
+                            deskripsiReview.text,
+                            _selectedRating,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          fixedSize: const Size(120, 40),
+                        ),
+                        child: const Text(
+                          'Simpan',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          updateReview(
+                            review['id'],
+                            deskripsiReview.text,
+                            _selectedRating,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.brown,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          fixedSize: const Size(120, 40),
+                        ),
+                        child: const Text(
+                          'Edit',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      ElevatedButton(
+                        onPressed: () {
+                          deleteReview(review['id']);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(
+                            255,
+                            249,
+                            66,
+                            0,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          fixedSize: const Size(120, 40),
+                        ),
+                        child: const Text(
+                          'Hapus',
+                          style: TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),

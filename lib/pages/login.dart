@@ -88,11 +88,27 @@ class _LoginpageState extends State<Loginpage> {
       final response =
           await supabase
               .from('profiles')
-              .select('id, roles, email')
+              .select('id, roles, email, username')
               .or('username.eq.$input,email.eq.$input')
               .single();
 
+      if (response == null || response.isEmpty) {
+        showToast(
+          context,
+          title: 'Login gagal',
+          message: 'Email, username atau password salah',
+          Type: ToastificationType.error,
+        );
+        setState(() {
+          isLoginFailed = true;
+          isLoading = false;
+        });
+        return;
+      }
+
       final role = response['roles'];
+      final email = response['email'];
+      final username = response['username'];
 
       // Attempt to log in with the retrieved user ID
       final hasil = await _auth.signIn(
@@ -112,13 +128,13 @@ class _LoginpageState extends State<Loginpage> {
           isLoading = false;
         });
       } else {
+        showToast(
+          context,
+          title: 'Login berhasil',
+          message: 'Selamat datang! $username',
+          Type: ToastificationType.success,
+        );
         setState(() {
-          showToast(
-            context,
-            title: 'Login berhasil',
-            message: 'Selamat datang!',
-            Type: ToastificationType.success,
-          );
           isLoading = false;
         });
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/auth/auth.dart';
 import 'package:gcoffee_r/pages/customer/favoritepage.dart';
+import 'package:gcoffee_r/pages/customer/reviews.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -761,7 +762,7 @@ class _homePageCustState extends State<homePageCust> {
                                 MaterialPageRoute(
                                   builder:
                                       (context) =>
-                                          PageFavorite(idMeja: widget.idMeja),
+                                          ReviewsPage(idMeja: widget.idMeja),
                                 ),
                               );
                             } else {
@@ -782,8 +783,8 @@ class _homePageCustState extends State<homePageCust> {
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: HeroIcon(
-                              HeroIcons.heart,
+                            child: Icon(
+                              Icons.reviews_outlined,
                               size: 40,
                               color: Colors.white,
                             ),
@@ -833,7 +834,7 @@ class _homePageCustState extends State<homePageCust> {
               .toList();
       rows.add(
         Padding(
-          padding: const EdgeInsets.only(right: 30.0),
+          padding: const EdgeInsets.only(right: 30.0, top: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.start,
             children: rowChildren,
@@ -915,8 +916,17 @@ class _homePageCustState extends State<homePageCust> {
                 ],
               ),
               const SizedBox(height: 15),
-
-              // Other card content...
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.star, color: Colors.amber, size: 20),
+                  Icon(Icons.star, color: Colors.amber, size: 20),
+                  Icon(Icons.star, color: Colors.amber, size: 20),
+                  Icon(Icons.star, color: Colors.amber, size: 20),
+                  Icon(Icons.star, color: Colors.amber, size: 20),
+                ],
+              ),
+              const SizedBox(height: 5),
               Text(
                 menu['nama_menu'], // Replace with your menu name field
                 style: const TextStyle(
