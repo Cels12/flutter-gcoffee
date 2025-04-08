@@ -3,7 +3,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/auth/auth.dart';
 import 'package:gcoffee_r/pages/customer/favoritepage.dart';
 import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
-import 'package:gcoffee_r/pages/customer/myReviewPage.dart';
+import 'package:gcoffee_r/pages/customer/MyReviewPage.dart';
 import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';

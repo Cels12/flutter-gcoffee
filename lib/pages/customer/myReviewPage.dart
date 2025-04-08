@@ -17,18 +17,17 @@ import 'package:toastification/toastification.dart';
 // ignore: camel_case_types
 class myReviewsPage extends StatefulWidget {
   final String idMeja;
-  const myReviewsPage({Key? key, required this.idMeja});
+  const myReviewsPage({super.key, required this.idMeja});
 
   @override
-  State<myReviewsPage> createState() => _myReviewsPageState();
+  State<myReviewsPage> createState() => _MyReviewsPageState();
 }
 
-// Remove CartProvider class here and continue with _myReviewsPageState
-class _myReviewsPageState extends State<myReviewsPage> {
+// Remove CartProvider class here and continue with _MyReviewsPageState
+class _MyReviewsPageState extends State<myReviewsPage> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _reviewList = [];
   final TextEditingController deskripsiReview = TextEditingController();
-  Map<int, bool> _favoriteStates = {};
   bool _isLoading = true;
   bool _isMenuOpen = false;
   bool _isCartOpen = false;
@@ -61,65 +60,93 @@ class _myReviewsPageState extends State<myReviewsPage> {
     try {
       final currentUser = supabase.auth.currentUser;
       if (currentUser != null) {
-        // Ambil username dari profile user saat ini
-        final profileData =
+        // Get username from profiles first
+        final userProfile =
             await supabase
                 .from('profiles')
                 .select('username')
                 .eq('id', currentUser.id)
                 .single();
 
-        final username = profileData['username'];
+        final username = userProfile['username'];
+        debugPrint('Current username: $username'); // Debug
 
-        // Ambil menu yang sudah dipesan dan selesai
-        final response = await supabase
+        // Get all completed orders for this username
+        final orders = await supabase
             .from('pesanan')
-            .select('''
-              pesanan_menu!inner(
-                menu!inner(
-                  id,
-                  name,
-                  harga,
-                  image_url
-                )
-              )
-            ''')
+            .select('id')
             .eq('username', username)
             .eq('status_pesanan', 'Selesai');
 
-        // Ubah format data untuk ditampilkan
-        List<Map<String, dynamic>> menuList = [];
+        debugPrint('Orders: $orders'); // Debug
 
-        if (response != null) {
-          for (var pesanan in response) {
-            for (var pesananMenu in pesanan['pesanan_menu']) {
-              final menu = pesananMenu['menu'];
-              // Periksa apakah menu sudah ada di list untuk menghindari duplikat
-              if (!menuList.any((item) => item['menu_id'] == menu['id'])) {
-                menuList.add({
-                  'menu_id': menu['id'],
-                  'menu_name': menu['name'],
-                  'menu_price': menu['harga'],
-                  'menu_image': menu['image_url'],
-                  // Tambahkan field lain yang diperlukan
-                });
-              }
-            }
+        if (orders.isEmpty) {
+          // No completed orders
+          if (mounted) {
+            setState(() {
+              _reviewList = [];
+              _isLoading = false;
+            });
           }
+          return;
         }
+
+        // Extract order IDs
+        List<int> orderIds =
+            orders.map<int>((order) => order['id'] as int).toList();
+
+        // Get all menu items from these orders using pesanan_menu relationship
+        final menuItems = await supabase
+            .from('pesanan_menu')
+            .select('id_menu')
+            .inFilter('id_pesanan', orderIds);
+
+        debugPrint('Menu items from orders: $menuItems'); // Debug
+
+        if (menuItems.isEmpty) {
+          // No menu items found
+          if (mounted) {
+            setState(() {
+              _reviewList = [];
+              _isLoading = false;
+            });
+          }
+          return;
+        }
+
+        // Extract menu IDs
+        List<int> menuIds =
+            menuItems.map<int>((item) => item['id_menu'] as int).toList();
+
+        // Get detailed menu information
+        final menuDetails = await supabase
+            .from('menu')
+            .select(
+              'id, nama_menu, harga, gambar',
+            ) // Assuming these are the actual column names
+            .inFilter('id', menuIds);
+
+        debugPrint('Menu details: $menuDetails'); // Debug
+
+        // Format for display
+        List<Map<String, dynamic>> reviewableMenus =
+            menuDetails.map<Map<String, dynamic>>((menu) {
+              return {
+                'menu_id': menu['id'],
+                'menu_name':
+                    menu['nama_menu'], // Assuming this is the column name
+                'menu_price': menu['harga'],
+                'menu_image':
+                    menu['gambar'], // Assuming this is the image column
+              };
+            }).toList();
 
         if (mounted) {
           setState(() {
-            _reviewList = menuList;
+            _reviewList = reviewableMenus;
             _isLoading = false;
           });
         }
-
-        // Tambahkan logging untuk debug
-        print('Current user: ${currentUser?.id}');
-        print('Username: $username');
-        print('Pesanan response: $response');
-        print('Menu list: $menuList');
       }
     } catch (e) {
       debugPrint('Error fetching reviews: $e');
@@ -410,7 +437,6 @@ class _myReviewsPageState extends State<myReviewsPage> {
                         ),
                       ),
             ),
-
             //profile dropdown menu
             AnimatedPositioned(
               duration: Duration(microseconds: 300),
@@ -877,158 +903,161 @@ class _myReviewsPageState extends State<myReviewsPage> {
   }
 
   Widget _buildCard(Map<String, dynamic> review) {
-    return Card(
-      elevation: 3,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Row(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  width: 220,
-                  height: 200,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child:
-                        review['menu_image'] != null &&
-                                review['menu_image'].isNotEmpty
-                            ? Image.network(
-                              review['menu_image'],
-                              fit: BoxFit.cover,
-                            )
-                            : Placeholder(),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                Text(
-                  review['menu_name'],
-                  style: TextStyle(
-                    fontFamily: 'Oxanium',
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Text(
-                  formatCurrency(review['menu_price']),
-                  style: TextStyle(
-                    fontFamily: 'Oxanium',
-                    fontSize: 24,
-                    fontWeight: FontWeight.w600,
-                    color: Color.fromARGB(255, 84, 47, 17),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: Column(
+    return SizedBox(
+      width: 1300,
+      child: Card(
+        elevation: 3,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Beri rating :',
-                    style: TextStyle(
-                      fontFamily: 'Oxanium',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  _buildStarRating(review['menu_id']),
-                  const SizedBox(height: 10),
-                  Text(
-                    'Deskripsikan pengalamanmu :',
-                    style: TextStyle(
-                      fontFamily: 'Oxanium',
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                  SizedBox(
+                    width: 220,
+                    height: 200,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child:
+                          review['menu_image'] != null &&
+                                  review['menu_image'].isNotEmpty
+                              ? Image.network(
+                                review['menu_image'],
+                                fit: BoxFit.cover,
+                              )
+                              : Placeholder(),
                     ),
                   ),
                   const SizedBox(height: 10),
-                  TextField(
-                    controller: deskripsiReview,
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: 'Tulis deskripsi review',
+                  Text(
+                    review['menu_name'],
+                    style: TextStyle(
+                      fontFamily: 'Oxanium',
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 160),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          saveReview(
-                            review['menu_id'],
-                            deskripsiReview.text,
-                            _selectedRating,
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          fixedSize: const Size(120, 40),
-                        ),
-                        child: const Text(
-                          'Simpan',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          updateReview(
-                            review['id'],
-                            deskripsiReview.text,
-                            _selectedRating,
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.brown,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          fixedSize: const Size(120, 40),
-                        ),
-                        child: const Text(
-                          'Edit',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      ElevatedButton(
-                        onPressed: () {
-                          deleteReview(review['id']);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(
-                            255,
-                            249,
-                            66,
-                            0,
-                          ),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          fixedSize: const Size(120, 40),
-                        ),
-                        child: const Text(
-                          'Hapus',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
+                  Text(
+                    formatCurrency(review['menu_price']),
+                    style: TextStyle(
+                      fontFamily: 'Oxanium',
+                      fontSize: 24,
+                      fontWeight: FontWeight.w600,
+                      color: Color.fromARGB(255, 84, 47, 17),
+                    ),
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(width: 20),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Beri rating :',
+                      style: TextStyle(
+                        fontFamily: 'Oxanium',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildStarRating(review['menu_id']),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Deskripsikan pengalamanmu :',
+                      style: TextStyle(
+                        fontFamily: 'Oxanium',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: deskripsiReview,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Tulis deskripsi review',
+                      ),
+                    ),
+                    const SizedBox(height: 160),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            saveReview(
+                              review['menu_id'],
+                              deskripsiReview.text,
+                              _selectedRating,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            fixedSize: const Size(120, 40),
+                          ),
+                          child: const Text(
+                            'Simpan',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            updateReview(
+                              review['id'],
+                              deskripsiReview.text,
+                              _selectedRating,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.brown,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            fixedSize: const Size(120, 40),
+                          ),
+                          child: const Text(
+                            'Edit',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: () {
+                            deleteReview(review['id']);
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color.fromARGB(
+                              255,
+                              249,
+                              66,
+                              0,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            fixedSize: const Size(120, 40),
+                          ),
+                          child: const Text(
+                            'Hapus',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
