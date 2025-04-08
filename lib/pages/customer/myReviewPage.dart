@@ -141,6 +141,28 @@ class _MyReviewsPageState extends State<myReviewsPage> {
               };
             }).toList();
 
+        // Setelah mendapatkan menu details, ambil review yang sudah ada
+        for (var menu in reviewableMenus) {
+          final menuId = menu['menu_id'] as int;
+          final existingReview =
+              await supabase
+                  .from('review')
+                  .select('rating, review')
+                  .eq('menu_id', menuId)
+                  .eq('user_id', currentUser.id)
+                  .maybeSingle();
+
+          if (existingReview != null) {
+            // Set rating yang sudah ada
+            _ratings.putIfAbsent(menuId, () => existingReview['rating']);
+            // Set text yang sudah ada
+            _reviewControllers.putIfAbsent(
+              menuId,
+              () => TextEditingController(text: existingReview['review']),
+            );
+          }
+        }
+
         if (mounted) {
           setState(() {
             _reviewList = reviewableMenus;
@@ -262,7 +284,7 @@ class _MyReviewsPageState extends State<myReviewsPage> {
           await supabase.from('review').insert({
             'user_id': currentUser.id,
             'menu_id': menuId,
-            'review': reviewText,
+            'review': deskripsiReview,
             'rating': rating,
           });
         }
@@ -336,19 +358,24 @@ class _MyReviewsPageState extends State<myReviewsPage> {
     fetchReviews();
   }
 
-  int _selectedRating = 0;
+  Map<int, int> _ratings = {}; // Menyimpan rating untuk setiap menu
+  Map<int, TextEditingController> _reviewControllers =
+      {}; // Menyimpan controller untuk setiap menu
 
   Widget _buildStarRating(int menuId) {
+    // Inisialisasi rating jika belum ada
+    _ratings.putIfAbsent(menuId, () => 0);
+
     return Row(
       children: List.generate(5, (index) {
         return IconButton(
           icon: Icon(
             Icons.star,
-            color: index < _selectedRating ? Colors.amber : Colors.grey,
+            color: index < (_ratings[menuId] ?? 0) ? Colors.amber : Colors.grey,
           ),
           onPressed: () {
             setState(() {
-              _selectedRating = index + 1;
+              _ratings[menuId] = index + 1;
             });
           },
         );
@@ -916,25 +943,26 @@ class _MyReviewsPageState extends State<myReviewsPage> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(
-                    width: 220,
-                    height: 200,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child:
-                          review['menu_image'] != null &&
-                                  review['menu_image'].isNotEmpty
-                              ? Image.network(
-                                review['menu_image'],
-                                fit: BoxFit.cover,
-                              )
-                              : Placeholder(),
-                    ),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child:
+                        review['menu_image'] != null &&
+                                review['menu_image'].isNotEmpty
+                            ? Image.network(
+                              review['menu_image'],
+                              fit: BoxFit.cover,
+                              width: 220,
+                              height: 200,
+                            )
+                            : const Placeholder(
+                              fallbackWidth: 220,
+                              fallbackHeight: 200,
+                            ),
                   ),
                   const SizedBox(height: 10),
                   Text(
                     review['menu_name'],
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Oxanium',
                       fontSize: 30,
                       fontWeight: FontWeight.bold,
@@ -942,7 +970,7 @@ class _MyReviewsPageState extends State<myReviewsPage> {
                   ),
                   Text(
                     formatCurrency(review['menu_price']),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Oxanium',
                       fontSize: 24,
                       fontWeight: FontWeight.w600,
@@ -977,7 +1005,7 @@ class _MyReviewsPageState extends State<myReviewsPage> {
                     ),
                     const SizedBox(height: 10),
                     TextField(
-                      controller: deskripsiReview,
+                      controller: _reviewControllers[review['menu_id']],
                       decoration: InputDecoration(
                         border: OutlineInputBorder(),
                         hintText: 'Tulis deskripsi review',
@@ -992,8 +1020,8 @@ class _MyReviewsPageState extends State<myReviewsPage> {
                           onPressed: () {
                             saveReview(
                               review['menu_id'],
-                              deskripsiReview.text,
-                              _selectedRating,
+                              _reviewControllers[review['menu_id']]?.text ?? '',
+                              _ratings[review['menu_id']] ?? 0,
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -1013,8 +1041,8 @@ class _MyReviewsPageState extends State<myReviewsPage> {
                           onPressed: () {
                             updateReview(
                               review['id'],
-                              deskripsiReview.text,
-                              _selectedRating,
+                              _reviewControllers[review['menu_id']]?.text ?? '',
+                              _ratings[review['menu_id']] ?? 0,
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -1061,5 +1089,14 @@ class _MyReviewsPageState extends State<myReviewsPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    // Bersihkan semua controller
+    for (var controller in _reviewControllers.values) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 }
