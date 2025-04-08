@@ -77,7 +77,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
               roles
             ),
             menu_id (
-              id_menu,
+              id,
               nama_menu,
               gambar
             )
@@ -96,7 +96,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
         }
 
         if (item['menu_id'] != null) {
-          int menuId = item['menu_id']['id_menu'];
+          int menuId = item['menu_id']['id'];
           menuData[menuId.toString()] = item['menu_id'];
         }
         processedReviews.add(item);
@@ -986,8 +986,8 @@ class _ReviewsPageState extends State<ReviewsPage> {
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
                     menuImage,
-                    height: 120,
-                    width: double.infinity,
+                    height: 200,
+                    width: 220,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) {
                       return Container(
