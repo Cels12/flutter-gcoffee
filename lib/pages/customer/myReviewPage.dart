@@ -930,6 +930,10 @@ class _MyReviewsPageState extends State<myReviewsPage> {
   }
 
   Widget _buildCard(Map<String, dynamic> review) {
+    _reviewControllers.putIfAbsent(
+      review['menu_id'],
+      () => TextEditingController(),
+    );
     return SizedBox(
       width: 1300,
       child: Card(

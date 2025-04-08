@@ -361,6 +361,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                                   ),
                                 ],
                               ),
+                              const SizedBox(height: 20),
                               // Menampilkan cards dalam Column
                               ..._reviewsList.map(
                                 (review) => Padding(
@@ -853,17 +854,31 @@ class _ReviewsPageState extends State<ReviewsPage> {
     String formattedDate = '';
     if (review['created_at'] != null) {
       try {
-        final dateTime = DateTime.parse(review['created_at']);
-        formattedDate = DateFormat(
-          'dd MMM yyyy, HH:mm',
-          'id_ID',
-        ).format(dateTime);
+        // Print the raw value for debugging
+        print('Raw created_at value: ${review['created_at']}');
+
+        // Handle different possible formats
+        DateTime dateTime;
+        if (review['created_at'] is String) {
+          dateTime = DateTime.parse(review['created_at']);
+        } else if (review['created_at'] is DateTime) {
+          dateTime = review['created_at'];
+        } else {
+          // Try to convert timestamp to DateTime if it's another format
+          final timestamp = review['created_at'].toString();
+          dateTime = DateTime.parse(timestamp);
+        }
+
+        // Make sure locale is imported and available
+        formattedDate = DateFormat('dd MMM yyyy, HH:mm').format(dateTime);
       } catch (e) {
+        debugPrint('Error formatting date: $e');
         formattedDate = 'Tanggal tidak tersedia';
       }
     }
 
     return Card(
+      color: Colors.white,
       elevation: 4,
       margin: EdgeInsets.only(bottom: 20),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -872,7 +887,6 @@ class _ReviewsPageState extends State<ReviewsPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // User and Menu information
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
