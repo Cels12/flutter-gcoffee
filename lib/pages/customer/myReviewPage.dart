@@ -284,7 +284,7 @@ class _MyReviewsPageState extends State<myReviewsPage> {
           await supabase.from('review').insert({
             'user_id': currentUser.id,
             'menu_id': menuId,
-            'review': deskripsiReview,
+            'review': _reviewControllers,
             'rating': rating,
           });
         }

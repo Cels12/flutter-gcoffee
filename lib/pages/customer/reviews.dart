@@ -8,7 +8,7 @@ import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
-import 'package:gcoffee_r/styles/textstyles.dart';
+// import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -27,8 +27,9 @@ class ReviewsPage extends StatefulWidget {
 // Remove CartProvider class here and continue with _ReviewsPageState
 class _ReviewsPageState extends State<ReviewsPage> {
   final supabase = Supabase.instance.client;
-  List<Map<String, dynamic>> _menuList = [];
   Map<int, bool> _favoriteStates = {};
+  Map<String, dynamic> _reviewUserData = {};
+  Map<String, dynamic> _reviewMenuData = {};
   bool _isLoading = true;
   bool _isMenuOpen = false;
   bool _isCartOpen = false;
@@ -52,86 +53,6 @@ class _ReviewsPageState extends State<ReviewsPage> {
     });
   }
 
-  // void _toggleFavorited(int menuId, Map<String, dynamic> menu) async {
-  //   final authService = AuthService();
-
-  //   // Redirect to LoginPage if the user is not logged in
-  //   if (!authService.isLoggedIn()) {
-  //     showToast(
-  //       context,
-  //       title: "Perlu Login",
-  //       message: "Kamu harus login dulu!",
-  //       Type: ToastificationType.warning,
-  //     );
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(builder: (context) => Loginpage()),
-  //     );
-  //     return;
-  //   }
-
-  //   // Toggle the favorite state in UI immediately for responsiveness
-  //   setState(() {
-  //     _favoriteStates[menuId] = !(_favoriteStates[menuId] ?? false);
-  //   });
-
-  //   try {
-  //     if (_favoriteStates[menuId] == true) {
-  //       // Add the menu to the favoritemenus table
-  //       await supabase.from('favoritemenus').insert({
-  //         'user_id': supabase.auth.currentUser!.id, // Current user's ID
-  //         'menu_id': menuId, // Menu ID
-  //         'menu_name': menu['nama_menu'], // Menu name
-  //         'menu_price': menu['harga'], // Menu price
-  //         'menu_image': menu['gambar'], // Menu image URL
-  //       });
-
-  //       // Show success message
-  //       if (mounted) {
-  //         showToast(
-  //           context,
-  //           title: 'Berhasil!',
-  //           message: 'Menu berhasil ditambahkan ke favorit!',
-  //           Type: ToastificationType.success,
-  //         );
-  //       }
-  //     } else {
-  //       // Remove the menu from the favoritemenus table
-  //       await supabase
-  //           .from('favoritemenus')
-  //           .delete()
-  //           .eq('user_id', supabase.auth.currentUser!.id)
-  //           .eq('menu_id', menuId);
-
-  //       // Show success message
-  //       if (mounted) {
-  //         showToast(
-  //           context,
-  //           title: 'Berhasil!',
-  //           message: 'Menu berhasil dihapus ke favorit!',
-  //           Type: ToastificationType.success,
-  //         );
-  //       }
-  //     }
-  //   } catch (e) {
-  //     // If there's an error, revert the UI change
-  //     if (mounted) {
-  //       setState(() {
-  //         _favoriteStates[menuId] = !(_favoriteStates[menuId] ?? false);
-  //       });
-
-  //       showToast(
-  //         context,
-  //         title: 'Gagai!',
-  //         message: 'Error menghapus favorite',
-  //         Type: ToastificationType.error,
-  //       );
-
-  //       debugPrint('Error updating favoritemenus: $e');
-  //     }
-  //   }
-  // }
-
   String formatCurrency(int amount) {
     final format = NumberFormat('#,###', 'id_ID');
     return 'Rp. ${format.format(amount)}';
@@ -141,20 +62,65 @@ class _ReviewsPageState extends State<ReviewsPage> {
 
   Future<void> fetchAllReviews() async {
     try {
-      final response = await supabase.from('review').select();
+      setState(() {
+        _isLoading = true;
+      });
 
+      //fetch reviews
+      final response = await supabase
+          .from('review')
+          .select('''
+            *,
+            user_id (
+              id,
+              username,
+              roles
+            ),
+            menu_id (
+              id_menu,
+              nama_menu,
+              gambar
+            )
+          ''')
+          .order('created_at', ascending: false);
+
+      //process the review data
+      List<Map<String, dynamic>> processedReviews = [];
+      Map<String, dynamic> userData = {};
+      Map<String, dynamic> menuData = {};
+
+      for (var item in response) {
+        if (item['user_id'] != null) {
+          String userId = item['user_id']['id'];
+          userData[userId] = item['user_id'];
+        }
+
+        if (item['menu_id'] != null) {
+          int menuId = item['menu_id']['id_menu'];
+          menuData[menuId.toString()] = item['menu_id'];
+        }
+        processedReviews.add(item);
+      }
       if (mounted) {
         setState(() {
-          _reviewsList = List<Map<String, dynamic>>.from(response);
+          _reviewsList = processedReviews;
+          _reviewUserData = userData;
+          _reviewMenuData = menuData;
           _isLoading = false;
         });
       }
     } catch (e) {
-      debugPrint('Error fetching reviews: $e');
+      debugPrint('Error fetching reviews $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
+        showToast(
+          context,
+          title: 'Gagal memuat alasan',
+          message: 'Terjadi kesalahan saat memuat data review',
+          Type: ToastificationType.error,
+        );
       }
     }
   }
@@ -399,7 +365,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                               ..._reviewsList.map(
                                 (review) => Padding(
                                   padding: const EdgeInsets.only(bottom: 20.0),
-                                  child: _buildReviewCard(review),
+                                  child: _buildEnhancedReviewCard(review),
                                 ),
                               ),
                             ],
@@ -873,32 +839,172 @@ class _ReviewsPageState extends State<ReviewsPage> {
     );
   }
 
-  Widget _buildReviewCard(Map<String, dynamic> review) {
+  Widget _buildEnhancedReviewCard(Map<String, dynamic> review) {
+    // Get user data
+    final userData = review['user_id'] ?? {};
+    final username = userData['username'] ?? 'Anonymous';
+
+    // Get menu data
+    final menuData = review['menu_id'] ?? {};
+    final menuName = menuData['nama_menu'] ?? 'Menu tidak tersedia';
+    final menuImage = menuData['gambar'];
+
+    // Format date
+    String formattedDate = '';
+    if (review['created_at'] != null) {
+      try {
+        final dateTime = DateTime.parse(review['created_at']);
+        formattedDate = DateFormat(
+          'dd MMM yyyy, HH:mm',
+          'id_ID',
+        ).format(dateTime);
+      } catch (e) {
+        formattedDate = 'Tanggal tidak tersedia';
+      }
+    }
+
     return Card(
-      elevation: 3,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      elevation: 4,
+      margin: EdgeInsets.only(bottom: 20),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              review['review'],
-              style: TextStyle(
-                fontFamily: 'Oxanium',
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+            // User and Menu information
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // User profile icon
+                CircleAvatar(
+                  backgroundColor: Color.fromARGB(255, 127, 88, 56),
+                  child: Text(
+                    username.isNotEmpty ? username[0].toUpperCase() : 'A',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+
+                SizedBox(width: 12),
+
+                // Username and date
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        username,
+                        style: TextStyle(
+                          fontFamily: 'Oxanium',
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        formattedDate,
+                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Menu badge if available
+                if (menuName != 'Menu tidak tersedia')
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(
+                        255,
+                        210,
+                        156,
+                        108,
+                      ).withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: Color.fromARGB(255, 210, 156, 108),
+                        width: 1,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.coffee,
+                          size: 16,
+                          color: Color.fromARGB(255, 127, 88, 56),
+                        ),
+                        SizedBox(width: 5),
+                        Text(
+                          menuName,
+                          style: TextStyle(
+                            color: Color.fromARGB(255, 127, 88, 56),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+              ],
             ),
+
+            SizedBox(height: 12),
+
+            // Rating stars
             Row(
               children: List.generate(5, (index) {
                 return Icon(
                   Icons.star,
-                  color: index < review['rating'] ? Colors.amber : Colors.grey,
+                  color:
+                      index < (review['rating'] ?? 0)
+                          ? Colors.amber
+                          : Colors.grey[300],
+                  size: 24,
                 );
               }),
             ),
+
+            SizedBox(height: 12),
+
+            // Review text
+            Text(
+              review['review'] ?? 'No review text',
+              style: TextStyle(
+                fontFamily: 'Oxanium',
+                fontSize: 16,
+                color: Colors.black87,
+              ),
+            ),
+
+            // If there's a menu image, show it
+            if (menuImage != null && menuImage.toString().isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 16.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    menuImage,
+                    height: 120,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        height: 120,
+                        width: double.infinity,
+                        color: Colors.grey[200],
+                        child: Center(
+                          child: Icon(
+                            Icons.image_not_supported,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
           ],
         ),
       ),
