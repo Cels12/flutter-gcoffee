@@ -1,4 +1,5 @@
-// ignore: file_names
+// ignore_for_file: file_names
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/auth/auth.dart';
@@ -373,7 +374,9 @@ class _MyReviewPageState extends State<MyReviewPage> {
     fetchReviews();
   }
 
+  // ignore: prefer_final_fields
   Map<int, int> _ratings = {}; // Menyimpan rating untuk setiap menu
+  // ignore: prefer_final_fields
   Map<int, TextEditingController> _reviewControllers =
       {}; // Menyimpan controller untuk setiap menu
 

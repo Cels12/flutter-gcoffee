@@ -6,7 +6,6 @@ import 'package:gcoffee_r/pages/customer/reviews.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/pages/signup.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
-import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
@@ -29,6 +28,7 @@ class _HomePageCustState extends State<homePageCust> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _menuList = [];
   Map<int, double> _averageRatings = {};
+  // ignore: prefer_final_fields
   Map<int, bool> _favoriteStates = {};
   List<Map<String, dynamic>> _filteredMenuList = [];
   final TextEditingController search = TextEditingController();
@@ -137,6 +137,15 @@ class _HomePageCustState extends State<homePageCust> {
         _filteredMenuList = _menuList;
       });
       return;
+    } else if (!_menuList.any(
+      (menu) => menu['nama_menu'].toLowerCase().contains(query.toLowerCase()),
+    )) {
+      debugPrint('Menu tidak ditemukan');
+      Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [Icon(Icons.error), Text('Menu tidak ditemukan!')],
+      );
     }
 
     setState(() {

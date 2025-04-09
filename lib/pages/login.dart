@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gcoffee_r/pages/admin/dashboard.dart';
@@ -9,6 +12,7 @@ import '../auth/auth.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");
@@ -35,6 +39,7 @@ class _LoginpageState extends State<Loginpage> {
   final AuthService _auth = AuthService();
   final TextEditingController emailcontrol = TextEditingController();
   final TextEditingController passwordcontrol = TextEditingController();
+  final supabase = Supabase.instance.client;
   String message = '';
   bool isLoading = false;
   bool isEmailEmpty = false;
@@ -110,6 +115,7 @@ class _LoginpageState extends State<Loginpage> {
       }
 
       final role = response['roles'];
+      // ignore: unused_local_variable
       final email = response['email'];
       final username = response['username'];
 
@@ -160,6 +166,42 @@ class _LoginpageState extends State<Loginpage> {
         }
       }
     }
+  }
+
+  Future<void> _nativeGoogleSignIn() async {
+    ///
+    /// Web Client ID that you registered with Google Cloud.
+    const webClientId =
+        '530147739278-2uqg0pg89n1hald6n0qhrheh75q7stdn.apps.googleusercontent.com';
+
+    ///
+    /// iOS Client ID that you registered with Google Cloud.
+    const iosClientId = 'my-ios.apps.googleusercontent.com';
+
+    // Google sign in on Android will work without providing the Android
+    // Client ID registered on Google Cloud.
+
+    final GoogleSignIn googleSignIn = GoogleSignIn(
+      clientId: iosClientId,
+      serverClientId: webClientId,
+    );
+    final googleUser = await googleSignIn.signIn();
+    final googleAuth = await googleUser!.authentication;
+    final accessToken = googleAuth.accessToken;
+    final idToken = googleAuth.idToken;
+
+    if (accessToken == null) {
+      throw 'No Access Token found.';
+    }
+    if (idToken == null) {
+      throw 'No ID Token found.';
+    }
+
+    await supabase.auth.signInWithIdToken(
+      provider: OAuthProvider.google,
+      idToken: idToken,
+      accessToken: accessToken,
+    );
   }
 
   @override
@@ -380,8 +422,11 @@ class _LoginpageState extends State<Loginpage> {
                   ),
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
-                    onPressed: () {
-                      debugPrint('Masuk dengan google');
+                    onPressed: () async {
+                      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+                        await _nativeGoogleSignIn();
+                      }
+                      await supabase.auth.signInWithOAuth(OAuthProvider.google);
                     },
                     icon: SvgPicture.asset(
                       'assets/icons/google2.svg',

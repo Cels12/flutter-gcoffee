@@ -26,6 +26,7 @@ class PageFavorite extends StatefulWidget {
 class _PageFavoriteState extends State<PageFavorite> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _menuList = [];
+  // ignore: prefer_final_fields
   Map<int, bool> _favoriteStates = {};
   List<Map<String, dynamic>> get cartItems => _menuList;
   bool _isLoading = true;
