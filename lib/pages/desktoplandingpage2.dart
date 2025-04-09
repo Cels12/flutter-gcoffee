@@ -148,7 +148,7 @@ class Desktoplandingpage2 extends StatelessWidget {
                               -8 *
                               3.141592653589793 /
                               180, // 8 degrees in radians
-                          child: Image.asset('assets/img/kopi.png'),
+                          child: Image.asset('img/kopi.png'),
                         ),
                       ),
                     ),

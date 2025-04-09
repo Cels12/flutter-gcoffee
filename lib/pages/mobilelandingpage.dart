@@ -70,10 +70,7 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                           ),
                         ],
                       ),
-                      child: Image.asset(
-                        'assets/img/kopi_cropped.png',
-                        width: 282,
-                      ),
+                      child: Image.asset('img/kopi_cropped.png', width: 282),
                     ),
                   ),
                   Padding(padding: EdgeInsets.symmetric(vertical: 40)),

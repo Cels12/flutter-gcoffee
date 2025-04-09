@@ -21,11 +21,42 @@ class _DashboardState extends State<Dashboard> {
   final supabase = Supabase.instance.client;
 
   List<Map<String, dynamic>> _pesananList = [];
+  List<Map<String, dynamic>> _originalPesananList = [];
 
   // Default values for card info
   int penjualanHarian = 0;
   int penjualanBulanan = 0;
   int jumlahMenu = 0;
+
+  Future<void> searchPesanan() async {
+    String query = search.text.toLowerCase();
+
+    if (query.isEmpty) {
+      setState(() {
+        _pesananList = _originalPesananList;
+      });
+      return;
+    }
+
+    setState(() {
+      _pesananList =
+          _originalPesananList.where((pesanan) {
+            final username = pesanan['username'].toString().toLowerCase();
+            final pesananItems = pesanan['pesanan'].toString().toLowerCase();
+            final nomorMeja = pesanan['nomor_meja'].toString().toLowerCase();
+            final status = pesanan['status_pesanan'].toString().toLowerCase();
+
+            return username.contains(query) ||
+                pesananItems.contains(query) ||
+                nomorMeja.contains(query) ||
+                status.contains(query);
+          }).toList();
+    });
+  }
+
+  void _onSearchChanged() {
+    searchPesanan();
+  }
 
   Future<int> getDataHarian() async {
     try {
@@ -105,6 +136,7 @@ class _DashboardState extends State<Dashboard> {
       if (mounted) {
         setState(() {
           _pesananList = response;
+          _originalPesananList = response;
           _isLoading = false;
         });
       }
@@ -184,14 +216,22 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  bool _isLoading = false;
-
   @override
   void initState() {
     super.initState();
     fetchPesanan();
     fetchDashboardData();
+    search.addListener(_onSearchChanged);
   }
+
+  @override
+  void dispose() {
+    search.removeListener(_onSearchChanged);
+    search.dispose();
+    super.dispose();
+  }
+
+  bool _isLoading = false;
 
   bool _isProfileOpen = false;
   void _toogleProfile() {
@@ -309,6 +349,7 @@ class _DashboardState extends State<Dashboard> {
                 SizedBox(
                   width: 250,
                   child: TextField(
+                    controller: search,
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color.fromARGB(40, 217, 217, 217),
