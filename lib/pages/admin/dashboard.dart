@@ -126,19 +126,20 @@ class _DashboardState extends State<Dashboard> {
   }
 
   // Fungsi untuk mengganti status pesanan ke siap diambil
-  Future<void> updateStatusAmbil(int pesananId) async {
+  Future<void> updateStatusAntar(int pesananId) async {
     try {
       // Update status untuk pesanan dengan ID spesifik
       await supabase
           .from('pesanan')
-          .update({'status_pesanan': 'Siap Diambil'})
+          .update({'status_pesanan': 'Siap Diantar'})
           .eq('id', pesananId);
 
       if (mounted) {
         showToast(
           context,
           title: 'Berhasil',
-          message: 'Berhasil mengubah status pesanan menjadi siap diambil',
+          message:
+              'Berhasil mengubah status pesanan menjadi siap diantar, mohon beri tahu waitress untuk mengatarkan pesanan',
           Type: ToastificationType.success,
         );
       }
@@ -533,7 +534,7 @@ class _DashboardState extends State<Dashboard> {
                                               children: [
                                                 ElevatedButton(
                                                   onPressed: () async {
-                                                    await updateStatusAmbil(
+                                                    await updateStatusAntar(
                                                       pesanan['id'],
                                                     );
                                                     await fetchPesanan();

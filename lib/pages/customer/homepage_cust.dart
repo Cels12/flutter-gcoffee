@@ -5,6 +5,7 @@ import 'package:gcoffee_r/pages/customer/favoritepage.dart';
 import 'package:gcoffee_r/pages/customer/reviews.dart';
 import 'package:gcoffee_r/pages/login.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
+import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
@@ -28,6 +29,8 @@ class _HomePageCustState extends State<homePageCust> {
   List<Map<String, dynamic>> _menuList = [];
   Map<int, double> _averageRatings = {};
   Map<int, bool> _favoriteStates = {};
+  List<Map<String, dynamic>> _filteredMenuList = [];
+  final TextEditingController search = TextEditingController();
   bool _isLoading = true;
   bool _isMenuOpen = false;
   bool _isCartOpen = false;
@@ -127,6 +130,24 @@ class _HomePageCustState extends State<homePageCust> {
     return 'Rp. ${format.format(amount)}';
   }
 
+  Future<void> searchMenu(String query) async {
+    if (query.isEmpty) {
+      setState(() {
+        _filteredMenuList = _menuList;
+      });
+      return;
+    }
+
+    setState(() {
+      _filteredMenuList =
+          _menuList.where((menu) {
+            final menuName = menu['nama_menu'].toLowerCase();
+            final searchQuery = query.toLowerCase();
+            return menuName.contains(searchQuery);
+          }).toList();
+    });
+  }
+
   Future<void> fetchRatings() async {
     try {
       final response = await supabase.from('review').select('menu_id, rating');
@@ -161,6 +182,7 @@ class _HomePageCustState extends State<homePageCust> {
       if (mounted) {
         setState(() {
           _menuList = List<Map<String, dynamic>>.from(response);
+          _filteredMenuList = _menuList;
           _isLoading = false;
         });
       }
@@ -301,11 +323,23 @@ class _HomePageCustState extends State<homePageCust> {
     }
   }
 
+  void _onSearchChanged() {
+    searchMenu(search.text);
+  }
+
   @override
   void initState() {
     super.initState();
     fetchMenu();
     _loadFavorites();
+    search.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    search.removeListener(_onSearchChanged);
+    search.dispose();
+    super.dispose();
   }
 
   @override
@@ -338,9 +372,28 @@ class _HomePageCustState extends State<homePageCust> {
               ),
             ),
 
+            //field cari
+            Positioned(
+              right: 100,
+              top: 20,
+              child: SizedBox(
+                width: 300,
+                child: TextField(
+                  controller: search,
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(Icons.search, color: Colors.grey),
+                    labelText: 'Cari menu...',
+                    labelStyle: TextStyle(fontFamily: 'Oxanium', fontSize: 16),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
             //profile button
             Positioned(
-              //left: 1460,
               right: 30,
               top: 20,
               child: IconButton(
@@ -851,14 +904,10 @@ class _HomePageCustState extends State<homePageCust> {
     int maxPerRow = 4;
     List<Widget> rows = [];
 
-    for (
-      int kondisiAwal = 0;
-      kondisiAwal < _menuList.length;
-      kondisiAwal += maxPerRow
-    ) {
+    for (int i = 0; i < _filteredMenuList.length; i += maxPerRow) {
       List<Widget> rowChildren =
-          _menuList
-              .skip(kondisiAwal)
+          _filteredMenuList
+              .skip(i)
               .take(maxPerRow)
               .map(
                 (menu) => Padding(
@@ -965,7 +1014,7 @@ class _HomePageCustState extends State<homePageCust> {
                   } else {
                     return Icon(
                       Icons.star_border,
-                      color: Colors.amber,
+                      color: Colors.grey,
                       size: 20,
                     );
                   }
