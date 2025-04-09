@@ -16,16 +16,17 @@ import 'package:gcoffee_r/providers/cart_provider.dart';
 // ignore: camel_case_types
 class homePageCust extends StatefulWidget {
   final String idMeja;
-  const homePageCust({Key? key, required this.idMeja});
+  const homePageCust({super.key, required this.idMeja});
 
   @override
-  State<homePageCust> createState() => _homePageCustState();
+  State<homePageCust> createState() => _HomePageCustState();
 }
 
-// Remove CartProvider class here and continue with _homePageCustState
-class _homePageCustState extends State<homePageCust> {
+// Remove CartProvider class here and continue with _HomePageCustState
+class _HomePageCustState extends State<homePageCust> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _menuList = [];
+  Map<int, double> _averageRatings = {};
   Map<int, bool> _favoriteStates = {};
   bool _isLoading = true;
   bool _isMenuOpen = false;
@@ -126,6 +127,34 @@ class _homePageCustState extends State<homePageCust> {
     return 'Rp. ${format.format(amount)}';
   }
 
+  Future<void> fetchRatings() async {
+    try {
+      final response = await supabase.from('review').select('menu_id, rating');
+
+      Map<int, List<int>> ratingsMap = {};
+
+      for (var item in response) {
+        int menuId = item['menu_id'];
+        int rating = item['rating'];
+
+        if (!ratingsMap.containsKey(menuId)) {
+          ratingsMap[menuId] = [];
+        }
+        ratingsMap[menuId]!.add(rating);
+      }
+      if (mounted) {
+        setState(() {
+          _averageRatings = ratingsMap.map((menuId, ratings) {
+            double average = ratings.reduce((a, b) => a + b) / ratings.length;
+            return MapEntry(menuId, average);
+          });
+        });
+      }
+    } catch (e) {
+      debugPrint('Error fetching ratings: $e');
+    }
+  }
+
   Future<void> fetchMenu() async {
     try {
       final response = await supabase.from('menu').select();
@@ -135,6 +164,7 @@ class _homePageCustState extends State<homePageCust> {
           _isLoading = false;
         });
       }
+      await fetchRatings();
     } catch (e) {
       debugPrint('Error fetching menu: $e');
       if (mounted) {
@@ -224,19 +254,23 @@ class _homePageCustState extends State<homePageCust> {
       // Clear the cart after successful checkout
       cartProvider.clearCart();
 
-      showToast(
-        context,
-        title: 'Pesanan berhasil dibuat!',
-        message: 'Silahkan untuk menunggu pesanan',
-        Type: ToastificationType.success,
-      );
+      if (context.mounted) {
+        showToast(
+          context,
+          title: 'Pesanan berhasil dibuat!',
+          message: 'Silahkan untuk menunggu pesanan',
+          Type: ToastificationType.success,
+        );
+      }
     } catch (e) {
-      showToast(
-        context,
-        title: 'Gagal membuat pesanan',
-        message: 'user id tidak ditemukan. Error : $e',
-        Type: ToastificationType.error,
-      );
+      if (context.mounted) {
+        showToast(
+          context,
+          title: 'Gagal membuat pesanan',
+          message: 'user id tidak ditemukan. Error : $e',
+          Type: ToastificationType.error,
+        );
+      }
     }
   }
 
@@ -368,13 +402,14 @@ class _homePageCustState extends State<homePageCust> {
                           onPressed: () async {
                             final authService = AuthService();
                             await authService.signOut();
-
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Loginpage(),
-                              ),
-                            );
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Loginpage(),
+                                ),
+                              );
+                            }
                           },
                           child: Text(
                             'Logout',
@@ -846,6 +881,10 @@ class _homePageCustState extends State<homePageCust> {
   }
 
   Widget _buildCard(Map<String, dynamic> menu) {
+    double averageRating = _averageRatings[menu['id']] ?? 0.0;
+    int fullStars = averageRating.floor();
+    bool hasHalfStar = (averageRating - fullStars) >= 0.5;
+
     return SizedBox(
       width: 315,
       height: 565,
@@ -918,13 +957,19 @@ class _homePageCustState extends State<homePageCust> {
               const SizedBox(height: 15),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.star, color: Colors.amber, size: 20),
-                  Icon(Icons.star, color: Colors.amber, size: 20),
-                  Icon(Icons.star, color: Colors.amber, size: 20),
-                  Icon(Icons.star, color: Colors.amber, size: 20),
-                  Icon(Icons.star, color: Colors.amber, size: 20),
-                ],
+                children: List.generate(5, (index) {
+                  if (index < fullStars) {
+                    return Icon(Icons.star, color: Colors.amber, size: 20);
+                  } else if (index == fullStars && hasHalfStar) {
+                    return Icon(Icons.star_half, color: Colors.amber, size: 20);
+                  } else {
+                    return Icon(
+                      Icons.star_border,
+                      color: Colors.amber,
+                      size: 20,
+                    );
+                  }
+                }),
               ),
               const SizedBox(height: 5),
               Text(

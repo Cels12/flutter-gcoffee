@@ -16,18 +16,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: mejaInput());
+    return MaterialApp(home: MejaInput());
   }
 }
 
-class mejaInput extends StatefulWidget {
-  const mejaInput({super.key});
+class MejaInput extends StatefulWidget {
+  const MejaInput({super.key});
 
   @override
-  State<mejaInput> createState() => _mejaInputState();
+  State<MejaInput> createState() => _MejaInputState();
 }
 
-class _mejaInputState extends State<mejaInput> {
+class _MejaInputState extends State<MejaInput> {
   final TextEditingController nomorMejaController = TextEditingController();
   final SupabaseClient supabase = Supabase.instance.client;
   bool isLoading = false;
@@ -64,26 +64,30 @@ class _mejaInputState extends State<mejaInput> {
           isLoading = false;
           isMejaCorrect = true;
         });
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder:
-                (context) =>
-                    homePageCust(idMeja: response['nomor_meja'].toString()),
-          ),
-        );
+        if (mounted) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) =>
+                      homePageCust(idMeja: response['nomor_meja'].toString()),
+            ),
+          );
+        }
       } else {
         // If no match is found
         setState(() {
           isLoading = false;
           isMejaCorrect = false;
         });
-        showToast(
-          context,
-          title: 'Kode Meja Tidak Valid!',
-          message: 'Tolong masukkan kode meja yang valid',
-          Type: ToastificationType.error,
-        );
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Kode Meja Tidak Valid!',
+            message: 'Tolong masukkan kode meja yang valid',
+            Type: ToastificationType.error,
+          );
+        }
       }
     } catch (e) {
       // Handle errors (e.g., database connection issues)
@@ -91,12 +95,14 @@ class _mejaInputState extends State<mejaInput> {
         isLoading = false;
         isMejaCorrect = false;
       });
-      showToast(
-        context,
-        title: 'Terjadi Kesalahan!',
-        message: 'Gagal memverifikasi kode meja: $e',
-        Type: ToastificationType.error,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Terjadi Kesalahan!',
+          message: 'Gagal memverifikasi kode meja: $e',
+          Type: ToastificationType.error,
+        );
+      }
     }
   }
 

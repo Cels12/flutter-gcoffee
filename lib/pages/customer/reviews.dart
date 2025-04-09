@@ -18,7 +18,7 @@ import 'package:toastification/toastification.dart';
 // ignore: camel_case_types
 class ReviewsPage extends StatefulWidget {
   final String idMeja;
-  const ReviewsPage({Key? key, required this.idMeja});
+  const ReviewsPage({super.key, required this.idMeja});
 
   @override
   State<ReviewsPage> createState() => _ReviewsPageState();
@@ -207,19 +207,23 @@ class _ReviewsPageState extends State<ReviewsPage> {
       // Clear the cart after successful checkout
       cartProvider.clearCart();
 
-      showToast(
-        context,
-        title: 'Pesanan berhasil dibuat!',
-        message: 'Silahkan untuk menunggu pesanan',
-        Type: ToastificationType.success,
-      );
+      if (context.mounted) {
+        showToast(
+          context,
+          title: 'Pesanan berhasil dibuat!',
+          message: 'Silahkan untuk menunggu pesanan',
+          Type: ToastificationType.success,
+        );
+      }
     } catch (e) {
-      showToast(
-        context,
-        title: 'Gagal membuat pesanan',
-        message: 'user id tidak ditemukan. Error : $e',
-        Type: ToastificationType.error,
-      );
+      if (context.mounted) {
+        showToast(
+          context,
+          title: 'Gagal membuat pesanan',
+          message: 'user id tidak ditemukan. Error : $e',
+          Type: ToastificationType.error,
+        );
+      }
     }
   }
 
@@ -331,7 +335,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                                         context,
                                         MaterialPageRoute(
                                           builder:
-                                              (context) => myReviewsPage(
+                                              (context) => MyReviewPage(
                                                 idMeja: widget.idMeja,
                                               ),
                                         ),
@@ -396,13 +400,14 @@ class _ReviewsPageState extends State<ReviewsPage> {
                           onPressed: () async {
                             final authService = AuthService();
                             await authService.signOut();
-
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Loginpage(),
-                              ),
-                            );
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Loginpage(),
+                                ),
+                              );
+                            }
                           },
                           child: Text(
                             'Logout',
@@ -855,7 +860,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
     if (review['created_at'] != null) {
       try {
         // Print the raw value for debugging
-        print('Raw created_at value: ${review['created_at']}');
+        debugPrint('Raw created_at value: ${review['created_at']}');
 
         // Handle different possible formats
         DateTime dateTime;
@@ -935,7 +940,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                         210,
                         156,
                         108,
-                      ).withOpacity(0.2),
+                      ).withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
                         color: Color.fromARGB(255, 210, 156, 108),

@@ -37,7 +37,7 @@ class Desktoplandingpage2 extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => const mejaInput(),
+                              builder: (context) => const MejaInput(),
                             ),
                           );
                         },
@@ -117,7 +117,7 @@ class Desktoplandingpage2 extends StatelessWidget {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const mejaInput(),
+                                  builder: (context) => const MejaInput(),
                                 ),
                               );
                             },

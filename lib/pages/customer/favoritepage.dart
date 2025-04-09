@@ -261,19 +261,23 @@ class _PageFavoriteState extends State<PageFavorite> {
       // Clear the cart after successful checkout
       cartProvider.clearCart();
 
-      showToast(
-        context,
-        title: 'Pesanan berhasil dibuat!',
-        message: 'Silahkan untuk menunggu pesanan',
-        Type: ToastificationType.success,
-      );
+      if (context.mounted) {
+        showToast(
+          context,
+          title: 'Pesanan berhasil dibuat!',
+          message: 'Silahkan untuk menunggu pesanan',
+          Type: ToastificationType.success,
+        );
+      }
     } catch (e) {
-      showToast(
-        context,
-        title: 'Gagal membuat pesanan',
-        message: 'user id tidak ditemukan. Error : $e',
-        Type: ToastificationType.error,
-      );
+      if (context.mounted) {
+        showToast(
+          context,
+          title: 'Gagal membuat pesanan',
+          message: 'user id tidak ditemukan. Error : $e',
+          Type: ToastificationType.error,
+        );
+      }
     }
   }
 
@@ -405,13 +409,14 @@ class _PageFavoriteState extends State<PageFavorite> {
                           onPressed: () async {
                             final authService = AuthService();
                             await authService.signOut();
-
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Loginpage(),
-                              ),
-                            );
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Loginpage(),
+                                ),
+                              );
+                            }
                           },
                           child: Text(
                             'Logout',

@@ -92,13 +92,16 @@ class _LoginpageState extends State<Loginpage> {
               .or('username.eq.$input,email.eq.$input')
               .single();
 
-      if (response == null || response.isEmpty) {
-        showToast(
-          context,
-          title: 'Login gagal',
-          message: 'Email, username atau password salah',
-          Type: ToastificationType.error,
-        );
+      if (response.isEmpty) {
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Login gagal',
+            message: 'Email, username atau password salah',
+            Type: ToastificationType.error,
+          );
+        }
+
         setState(() {
           isLoginFailed = true;
           isLoading = false;
@@ -117,23 +120,27 @@ class _LoginpageState extends State<Loginpage> {
       );
 
       if (hasil == null) {
-        showToast(
-          context,
-          title: 'Login gagal',
-          message: 'Email, username atau password salah',
-          Type: ToastificationType.error,
-        );
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Login gagal',
+            message: 'Email, username atau password salah',
+            Type: ToastificationType.error,
+          );
+        }
         setState(() {
           isLoginFailed = true;
           isLoading = false;
         });
       } else {
-        showToast(
-          context,
-          title: 'Login berhasil',
-          message: 'Selamat datang! $username',
-          Type: ToastificationType.success,
-        );
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Login berhasil',
+            message: 'Selamat datang! $username',
+            Type: ToastificationType.success,
+          );
+        }
         setState(() {
           isLoading = false;
         });
@@ -145,7 +152,7 @@ class _LoginpageState extends State<Loginpage> {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return mejaInput(); // Customer homepage
+                  return MejaInput(); // Customer homepage
                 },
               ),
             );

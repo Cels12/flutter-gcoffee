@@ -53,12 +53,14 @@ class _SignUpPageState extends State<SignUpPage> {
         message = "Registrasi gagal!";
         isLoading = false;
       });
-      showToast(
-        context,
-        title: 'Gagal',
-        message: 'Registrasi akun gagal, mohon menunggu sebelum mencoba lagi',
-        Type: ToastificationType.error,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Gagal',
+          message: 'Registrasi akun gagal, mohon menunggu sebelum mencoba lagi',
+          Type: ToastificationType.error,
+        );
+      }
     }
   }
 

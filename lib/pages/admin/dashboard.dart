@@ -677,13 +677,14 @@ class _DashboardState extends State<Dashboard> {
                         onPressed: () async {
                           final authService = AuthService();
                           await authService.signOut();
-
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Loginpage(),
-                            ),
-                          );
+                          if (context.mounted) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Loginpage(),
+                              ),
+                            );
+                          }
                         },
                         child: Text(
                           'Logout',

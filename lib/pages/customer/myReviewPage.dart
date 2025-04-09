@@ -1,3 +1,4 @@
+// ignore: file_names
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/auth/auth.dart';
@@ -15,16 +16,16 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 
 // ignore: camel_case_types
-class myReviewsPage extends StatefulWidget {
+class MyReviewPage extends StatefulWidget {
   final String idMeja;
-  const myReviewsPage({super.key, required this.idMeja});
+  const MyReviewPage({super.key, required this.idMeja});
 
   @override
-  State<myReviewsPage> createState() => _MyReviewsPageState();
+  State<MyReviewPage> createState() => _MyReviewPageState();
 }
 
-// Remove CartProvider class here and continue with _MyReviewsPageState
-class _MyReviewsPageState extends State<myReviewsPage> {
+// Remove CartProvider class here and continue with _MyReviewPageState
+class _MyReviewPageState extends State<MyReviewPage> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _reviewList = [];
   final TextEditingController deskripsiReview = TextEditingController();
@@ -242,21 +243,24 @@ class _MyReviewsPageState extends State<myReviewsPage> {
 
         // Clear the cart after successful checkout
         cartProvider.clearCart();
-
-        showToast(
-          context,
-          title: 'Pesanan berhasil dibuat!',
-          message: 'Silahkan untuk menunggu pesanan',
-          Type: ToastificationType.success,
-        );
+        if (context.mounted) {
+          showToast(
+            context,
+            title: 'Pesanan berhasil dibuat!',
+            message: 'Silahkan untuk menunggu pesanan',
+            Type: ToastificationType.success,
+          );
+        }
       }
     } catch (e) {
-      showToast(
-        context,
-        title: 'Gagal membuat pesanan',
-        message: 'user id tidak ditemukan. Error : $e',
-        Type: ToastificationType.error,
-      );
+      if (context.mounted) {
+        showToast(
+          context,
+          title: 'Gagal membuat pesanan',
+          message: 'user id tidak ditemukan. Error : $e',
+          Type: ToastificationType.error,
+        );
+      }
     }
   }
 
@@ -288,24 +292,27 @@ class _MyReviewsPageState extends State<myReviewsPage> {
             'rating': rating,
           });
         }
-
-        showToast(
-          context,
-          title: 'Berhasil!',
-          message: 'Review berhasil disimpan!',
-          Type: ToastificationType.success,
-        );
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Berhasil!',
+            message: 'Review berhasil disimpan!',
+            Type: ToastificationType.success,
+          );
+        }
 
         // Refresh data setelah menyimpan
         fetchReviews();
       }
     } catch (e) {
-      showToast(
-        context,
-        title: 'Gagal!',
-        message: 'Error menyimpan review: $e',
-        Type: ToastificationType.error,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Gagal!',
+          message: 'Error menyimpan review: $e',
+          Type: ToastificationType.error,
+        );
+      }
     }
   }
 
@@ -316,19 +323,23 @@ class _MyReviewsPageState extends State<myReviewsPage> {
           .update({'review': reviewText, 'rating': rating})
           .eq('id', reviewId);
 
-      showToast(
-        context,
-        title: 'Berhasil!',
-        message: 'Review berhasil diubah!',
-        Type: ToastificationType.success,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Berhasil!',
+          message: 'Review berhasil diubah!',
+          Type: ToastificationType.success,
+        );
+      }
     } catch (e) {
-      showToast(
-        context,
-        title: 'Gagal!',
-        message: 'Error mengubah review: $e',
-        Type: ToastificationType.error,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Gagal!',
+          message: 'Error mengubah review: $e',
+          Type: ToastificationType.error,
+        );
+      }
     }
   }
 
@@ -336,19 +347,23 @@ class _MyReviewsPageState extends State<myReviewsPage> {
     try {
       await supabase.from('review').delete().eq('id', reviewId);
 
-      showToast(
-        context,
-        title: 'Berhasil!',
-        message: 'Review berhasil dihapus!',
-        Type: ToastificationType.success,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Berhasil!',
+          message: 'Review berhasil dihapus!',
+          Type: ToastificationType.success,
+        );
+      }
     } catch (e) {
-      showToast(
-        context,
-        title: 'Gagal!',
-        message: 'Error menghapus review: $e',
-        Type: ToastificationType.error,
-      );
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Gagal!',
+          message: 'Error menghapus review: $e',
+          Type: ToastificationType.error,
+        );
+      }
     }
   }
 
@@ -449,16 +464,12 @@ class _MyReviewsPageState extends State<myReviewsPage> {
                               ),
                               const SizedBox(height: 20),
                               // Menampilkan cards dalam Column
-                              ..._reviewList
-                                  .map(
-                                    (review) => Padding(
-                                      padding: const EdgeInsets.only(
-                                        bottom: 20.0,
-                                      ),
-                                      child: _buildCard(review),
-                                    ),
-                                  )
-                                  .toList(),
+                              ..._reviewList.map(
+                                (review) => Padding(
+                                  padding: const EdgeInsets.only(bottom: 20.0),
+                                  child: _buildCard(review),
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -486,12 +497,14 @@ class _MyReviewsPageState extends State<myReviewsPage> {
                             final authService = AuthService();
                             await authService.signOut();
 
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Loginpage(),
-                              ),
-                            );
+                            if (context.mounted) {
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Loginpage(),
+                                ),
+                              );
+                            }
                           },
                           child: Text(
                             'Logout',
