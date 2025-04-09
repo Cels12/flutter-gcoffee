@@ -4,6 +4,7 @@ import 'package:gcoffee_r/auth/auth.dart';
 import 'package:gcoffee_r/pages/customer/favoritepage.dart';
 import 'package:gcoffee_r/pages/customer/reviews.dart';
 import 'package:gcoffee_r/pages/login.dart';
+import 'package:gcoffee_r/pages/signup.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -449,32 +450,84 @@ class _HomePageCustState extends State<homePageCust> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12.0),
-                        child: TextButton(
-                          onPressed: () async {
-                            final authService = AuthService();
-                            await authService.signOut();
-                            if (context.mounted) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Loginpage(),
+                      supabase.auth.currentUser != null
+                          ? Padding(
+                            padding: const EdgeInsets.only(top: 12.0),
+                            child: TextButton(
+                              onPressed: () async {
+                                final authService = AuthService();
+                                await authService.signOut();
+                                if (context.mounted) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Loginpage(),
+                                    ),
+                                  );
+                                }
+                              },
+                              child: Text(
+                                'Logout',
+                                style: TextStyle(
+                                  fontFamily: 'Oxanium',
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                  color: Colors.white,
                                 ),
-                              );
-                            }
-                          },
-                          child: Text(
-                            'Logout',
-                            style: TextStyle(
-                              fontFamily: 'Oxanium',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
+                              ),
+                            ),
+                          )
+                          : Padding(
+                            padding: const EdgeInsets.only(top: 12.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                TextButton(
+                                  onPressed: () async {
+                                    if (context.mounted) {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => Loginpage(),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Text(
+                                    'Login',
+                                    style: TextStyle(
+                                      fontFamily: 'Oxanium',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                TextButton(
+                                  onPressed: () async {
+                                    if (context.mounted) {
+                                      Navigator.pushReplacement(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => SignUpPage(),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                  child: Text(
+                                    'Daftar',
+                                    style: TextStyle(
+                                      fontFamily: 'Oxanium',
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
