@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gcoffee_r/pages/admin/dashboard.dart';
+import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
 import 'package:gcoffee_r/pages/customer/meja.dart';
 import 'package:gcoffee_r/pages/signup.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
@@ -29,7 +30,8 @@ class MyApp extends StatelessWidget {
 }
 
 class Loginpage extends StatefulWidget {
-  const Loginpage({super.key});
+  final String? idMeja;
+  const Loginpage({super.key, this.idMeja});
 
   @override
   State<Loginpage> createState() => _LoginpageState();
@@ -202,6 +204,15 @@ class _LoginpageState extends State<Loginpage> {
       idToken: idToken,
       accessToken: accessToken,
     );
+
+    supabase.auth.onAuthStateChange.listen((data) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => homePageCust(idMeja: widget.idMeja ?? ''),
+        ),
+      );
+    });
   }
 
   @override

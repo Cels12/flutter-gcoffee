@@ -157,7 +157,7 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  // Fungsi untuk mengganti status pesanan ke siap diambil
+  // Fungsi untuk mengganti status pesanan ke siap diantar
   Future<void> updateStatusAntar(int pesananId) async {
     try {
       // Update status untuk pesanan dengan ID spesifik
@@ -442,8 +442,6 @@ class _DashboardState extends State<Dashboard> {
             ),
           ),
 
-          // Tombol untuk menampilkan tabel
-
           // Tabel data pesanan dengan pagination
           Positioned(
             top: 220,
@@ -591,7 +589,7 @@ class _DashboardState extends State<Dashboard> {
                                                             ),
                                                       ),
                                                   child: Text(
-                                                    'Siap Diambil',
+                                                    'Siap Diantar',
                                                     style: getButtonWhite(
                                                       context,
                                                     ),
@@ -701,7 +699,6 @@ class _DashboardState extends State<Dashboard> {
           AnimatedPositioned(
             duration: Duration(microseconds: 300),
             top: _isProfileOpen ? 135 : -200,
-            // bottom: 120,
             right: 20,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),

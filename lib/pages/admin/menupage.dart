@@ -73,85 +73,38 @@ class _MenuPageState extends State<MenuPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          // Background utama
-          Container(
-            color: Color.fromARGB(255, 247, 247, 247),
-            child: Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 15,
-                    horizontal: 50,
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      // Teks GCoffee yang bergeser mengikuti sidebar
-                      AnimatedContainer(
-                        duration: Duration(milliseconds: 300),
-                        padding: EdgeInsets.only(
-                          left: _isMenuOpen ? 50 : 20,
-                        ), // Bergeser
-                        child: Text(
-                          'GCoffee',
-                          style: TextStyle(
-                            color: Color.fromARGB(255, 84, 47, 17),
-                            fontSize: 32,
-                            fontFamily: 'Righteous',
-                          ),
-                        ),
-                      ),
-                    ],
+      body: SafeArea(
+        child: Stack(
+          children: [
+            // Background utama
+            Container(color: const Color.fromARGB(255, 247, 247, 247)),
+
+            // Fixed GCoffee Text
+            Positioned(
+              top: 15, // Adjust the vertical position
+              left: 50, // Adjust the horizontal position
+              child: AnimatedContainer(
+                duration: Duration(milliseconds: 300),
+                padding: EdgeInsets.only(left: _isMenuOpen ? 50 : 20),
+                child: Text(
+                  'GCoffee',
+                  style: TextStyle(
+                    color: Color.fromARGB(255, 84, 47, 17),
+                    fontSize: 32,
+                    fontFamily: 'Righteous',
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
 
-          // card Read, Update dan Delete
-          Positioned.fill(
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 120, left: 110),
+            // card Read, Update dan Delete
+            Padding(
+              padding: const EdgeInsets.only(top: 120, left: 110),
+              child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     //Tombol tambah menu
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.only(right: 130),
-                          child: TextButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => AddMenu(),
-                                ),
-                              );
-                            },
-                            style: TextButton.styleFrom(
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              fixedSize: Size(184, 50),
-                              backgroundColor: Color.fromARGB(255, 84, 47, 17),
-                            ),
-                            child: Text(
-                              'Tambah Menu',
-                              style: TextStyle(
-                                fontFamily: 'Oxanium',
-                                fontSize: 16,
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                     const SizedBox(height: 20),
                     FutureBuilder(
                       future: _fetchMenu(),
@@ -370,84 +323,120 @@ class _MenuPageState extends State<MenuPage> {
                 ),
               ),
             ),
-          ),
-          // Sidebar
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 300),
-            top: 0,
-            left: _isMenuOpen ? 0 : -200,
-            child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(8),
-                bottomRight: Radius.circular(8),
+
+            //button tambah menu
+            Positioned(
+              right: 130,
+              top: 60,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => AddMenu()),
+                      );
+                    },
+                    style: TextButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      fixedSize: Size(184, 50),
+                      backgroundColor: Color.fromARGB(255, 84, 47, 17),
+                    ),
+                    child: Text(
+                      'Tambah Menu',
+                      style: TextStyle(
+                        fontFamily: 'Oxanium',
+                        fontSize: 16,
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              child: Container(
-                width: 80,
-                height: MediaQuery.of(context).size.height,
-                color: Color.fromARGB(255, 84, 47, 17),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 40),
-                    Tooltip(
-                      message: 'Home',
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Dashboard(),
+            ),
+
+            // Sidebar
+            AnimatedPositioned(
+              duration: Duration(milliseconds: 300),
+              top: 0,
+              left: _isMenuOpen ? 0 : -200,
+              child: ClipRRect(
+                borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(8),
+                  bottomRight: Radius.circular(8),
+                ),
+                child: Container(
+                  width: 80,
+                  height: MediaQuery.of(context).size.height,
+                  color: Color.fromARGB(255, 84, 47, 17),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 40),
+                      Tooltip(
+                        message: 'Home',
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => Dashboard(),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: SvgPicture.asset(
+                              'assets/icons/home.svg',
+                              width: 40,
+                              height: 40,
                             ),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: SvgPicture.asset(
-                            'assets/icons/home.svg',
-                            width: 40,
-                            height: 40,
                           ),
                         ),
                       ),
-                    ),
-                    Tooltip(
-                      message: 'Add menu',
-                      child: TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => AddMenu()),
-                          );
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          child: Icon(
-                            Icons.add_circle_outline_outlined,
-                            size: 40,
-                            color: Colors.white,
+                      Tooltip(
+                        message: 'Add menu',
+                        child: TextButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddMenu(),
+                              ),
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            child: Icon(
+                              Icons.add_circle_outline_outlined,
+                              size: 40,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          //sidebar
-          Positioned(
-            top: 12,
-            left: 10,
-            child: IconButton(
-              iconSize: 40,
-              color: Color.fromARGB(255, 210, 156, 108),
-              onPressed: _toggleMenu,
-              icon: Icon(Icons.menu),
+            //sidebar
+            Positioned(
+              top: 12,
+              left: 10,
+              child: IconButton(
+                iconSize: 40,
+                color: Color.fromARGB(255, 210, 156, 108),
+                onPressed: _toggleMenu,
+                icon: Icon(Icons.menu),
+              ),
             ),
-          ),
-
-          // Area di luar sidebar untuk menutup menu saat diklik
-        ],
+          ],
+        ),
       ),
     );
   }
