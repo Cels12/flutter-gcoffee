@@ -219,55 +219,71 @@ class _HomePageCustState extends State<homePageCust> {
       return;
     }
 
-    // Tampilkan dialog untuk memilih tipe pesanan
-    String? orderType;
-    await showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return PopUpOrderType(
-          onOrderTypeSelected: (type) {
-            orderType = type;
-          },
-        );
-      },
-    );
-
-    // Jika user tidak memilih tipe pesanan (menutup dialog), keluar dari fungsi
-    if (orderType == null) return;
-
     try {
+      // Ambil current user dari Supabase
+      final currentUser = supabase.auth.currentUser;
       String username = 'guest';
       String? userId;
-      final currentUser = supabase.auth.currentUser;
 
       if (currentUser != null) {
         userId = currentUser.id;
-        final profileData =
-            await supabase
-                .from('profiles')
-                .select('username')
-                .eq('id', userId)
-                .single();
 
-        if (profileData['username'] != null) {
-          username = profileData['username'];
+        // Cek apakah user sudah ada di tabel profiles
+        try {
+          final profileData =
+              await supabase
+                  .from('profiles')
+                  .select('username, email')
+                  .eq('id', userId)
+                  .single();
+
+          // Jika belum ada, buat profile baru untuk OAuth user
+          if (profileData == null) {
+            await supabase.from('profiles').insert({
+              'id': userId,
+              'username':
+                  currentUser.userMetadata?['full_name'] ?? 'User Google',
+              'email': currentUser.email,
+              'roles': 'user',
+            });
+            username = currentUser.userMetadata?['full_name'] ?? 'User Google';
+          } else {
+            username = profileData['username'];
+          }
+        } catch (e) {
+          debugPrint('Error getting/creating profile: $e');
+          username = currentUser.userMetadata?['full_name'] ?? 'User Google';
         }
       }
 
-      final pesanan = cartItems.map((item) => item['name']).join(', ');
+      String? orderType;
+      await showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return PopUpOrderType(
+            onOrderTypeSelected: (type) {
+              orderType = type;
+            },
+          );
+        },
+      );
 
+      // Jika user tidak memilih tipe pesanan (menutup dialog), keluar dari fungsi
+      if (orderType == null) return;
+
+      // Lanjutkan dengan proses checkout seperti biasa
       final response =
           await supabase
               .from('pesanan')
               .insert({
+                'user_id': userId, // Tambahkan user_id ke pesanan
                 'username': username,
-                'pesanan': pesanan,
+                'pesanan': cartItems.map((item) => item['name']).join(', '),
                 'nomor_meja': widget.idMeja,
                 'total': totalPrice,
                 'status_pesanan': 'Sedang dibuat',
-                'tipe_pesanan':
-                    orderType, // Menggunakan tipe pesanan yang dipilih
+                'tipe_pesanan': orderType,
               })
               .select('id')
               .single();
@@ -299,7 +315,7 @@ class _HomePageCustState extends State<homePageCust> {
         showToast(
           context,
           title: 'Gagal membuat pesanan',
-          message: 'user id tidak ditemukan. Error : $e',
+          message: e.toString(),
           Type: ToastificationType.error,
         );
       }
@@ -467,11 +483,12 @@ class _HomePageCustState extends State<homePageCust> {
                                 final authService = AuthService();
                                 await authService.signOut();
                                 if (context.mounted) {
-                                  Navigator.pushReplacement(
+                                  Navigator.pushAndRemoveUntil(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => Loginpage(),
                                     ),
+                                    (route) => false,
                                   );
                                 }
                               },

@@ -501,11 +501,12 @@ class _MyReviewPageState extends State<MyReviewPage> {
                             await authService.signOut();
 
                             if (context.mounted) {
-                              Navigator.pushReplacement(
+                              Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => Loginpage(),
                                 ),
+                                (route) => false,
                               );
                             }
                           },

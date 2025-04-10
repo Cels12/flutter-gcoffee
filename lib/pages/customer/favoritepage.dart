@@ -411,11 +411,12 @@ class _PageFavoriteState extends State<PageFavorite> {
                             final authService = AuthService();
                             await authService.signOut();
                             if (context.mounted) {
-                              Navigator.pushReplacement(
+                              Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => Loginpage(),
                                 ),
+                                (route) => false,
                               );
                             }
                           },

@@ -22,11 +22,63 @@ class _DashboardState extends State<Dashboard> {
 
   List<Map<String, dynamic>> _pesananList = [];
   List<Map<String, dynamic>> _originalPesananList = [];
+  String selectedMainFilter = 'Semua';
+  String selectedSubFilter = 'Semua';
 
   // Default values for card info
   int penjualanHarian = 0;
   int penjualanBulanan = 0;
   int jumlahMenu = 0;
+
+  Future<void> filterPesanan(String mainFilter, String subFilter) async {
+    try {
+      final now = DateTime.now();
+      final today = DateFormat('yyyy-MM-dd').format(now);
+      final thisMonth = DateFormat('yyyy-MM').format(now);
+      final lastMonth = DateFormat(
+        'yyyy-MM',
+      ).format(DateTime(now.year, now.month - 1));
+
+      var query = supabase.from('pesanan').select();
+
+      //filter berdasarkan waktu
+      if (mainFilter == 'Status') {
+        if (subFilter != 'Semua') {
+          query = query.eq('status_pesanan', subFilter);
+        }
+      } else if (mainFilter == 'Waktu') {
+        switch (subFilter) {
+          case 'Hari Ini':
+            query = query.gte('created_at', today);
+            break;
+          case 'Bulan Ini':
+            query = query.gte('created_at', '$thisMonth-01');
+          case 'Bulan Lalu':
+            query = query
+                .gte('created_at', '$lastMonth-01')
+                .lt('created_at', '$thisMonth-01');
+            break;
+        }
+      }
+      final response = await query.order('created_at', ascending: false);
+
+      if (mounted) {
+        setState(() {
+          _pesananList = response;
+          currentPage = 1;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Error',
+          message: e.toString(),
+          Type: ToastificationType.error,
+        );
+      }
+    }
+  }
 
   Future<void> searchPesanan() async {
     String query = search.text.toLowerCase();
@@ -371,48 +423,116 @@ class _DashboardState extends State<Dashboard> {
                 const SizedBox(width: 20),
                 SizedBox(
                   width: 250,
-                  child: PopupMenuButton<String>(
-                    initialValue: initialValue,
-                    onSelected: (String value) {
-                      debugPrint('Filter Dipilih: $value');
-                    },
-                    itemBuilder:
-                        (BuildContext context) => <PopupMenuEntry<String>>[
-                          PopupMenuItem<String>(
-                            value: 'semua',
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(40, 127, 217, 217),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value: selectedMainFilter,
+                        isExpanded: true,
+                        icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+                        style: TextStyle(
+                          fontFamily: 'Oxanium',
+                          color: Colors.grey,
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: 'Semua',
                             child: Text('Semua'),
                           ),
-                          PopupMenuItem<String>(
-                            value: 'dibayar',
-                            child: Text('Dibayar'),
-                          ),
-                          PopupMenuItem<String>(
-                            value: 'selesai',
-                            child: Text('Selesai'),
-                          ),
-                        ],
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 25,
-                        vertical: 12.5,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Color.fromARGB(40, 217, 217, 217),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Filter',
-                            style: TextStyle(
-                              color: Colors.grey,
-                              fontFamily: 'Righteous',
+                          DropdownMenuItem(
+                            value: 'Status',
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Status'),
+                                PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    setState(() {
+                                      selectedSubFilter = value;
+                                      filterPesanan('Status', value);
+                                    });
+                                  },
+                                  itemBuilder:
+                                      (context) => [
+                                        PopupMenuItem(
+                                          child: Text('Semua'),
+                                          value: 'Semua',
+                                        ),
+                                        PopupMenuItem(
+                                          child: Text('Sedang dibuat'),
+                                          value: 'Sedang dibuat',
+                                        ),
+                                        PopupMenuItem(
+                                          child: Text('Siap Diantar'),
+                                          value: 'Siap Diantar',
+                                        ),
+                                        PopupMenuItem(
+                                          child: Text('Selesai'),
+                                          value: 'Selesai',
+                                        ),
+                                      ],
+                                  child: Icon(
+                                    Icons.arrow_right,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          SizedBox(width: 140),
-                          Icon(Icons.arrow_drop_down, color: Colors.grey),
+                          DropdownMenuItem(
+                            value: 'Waktu',
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Waktu'),
+                                PopupMenuButton<String>(
+                                  onSelected: (value) {
+                                    setState(() {
+                                      selectedSubFilter = value;
+                                      filterPesanan('Waktu', value);
+                                    });
+                                  },
+                                  itemBuilder:
+                                      (context) => [
+                                        PopupMenuItem(
+                                          child: Text('Hari Ini'),
+                                          value: 'Hari Ini',
+                                        ),
+                                        PopupMenuItem(
+                                          child: Text('Bulan Ini'),
+                                          value: 'Bulan Ini',
+                                        ),
+                                        PopupMenuItem(
+                                          child: Text('Bulan Lalu'),
+                                          value: 'Bulan Lalu',
+                                        ),
+                                      ],
+                                  child: Icon(
+                                    Icons.arrow_right,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
+                        onChanged: (value) {
+                          if (value == 'Semua') {
+                            setState(() {
+                              selectedMainFilter = value!;
+                              selectedSubFilter = 'Semua';
+                              _pesananList = _originalPesananList;
+                            });
+                          } else {
+                            setState(() {
+                              selectedMainFilter = value!;
+                            });
+                          }
+                        },
                       ),
                     ),
                   ),
@@ -717,11 +837,12 @@ class _DashboardState extends State<Dashboard> {
                           final authService = AuthService();
                           await authService.signOut();
                           if (context.mounted) {
-                            Navigator.pushReplacement(
+                            Navigator.pushAndRemoveUntil(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => Loginpage(),
                               ),
+                              (route) => false,
                             );
                           }
                         },

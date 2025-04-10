@@ -434,10 +434,48 @@ class _LoginpageState extends State<Loginpage> {
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
                     onPressed: () async {
-                      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-                        await _nativeGoogleSignIn();
+                      try {
+                        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+                          await _nativeGoogleSignIn();
+                        } else {
+                          final response = await supabase.auth.signInWithOAuth(
+                            OAuthProvider.google,
+                            redirectTo:
+                                kIsWeb
+                                    ? null
+                                    : 'io.supabase.flutterquickstart://login-callback',
+                          );
+
+                          if (response) {
+                            supabase.auth.onAuthStateChange.listen((data) {
+                              if (data.event == AuthChangeEvent.signedIn) {
+                                final user = data.session?.user;
+
+                                if (mounted) {
+                                  Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder:
+                                          (context) => homePageCust(
+                                            idMeja: widget.idMeja ?? '',
+                                          ),
+                                    ),
+                                  );
+                                }
+                              }
+                            });
+                          }
+                        }
+                      } catch (e) {
+                        if (mounted) {
+                          showToast(
+                            context,
+                            title: 'Login gagal',
+                            message: e.toString(),
+                            Type: ToastificationType.error,
+                          );
+                        }
                       }
-                      await supabase.auth.signInWithOAuth(OAuthProvider.google);
                     },
                     icon: SvgPicture.asset(
                       'assets/icons/google2.svg',
