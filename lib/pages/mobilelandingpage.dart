@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
+import 'package:gcoffee_r/pages/customer/meja.dart';
+import 'package:gcoffee_r/pages/login.dart';
+import 'package:gcoffee_r/pages/signup.dart';
 
 class Mobilelandingpage extends StatefulWidget {
-  const Mobilelandingpage({super.key});
+  Mobilelandingpage({super.key});
 
   @override
   State<Mobilelandingpage> createState() => _Mobilelandingpage();
@@ -14,26 +18,26 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        // primary: false,
-        backgroundColor: Colors.transparent,
-        title: Text(
-          'GCoffee',
-          style: TextStyle(color: Colors.white, fontFamily: 'Righteous'),
-        ),
-        actions: [
-          IconButton(
-            iconSize: 35,
-            color: Color.fromARGB(255, 210, 156, 108),
-            icon: Icon(Icons.menu),
-            onPressed: () {
-              setState(() {
-                _isMenuOpen = !_isMenuOpen;
-              });
-            },
-          ),
-        ],
-      ),
+      // appBar: AppBar(
+      //   // primary: false,
+      //   backgroundColor: const Color.fromARGB(255, 255, 0, 0),
+      //   title: Text(
+      //     'GCoffee',
+      //     style: TextStyle(color: Colors.white, fontFamily: 'Righteous'),
+      //   ),
+      //   actions: [
+      //     IconButton(
+      //       iconSize: 35,
+      //       color: Color.fromARGB(255, 210, 156, 108),
+      //       icon: Icon(Icons.menu),
+      //       onPressed: () {
+      //         setState(() {
+      //           _isMenuOpen = !_isMenuOpen;
+      //         });
+      //       },
+      //     ),
+      //   ],
+      // ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -47,8 +51,20 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
         ),
         child: Stack(
           children: [
-            // main content
-            // img
+            // Fixed GCoffee Text
+            Positioned(
+              top: 15, // Adjust the vertical position
+              left: 20, // Adjust the horizontal position
+              child: Text(
+                'GCoffee',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontFamily: 'Righteous',
+                ),
+              ),
+            ),
+
             Container(
               alignment: Alignment.center,
               child: Column(
@@ -113,7 +129,11 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                       ),
                       onPressed: () {
-                        debugPrint('Tombol ditekan');
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(builder: (context) => MejaInput()),
+                          (route) => false,
+                        );
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(
@@ -147,26 +167,24 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                   constraints: BoxConstraints(maxWidth: 109),
                   width: 200,
                   height: MediaQuery.of(context).size.height,
-                  color: Color.fromARGB(255, 210, 156, 108),
+                  color: Color.fromARGB(255, 84, 47, 17),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      ListTile(
-                        title: Text(
-                          'Home',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        onTap: () {
-                          debugPrint('Home');
-                        },
-                      ),
+                      const SizedBox(height: 50),
                       ListTile(
                         title: Text(
                           'Pesan',
                           style: TextStyle(color: Colors.white),
                         ),
                         onTap: () {
-                          debugPrint('Pesanan');
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => MejaInput(),
+                            ),
+                            (route) => false,
+                          );
                         },
                       ),
                       ListTile(
@@ -175,7 +193,12 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                           style: TextStyle(color: Colors.white),
                         ),
                         onTap: () {
-                          debugPrint('Login');
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => Loginpage(),
+                            ),
+                          );
                         },
                       ),
                       ListTile(
@@ -184,11 +207,33 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                           style: TextStyle(color: Colors.white),
                         ),
                         onTap: () {
-                          debugPrint('Daftar');
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SignUpPage(),
+                            ),
+                          );
                         },
                       ),
                     ],
                   ),
+                ),
+              ),
+            ),
+
+            Positioned(
+              top: 10, // Adjust the vertical position
+              right: 10, // Adjust the horizontal position
+              child: IconButton(
+                onPressed: () {
+                  setState(() {
+                    _isMenuOpen = !_isMenuOpen;
+                  });
+                },
+                icon: Icon(
+                  Icons.menu,
+                  size: 35,
+                  color: Color.fromARGB(255, 210, 156, 108),
                 ),
               ),
             ),

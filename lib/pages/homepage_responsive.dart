@@ -4,7 +4,7 @@ import 'package:gcoffee_r/responsive/responsivelayout.dart';
 import 'package:gcoffee_r/pages/mobilelandingpage.dart';
 
 class Homepage extends StatefulWidget {
-  const Homepage({super.key});
+  Homepage({super.key});
 
   @override
   State<Homepage> createState() => _HomepageState();
