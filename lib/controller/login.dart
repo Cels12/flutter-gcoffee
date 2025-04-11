@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:gcoffee_r/controller/enterEmailForResetPassword.dart';
 import 'package:gcoffee_r/pages/admin/dashboard.dart';
 import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
 import 'package:gcoffee_r/pages/customer/meja.dart';
-import 'package:gcoffee_r/pages/forgotPassword.dart';
-import 'package:gcoffee_r/pages/signup.dart';
+import 'package:gcoffee_r/controller/signup.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:toastification/toastification.dart';
-import '../auth/auth.dart';
+import 'auth/auth.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -340,7 +340,8 @@ class _LoginpageState extends State<Loginpage> {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (context) => ForgotPassword(),
+                              builder:
+                                  (context) => Enteremailforresetpassword(),
                             ),
                           );
                         },
@@ -455,9 +456,7 @@ class _LoginpageState extends State<Loginpage> {
                           if (response) {
                             supabase.auth.onAuthStateChange.listen((data) {
                               if (data.event == AuthChangeEvent.signedIn) {
-                                final user = data.session?.user;
-
-                                if (mounted) {
+                                if (context.mounted) {
                                   Navigator.pushReplacement(
                                     context,
                                     MaterialPageRoute(

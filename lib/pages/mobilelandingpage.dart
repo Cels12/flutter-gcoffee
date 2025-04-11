@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
 import 'package:gcoffee_r/pages/customer/meja.dart';
-import 'package:gcoffee_r/pages/login.dart';
-import 'package:gcoffee_r/pages/signup.dart';
+import 'package:gcoffee_r/controller/login.dart';
+import 'package:gcoffee_r/controller/signup.dart';
 
 class Mobilelandingpage extends StatefulWidget {
   Mobilelandingpage({super.key});

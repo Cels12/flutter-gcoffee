@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gcoffee_r/auth/auth.dart';
+import 'package:gcoffee_r/controller/auth/auth.dart';
 import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
 import 'package:gcoffee_r/pages/customer/reviews.dart';
-import 'package:gcoffee_r/pages/login.dart';
+import 'package:gcoffee_r/controller/login.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:heroicons/heroicons.dart';

@@ -1,9 +1,9 @@
 // pages/signup_page.dart
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/pages/login.dart';
+import 'package:gcoffee_r/controller/login.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:toastification/toastification.dart';
-import '../auth/auth.dart';
+import 'auth/auth.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
 
 class SignUpPage extends StatefulWidget {
