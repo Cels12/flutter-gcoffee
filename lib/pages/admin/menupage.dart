@@ -1,14 +1,11 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart' as showtoast;
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gcoffee_r/pages/admin/edit_menu.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:gcoffee_r/pages/admin/add_menu.dart';
-import 'package:gcoffee_r/pages/admin/dashboard.dart';
 import 'package:intl/intl.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 
 class MenuPage extends StatefulWidget {
@@ -208,28 +205,23 @@ class _MenuPageState extends State<MenuPage> {
                                                             .center,
                                                     children: [
                                                       const SizedBox(width: 10),
+                                                      //edit menu button
                                                       ElevatedButton(
                                                         onPressed: () async {
-                                                          final updated = await Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder:
-                                                                  (
-                                                                    context,
-                                                                  ) => EditMenu(
-                                                                    id:
-                                                                        menu['id'],
-                                                                    intialNamaMenu:
-                                                                        menu['nama_menu'],
-                                                                    initialDesk:
-                                                                        menu['deskripsi'],
-                                                                    initialHarga:
-                                                                        menu['harga']
-                                                                            .toString(),
-                                                                    initialGambar:
-                                                                        menu['gambar'],
-                                                                  ),
-                                                            ),
+                                                          final updated = await context.pushNamed(
+                                                            ROuteNames.editpage,
+                                                            extra: {
+                                                              'id': menu['id'],
+                                                              'initialNamaMenu':
+                                                                  menu['nama_menu'],
+                                                              'initialDesk':
+                                                                  menu['deskripsi'],
+                                                              'initialHarga':
+                                                                  menu['harga']
+                                                                      .toString(),
+                                                              'initialGambar':
+                                                                  menu['gambar'],
+                                                            },
                                                           );
                                                           if (updated == true) {
                                                             if (context

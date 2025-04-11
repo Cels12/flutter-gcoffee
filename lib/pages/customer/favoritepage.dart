@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/controller/auth/auth.dart';
-import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
-import 'package:gcoffee_r/pages/customer/reviews.dart';
-import 'package:gcoffee_r/controller/login.dart';
+import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
@@ -63,10 +62,7 @@ class _PageFavoriteState extends State<PageFavorite> {
         message: "Kamu harus login dulu!",
         Type: ToastificationType.warning,
       );
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Loginpage()),
-      );
+      context.goNamed(ROuteNames.loginScreen);
       return;
     }
 
@@ -411,13 +407,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                             final authService = AuthService();
                             await authService.signOut();
                             if (context.mounted) {
-                              Navigator.pushAndRemoveUntil(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Loginpage(),
-                                ),
-                                (route) => false,
-                              );
+                              context.goNamed(ROuteNames.loginScreen);
                             }
                           },
                           child: Text(
@@ -717,14 +707,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                         message: 'Home',
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) =>
-                                        homePageCust(idMeja: widget.idMeja),
-                              ),
-                            );
+                            context.goNamed(ROuteNames.homepageCust);
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),
@@ -760,14 +743,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                           onPressed: () {
                             final supabase = Supabase.instance.client;
                             if (supabase.auth.currentUser != null) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) =>
-                                          PageFavorite(idMeja: widget.idMeja),
-                                ),
-                              );
+                              context.goNamed(ROuteNames.favoritepage);
                             } else {
                               showToast(
                                 context,
@@ -776,12 +752,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                                     'Kamu harus login untuk mengakses favorit!',
                                 Type: ToastificationType.warning,
                               );
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Loginpage(),
-                                ),
-                              );
+                              context.goNamed(ROuteNames.favoritepage);
                             }
                           },
                           child: Padding(
@@ -799,14 +770,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                         message: 'Reviews',
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) =>
-                                        ReviewsPage(idMeja: widget.idMeja),
-                              ),
-                            );
+                            context.goNamed(ROuteNames.reviewpage);
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),

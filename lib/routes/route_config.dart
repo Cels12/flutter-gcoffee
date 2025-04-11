@@ -99,7 +99,6 @@ class RouteConfig {
           path: '/menupage',
           name: ROuteNames.menupage,
           pageBuilder: (context, state) {
-            final idMeja = state.extra as String;
             return MaterialPage(child: MenuPage());
           },
         ),
@@ -107,7 +106,6 @@ class RouteConfig {
           path: '/addmenu',
           name: ROuteNames.addmenu,
           pageBuilder: (context, state) {
-            final idMeja = state.extra as String;
             return MaterialPage(child: AddMenu());
           },
         ),

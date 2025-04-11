@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gcoffee_r/pages/admin/menupage.dart';
-import 'package:gcoffee_r/controller/login.dart';
+import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
+import 'package:go_router/go_router.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -837,13 +837,7 @@ class _DashboardState extends State<Dashboard> {
                           final authService = AuthService();
                           await authService.signOut();
                           if (context.mounted) {
-                            Navigator.pushAndRemoveUntil(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Loginpage(),
-                              ),
-                              (route) => false,
-                            );
+                            context.goNamed(ROuteNames.loginScreen);
                           }
                         },
                         child: Text(
@@ -883,10 +877,7 @@ class _DashboardState extends State<Dashboard> {
                     const SizedBox(height: 40),
                     TextButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Dashboard()),
-                        );
+                        context.goNamed(ROuteNames.dashboard);
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -901,10 +892,7 @@ class _DashboardState extends State<Dashboard> {
                     TextButton(
                       onPressed: () {
                         try {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => MenuPage()),
-                          );
+                          context.goNamed(ROuteNames.menupage);
                         } catch (e) {
                           debugPrint('Nav error $e');
                         }

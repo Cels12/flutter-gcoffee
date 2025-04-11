@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/controller/auth/auth.dart';
-import 'package:gcoffee_r/pages/customer/favoritepage.dart';
-import 'package:gcoffee_r/pages/customer/reviews.dart';
-import 'package:gcoffee_r/controller/login.dart';
-import 'package:gcoffee_r/controller/signup.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:heroicons/heroicons.dart';
@@ -237,18 +233,7 @@ class _HomePageCustState extends State<homePageCust> {
                   .single();
 
           // Jika belum ada, buat profile baru untuk OAuth user
-          if (profileData == null) {
-            await supabase.from('profiles').insert({
-              'id': userId,
-              'username':
-                  currentUser.userMetadata?['full_name'] ?? 'User Google',
-              'email': currentUser.email,
-              'roles': 'user',
-            });
-            username = currentUser.userMetadata?['full_name'] ?? 'User Google';
-          } else {
-            username = profileData['username'];
-          }
+          username = profileData['username'];
         } catch (e) {
           debugPrint('Error getting/creating profile: $e');
           username = currentUser.userMetadata?['full_name'] ?? 'User Google';

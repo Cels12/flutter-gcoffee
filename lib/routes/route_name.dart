@@ -6,7 +6,6 @@ class ROuteNames {
   static const String homepageCust = 'homepagecust';
   static const String dashboard = 'dashboard';
   static const String recoverpassword = 'recoverpassword';
-  //yang belum di masukkin ke route config
   static const String reviewpage = 'reviewpage';
   static const String favoritepage = 'favoritepage';
   static const String myreview = 'myreview';
