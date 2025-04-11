@@ -6,6 +6,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gcoffee_r/pages/admin/dashboard.dart';
 import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
 import 'package:gcoffee_r/pages/customer/meja.dart';
+import 'package:gcoffee_r/pages/forgotPassword.dart';
 import 'package:gcoffee_r/pages/signup.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:toastification/toastification.dart';
@@ -336,7 +337,12 @@ class _LoginpageState extends State<Loginpage> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          debugPrint('Lupa password');
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ForgotPassword(),
+                            ),
+                          );
                         },
                         child: Text(
                           'Lupa Password?',
