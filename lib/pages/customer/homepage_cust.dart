@@ -13,6 +13,8 @@ import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';
+import 'package:gcoffee_r/routes/route_name.dart';
+import 'package:go_router/go_router.dart';
 
 // ignore: camel_case_types
 class homePageCust extends StatefulWidget {
@@ -66,10 +68,7 @@ class _HomePageCustState extends State<homePageCust> {
         message: "Kamu harus login dulu!",
         Type: ToastificationType.warning,
       );
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => Loginpage()),
-      );
+      context.goNamed(ROuteNames.loginScreen);
       return;
     }
 
@@ -257,17 +256,19 @@ class _HomePageCustState extends State<homePageCust> {
       }
 
       String? orderType;
-      await showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return PopUpOrderType(
-            onOrderTypeSelected: (type) {
-              orderType = type;
-            },
-          );
-        },
-      );
+      if (context.mounted) {
+        await showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (BuildContext context) {
+            return PopUpOrderType(
+              onOrderTypeSelected: (type) {
+                orderType = type;
+              },
+            );
+          },
+        );
+      }
 
       // Jika user tidak memilih tipe pesanan (menutup dialog), keluar dari fungsi
       if (orderType == null) return;
@@ -483,13 +484,7 @@ class _HomePageCustState extends State<homePageCust> {
                                 final authService = AuthService();
                                 await authService.signOut();
                                 if (context.mounted) {
-                                  Navigator.pushAndRemoveUntil(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Loginpage(),
-                                    ),
-                                    (route) => false,
-                                  );
+                                  context.goNamed(ROuteNames.loginScreen);
                                 }
                               },
                               child: Text(
@@ -511,12 +506,7 @@ class _HomePageCustState extends State<homePageCust> {
                                 TextButton(
                                   onPressed: () async {
                                     if (context.mounted) {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => Loginpage(),
-                                        ),
-                                      );
+                                      context.goNamed(ROuteNames.loginScreen);
                                     }
                                   },
                                   child: Text(
@@ -533,12 +523,7 @@ class _HomePageCustState extends State<homePageCust> {
                                 TextButton(
                                   onPressed: () async {
                                     if (context.mounted) {
-                                      Navigator.pushReplacement(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => SignUpPage(),
-                                        ),
-                                      );
+                                      context.goNamed(ROuteNames.signUpScreen);
                                     }
                                   },
                                   child: Text(
@@ -840,13 +825,9 @@ class _HomePageCustState extends State<homePageCust> {
                         message: 'Home',
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder:
-                                    (context) =>
-                                        homePageCust(idMeja: widget.idMeja),
-                              ),
+                            context.goNamed(
+                              ROuteNames.homepageCust,
+                              extra: widget.idMeja,
                             );
                           },
                           child: Padding(
@@ -883,14 +864,7 @@ class _HomePageCustState extends State<homePageCust> {
                           onPressed: () {
                             final supabase = Supabase.instance.client;
                             if (supabase.auth.currentUser != null) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) =>
-                                          PageFavorite(idMeja: widget.idMeja),
-                                ),
-                              );
+                              context.goNamed(ROuteNames.favoritepage);
                             } else {
                               showToast(
                                 context,
@@ -899,12 +873,7 @@ class _HomePageCustState extends State<homePageCust> {
                                     'Kamu harus login untuk mengakses favorit!',
                                 Type: ToastificationType.warning,
                               );
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Loginpage(),
-                                ),
-                              );
+                              context.goNamed(ROuteNames.loginScreen);
                             }
                           },
                           child: Padding(
@@ -924,14 +893,7 @@ class _HomePageCustState extends State<homePageCust> {
                           onPressed: () {
                             final supabase = Supabase.instance.client;
                             if (supabase.auth.currentUser != null) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder:
-                                      (context) =>
-                                          ReviewsPage(idMeja: widget.idMeja),
-                                ),
-                              );
+                              context.goNamed(ROuteNames.reviewpage);
                             } else {
                               showToast(
                                 context,
@@ -940,12 +902,7 @@ class _HomePageCustState extends State<homePageCust> {
                                     'Kamu harus login untuk mengakses favorit!',
                                 Type: ToastificationType.warning,
                               );
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Loginpage(),
-                                ),
-                              );
+                              context.goNamed(ROuteNames.loginScreen);
                             }
                           },
                           child: Padding(

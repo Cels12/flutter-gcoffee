@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gcoffee_r/pages/homepage_responsive.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:gcoffee_r/routes/route_config.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';
 
 Future<void> main() async {
@@ -23,7 +24,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => CartProvider())],
-      child: MaterialApp(
+      child: MaterialApp.router(
+        routerConfig: RouteConfig.returnRouter(),
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primaryColor: Color.fromARGB(255, 210, 156, 100),
@@ -36,7 +38,6 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        home: Homepage(),
       ),
     );
   }

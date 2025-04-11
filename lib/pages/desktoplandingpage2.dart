@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:gcoffee_r/pages/customer/meja.dart';
 import 'package:gcoffee_r/controller/login.dart';
 import 'package:gcoffee_r/controller/signup.dart';
+import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
+import 'package:go_router/go_router.dart';
 
 class Desktoplandingpage2 extends StatelessWidget {
   const Desktoplandingpage2({super.key});
@@ -34,36 +36,21 @@ class Desktoplandingpage2 extends StatelessWidget {
                     children: <Widget>[
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MejaInput(),
-                            ),
-                          );
+                          context.goNamed(ROuteNames.meja);
                         },
                         child: Text('Pesan Kopi', style: getDescWhite(context)),
                       ),
                       const SizedBox(width: 30),
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SignUpPage(),
-                            ),
-                          );
+                          context.goNamed(ROuteNames.signUpScreen);
                         },
                         child: Text('Daftar', style: getDescWhite(context)),
                       ),
                       const SizedBox(width: 30),
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const Loginpage(),
-                            ),
-                          );
+                          context.goNamed(ROuteNames.loginScreen);
                         },
                         child: Text('Login', style: getDescWhite(context)),
                       ),
@@ -114,12 +101,7 @@ class Desktoplandingpage2 extends StatelessWidget {
                               ),
                             ),
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const MejaInput(),
-                                ),
-                              );
+                              context.goNamed(ROuteNames.meja);
                             },
                             child: const Padding(
                               padding: EdgeInsets.symmetric(

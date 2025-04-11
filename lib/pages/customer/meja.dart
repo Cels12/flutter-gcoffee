@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
+import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 
@@ -65,13 +66,9 @@ class _MejaInputState extends State<MejaInput> {
           isMejaCorrect = true;
         });
         if (mounted) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (context) =>
-                      homePageCust(idMeja: response['nomor_meja'].toString()),
-            ),
+          context.goNamed(
+            ROuteNames.homepageCust,
+            extra: response['nomor_meja'].toString(),
           );
         }
       } else {

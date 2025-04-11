@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
+import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart' as showtoast;
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/pages/admin/edit_menu.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:gcoffee_r/pages/admin/add_menu.dart';
 import 'package:gcoffee_r/pages/admin/dashboard.dart';
@@ -333,10 +335,7 @@ class _MenuPageState extends State<MenuPage> {
                 children: [
                   TextButton(
                     onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => AddMenu()),
-                      );
+                      context.goNamed(ROuteNames.addmenu);
                     },
                     style: TextButton.styleFrom(
                       shape: RoundedRectangleBorder(
@@ -381,12 +380,7 @@ class _MenuPageState extends State<MenuPage> {
                         message: 'Home',
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => Dashboard(),
-                              ),
-                            );
+                            context.goNamed(ROuteNames.dashboard);
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),
@@ -402,12 +396,7 @@ class _MenuPageState extends State<MenuPage> {
                         message: 'Add menu',
                         child: TextButton(
                           onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => AddMenu(),
-                              ),
-                            );
+                            context.goNamed(ROuteNames.addmenu);
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),
