@@ -1,4 +1,4 @@
-class ROuteNames {
+class RouteNames {
   static const String initial = 'initial';
   static const String loginScreen = 'loginScreen';
   static const String signUpScreen = 'signUpScreen';

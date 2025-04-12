@@ -67,7 +67,7 @@ class _MejaInputState extends State<MejaInput> {
         });
         if (mounted) {
           context.goNamed(
-            ROuteNames.homepageCust,
+            RouteNames.homepageCust,
             extra: response['nomor_meja'].toString(),
           );
         }
@@ -111,11 +111,26 @@ class _MejaInputState extends State<MejaInput> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isMobile = screenWidth < 600;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text('GCoffee', style: getTitleWhite(context)),
+        actions:
+            isMobile
+                ? [
+                  IconButton(
+                    icon: Icon(Icons.menu),
+                    onPressed: () {
+                      // Buka drawer atau menu
+                    },
+                  ),
+                ]
+                : null,
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -130,22 +145,22 @@ class _MejaInputState extends State<MejaInput> {
         ),
         child: Center(
           child: Container(
-            width: 550,
-            height: 600,
-            padding: EdgeInsets.all(20),
+            width: isMobile ? screenWidth * 0.9 : 550,
+            height: isMobile ? screenHeight * 0.7 : 600,
+            padding: EdgeInsets.all(isMobile ? 15 : 20),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: Colors.black.withAlpha(50),
                   blurRadius: 5,
                   spreadRadius: 2,
                 ),
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.only(top: 25),
+              padding: EdgeInsets.only(top: isMobile ? 15 : 25),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -153,30 +168,34 @@ class _MejaInputState extends State<MejaInput> {
                   Center(
                     child: Text(
                       'Selamat datang!',
-                      style: TextStyle(fontFamily: 'Righteous', fontSize: 36),
+                      style: TextStyle(
+                        fontFamily: 'Righteous',
+                        fontSize: isMobile ? 28 : 36,
+                      ),
                     ),
                   ),
                   SizedBox(height: 5),
                   Center(
                     child: Text(
                       'Silahkan meminta kode akses ke pelayan atau lihat di nomor meja',
+                      textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Oxanium',
-                        fontSize: 16,
+                        fontSize: isMobile ? 14 : 16,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
-                  SizedBox(height: 70),
-                  SizedBox(
-                    width: 450,
+                  SizedBox(height: isMobile ? 40 : 70),
+                  Container(
+                    width: isMobile ? screenWidth * 0.8 : 450,
                     child: TextField(
                       controller: nomorMejaController,
                       decoration: InputDecoration(
                         labelText: 'Masukkan Kode Meja',
                         labelStyle: TextStyle(
                           fontFamily: 'Oxanium',
-                          fontSize: 16,
+                          fontSize: isMobile ? 14 : 16,
                         ),
                         border: OutlineInputBorder(),
                         errorText:
@@ -187,13 +206,11 @@ class _MejaInputState extends State<MejaInput> {
                     ),
                   ),
                   SizedBox(height: 20),
-
-                  SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: isLoading ? null : _checkMeja,
                     style: TextButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 127, 88, 56),
-                      fixedSize: Size(450, 40),
+                      fixedSize: Size(isMobile ? screenWidth * 0.8 : 450, 40),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),

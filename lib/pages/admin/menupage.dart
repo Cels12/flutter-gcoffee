@@ -209,7 +209,7 @@ class _MenuPageState extends State<MenuPage> {
                                                       ElevatedButton(
                                                         onPressed: () async {
                                                           final updated = await context.pushNamed(
-                                                            ROuteNames.editpage,
+                                                            RouteNames.editpage,
                                                             extra: {
                                                               'id': menu['id'],
                                                               'initialNamaMenu':
@@ -327,7 +327,7 @@ class _MenuPageState extends State<MenuPage> {
                 children: [
                   TextButton(
                     onPressed: () {
-                      context.goNamed(ROuteNames.addmenu);
+                      context.goNamed(RouteNames.addmenu);
                     },
                     style: TextButton.styleFrom(
                       shape: RoundedRectangleBorder(
@@ -372,7 +372,7 @@ class _MenuPageState extends State<MenuPage> {
                         message: 'Home',
                         child: TextButton(
                           onPressed: () {
-                            context.goNamed(ROuteNames.dashboard);
+                            context.goNamed(RouteNames.dashboard);
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),
@@ -388,7 +388,7 @@ class _MenuPageState extends State<MenuPage> {
                         message: 'Add menu',
                         child: TextButton(
                           onPressed: () {
-                            context.goNamed(ROuteNames.addmenu);
+                            context.goNamed(RouteNames.addmenu);
                           },
                           child: Padding(
                             padding: const EdgeInsets.symmetric(vertical: 20),

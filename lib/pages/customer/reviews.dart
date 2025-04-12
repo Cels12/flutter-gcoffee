@@ -1,14 +1,13 @@
 // ignore_for_file: unused_field, prefer_final_fields
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/controller/auth/auth.dart';
 import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
+import 'package:gcoffee_r/styles/sidebar.dart';
 import 'package:go_router/go_router.dart';
-// import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -331,7 +330,10 @@ class _ReviewsPageState extends State<ReviewsPage> {
                                   ),
                                   ElevatedButton(
                                     onPressed: () {
-                                      context.goNamed(ROuteNames.myreview);
+                                      context.goNamed(
+                                        RouteNames.myreview,
+                                        extra: widget.idMeja,
+                                      );
                                     },
                                     style: ElevatedButton.styleFrom(
                                       shape: RoundedRectangleBorder(
@@ -393,7 +395,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                             final authService = AuthService();
                             await authService.signOut();
                             if (context.mounted) {
-                              context.goNamed(ROuteNames.loginScreen);
+                              context.goNamed(RouteNames.loginScreen);
                             }
                           },
                           child: Text(
@@ -671,119 +673,11 @@ class _ReviewsPageState extends State<ReviewsPage> {
               ),
             ),
             //sidebar
-            AnimatedPositioned(
-              duration: Duration(milliseconds: 300),
-              top: 0,
-              left: _isMenuOpen ? 0 : -200,
-              child: ClipRRect(
-                borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(8),
-                  bottomRight: Radius.circular(8),
-                ),
-                child: Container(
-                  width: 80,
-                  height: MediaQuery.of(context).size.height,
-                  color: Color.fromARGB(255, 84, 47, 17),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const SizedBox(height: 40),
-                      //home
-                      Tooltip(
-                        message: 'Home',
-                        child: TextButton(
-                          onPressed: () {
-                            context.goNamed(ROuteNames.homepageCust);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: SvgPicture.asset(
-                              'assets/icons/home.svg',
-                              width: 40,
-                              height: 40,
-                            ),
-                          ),
-                        ),
-                      ),
-                      //show cart
-                      Tooltip(
-                        message: 'Show Cart',
-                        child: TextButton(
-                          onPressed: () {
-                            _toggleCart();
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: HeroIcon(
-                              HeroIcons.shoppingCart,
-                              size: 40,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                      //Favorit
-                      Tooltip(
-                        message: 'Favorit',
-                        child: TextButton(
-                          onPressed: () {
-                            final supabase = Supabase.instance.client;
-                            if (supabase.auth.currentUser != null) {
-                              context.goNamed(ROuteNames.favoritepage);
-                            } else {
-                              showToast(
-                                context,
-                                title: "Harus Login",
-                                message:
-                                    'Kamu harus login untuk mengakses favorit!',
-                                Type: ToastificationType.warning,
-                              );
-                              context.goNamed(ROuteNames.loginScreen);
-                            }
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: HeroIcon(
-                              HeroIcons.heart,
-                              size: 40,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                      //Reviews
-                      Tooltip(
-                        message: 'Reviews',
-                        child: TextButton(
-                          onPressed: () {
-                            final supabase = Supabase.instance.client;
-                            if (supabase.auth.currentUser != null) {
-                              context.goNamed(ROuteNames.reviewpage);
-                            } else {
-                              showToast(
-                                context,
-                                title: "Harus Login",
-                                message:
-                                    'Kamu harus login untuk mengakses favorit!',
-                                Type: ToastificationType.warning,
-                              );
-                              context.goNamed(ROuteNames.loginScreen);
-                            }
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            child: Icon(
-                              Icons.reviews_outlined,
-                              size: 40,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
+            buildSidebar(
+              context: context,
+              isMenuOpen: _isMenuOpen,
+              toggleCart: _toggleCart,
+              idMeja: widget.idMeja,
             ),
             Positioned(
               top: 12,

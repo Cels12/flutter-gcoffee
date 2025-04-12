@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/pages/desktoplandingpage2.dart';
+import 'package:gcoffee_r/pages/screens/desktoplandingpage2.dart';
 import 'package:gcoffee_r/responsive/responsivelayout.dart';
-import 'package:gcoffee_r/pages/mobilelandingpage.dart';
+import 'package:gcoffee_r/pages/screens/mobilelandingpage.dart';
 
 class Homepage extends StatefulWidget {
   Homepage({super.key});

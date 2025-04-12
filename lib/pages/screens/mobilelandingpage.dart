@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
 import 'package:gcoffee_r/pages/customer/meja.dart';
 import 'package:gcoffee_r/controller/login.dart';
 import 'package:gcoffee_r/controller/signup.dart';
@@ -18,26 +17,7 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-      // appBar: AppBar(
-      //   // primary: false,
-      //   backgroundColor: const Color.fromARGB(255, 255, 0, 0),
-      //   title: Text(
-      //     'GCoffee',
-      //     style: TextStyle(color: Colors.white, fontFamily: 'Righteous'),
-      //   ),
-      //   actions: [
-      //     IconButton(
-      //       iconSize: 35,
-      //       color: Color.fromARGB(255, 210, 156, 108),
-      //       icon: Icon(Icons.menu),
-      //       onPressed: () {
-      //         setState(() {
-      //           _isMenuOpen = !_isMenuOpen;
-      //         });
-      //       },
-      //     ),
-      //   ],
-      // ),
+
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -51,10 +31,9 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
         ),
         child: Stack(
           children: [
-            // Fixed GCoffee Text
             Positioned(
-              top: 15, // Adjust the vertical position
-              left: 20, // Adjust the horizontal position
+              top: 15,
+              left: 20,
               child: Text(
                 'GCoffee',
                 style: TextStyle(
@@ -68,21 +47,19 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
             Container(
               alignment: Alignment.center,
               child: Column(
-                crossAxisAlignment:
-                    CrossAxisAlignment.start, // Aligns children to the center
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SizedBox(height: 100),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 120.0),
                     child: Container(
-                      // Shadow for the image
                       decoration: BoxDecoration(
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.5),
                             spreadRadius: 0,
                             blurRadius: 150,
-                            offset: Offset(0, 7), // changes position of shadow
+                            offset: Offset(0, 7),
                           ),
                         ],
                       ),
@@ -91,12 +68,10 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                   ),
                   Padding(padding: EdgeInsets.symmetric(vertical: 40)),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 50.0,
-                    ), // Adjust the horizontal padding as needed
+                    padding: const EdgeInsets.symmetric(horizontal: 50.0),
                     child: Text(
                       'Kopi hangat di pagi hari',
-                      textAlign: TextAlign.left, // Aligns text to the left
+                      textAlign: TextAlign.left,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 35,
@@ -106,12 +81,10 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                   ),
                   const SizedBox(height: 20),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 50.0,
-                    ), // Adjust the horizontal padding as needed
+                    padding: const EdgeInsets.symmetric(horizontal: 50.0),
                     child: Text(
                       'GCoffee hadir untuk memudahkan kamu dalam memesan kopi.',
-                      textAlign: TextAlign.left, // Aligns text to the left
+                      textAlign: TextAlign.left,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 20,
@@ -153,11 +126,11 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                 ],
               ),
             ),
-            // Sidebar menu
+
             AnimatedPositioned(
               duration: Duration(milliseconds: 300),
               top: 0,
-              right: _isMenuOpen ? 0 : -200, // Adjust the width as needed
+              right: _isMenuOpen ? 0 : -200,
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(3),
@@ -222,8 +195,8 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
             ),
 
             Positioned(
-              top: 10, // Adjust the vertical position
-              right: 10, // Adjust the horizontal position
+              top: 10,
+              right: 10,
               child: IconButton(
                 onPressed: () {
                   setState(() {

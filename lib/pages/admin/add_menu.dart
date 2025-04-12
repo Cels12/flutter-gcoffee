@@ -2,8 +2,6 @@ import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gcoffee_r/pages/admin/dashboard.dart';
-import 'package:gcoffee_r/pages/admin/menupage.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -414,7 +412,7 @@ class _AddMenuState extends State<AddMenu> {
                       message: 'Home',
                       child: TextButton(
                         onPressed: () {
-                          context.goNamed(ROuteNames.dashboard);
+                          context.goNamed(RouteNames.dashboard);
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20),
@@ -430,7 +428,7 @@ class _AddMenuState extends State<AddMenu> {
                       message: 'Show Menu',
                       child: TextButton(
                         onPressed: () {
-                          context.goNamed(ROuteNames.menupage);
+                          context.goNamed(RouteNames.menupage);
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20),

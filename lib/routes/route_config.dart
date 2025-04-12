@@ -12,7 +12,7 @@ import 'package:gcoffee_r/pages/customer/favoritepage.dart';
 import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
 import 'package:gcoffee_r/pages/customer/meja.dart';
 import 'package:gcoffee_r/pages/customer/reviews.dart';
-import 'package:gcoffee_r/pages/desktoplandingpage2.dart';
+import 'package:gcoffee_r/pages/screens/landingpage.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,35 +23,35 @@ class RouteConfig {
       routes: [
         GoRoute(
           path: '/',
-          name: ROuteNames.initial,
+          name: RouteNames.initial,
           pageBuilder: (context, state) {
-            return const MaterialPage(child: Desktoplandingpage2());
+            return const MaterialPage(child: Landingpage());
           },
         ),
         GoRoute(
           path: '/login',
-          name: ROuteNames.loginScreen,
+          name: RouteNames.loginScreen,
           pageBuilder: (context, state) {
             return const MaterialPage(child: Loginpage());
           },
         ),
         GoRoute(
           path: '/signup',
-          name: ROuteNames.signUpScreen,
+          name: RouteNames.signUpScreen,
           pageBuilder: (context, state) {
             return const MaterialPage(child: SignUpPage());
           },
         ),
         GoRoute(
           path: '/meja',
-          name: ROuteNames.meja,
+          name: RouteNames.meja,
           pageBuilder: (context, state) {
             return MaterialPage(child: MejaInput());
           },
         ),
         GoRoute(
           path: '/homepage',
-          name: ROuteNames.homepageCust,
+          name: RouteNames.homepageCust,
           pageBuilder: (context, state) {
             final idMeja = state.extra as String;
             return MaterialPage(child: homePageCust(idMeja: idMeja));
@@ -59,21 +59,21 @@ class RouteConfig {
         ),
         GoRoute(
           path: '/dashboard',
-          name: ROuteNames.dashboard,
+          name: RouteNames.dashboard,
           pageBuilder: (context, state) {
             return MaterialPage(child: Dashboard());
           },
         ),
         GoRoute(
           path: '/recoverpassword',
-          name: ROuteNames.recoverpassword,
+          name: RouteNames.recoverpassword,
           pageBuilder: (context, state) {
             return MaterialPage(child: Enteremailforresetpassword());
           },
         ),
         GoRoute(
           path: '/reviewpage',
-          name: ROuteNames.reviewpage,
+          name: RouteNames.reviewpage,
           pageBuilder: (context, state) {
             final idMeja = state.extra as String;
             return MaterialPage(child: ReviewsPage(idMeja: idMeja));
@@ -81,7 +81,7 @@ class RouteConfig {
         ),
         GoRoute(
           path: '/favoritepage',
-          name: ROuteNames.favoritepage,
+          name: RouteNames.favoritepage,
           pageBuilder: (context, state) {
             final idMeja = state.extra as String;
             return MaterialPage(child: PageFavorite(idMeja: idMeja));
@@ -89,7 +89,7 @@ class RouteConfig {
         ),
         GoRoute(
           path: '/myreview',
-          name: ROuteNames.myreview,
+          name: RouteNames.myreview,
           pageBuilder: (context, state) {
             final idMeja = state.extra as String;
             return MaterialPage(child: MyReviewPage(idMeja: idMeja));
@@ -97,21 +97,21 @@ class RouteConfig {
         ),
         GoRoute(
           path: '/menupage',
-          name: ROuteNames.menupage,
+          name: RouteNames.menupage,
           pageBuilder: (context, state) {
             return MaterialPage(child: MenuPage());
           },
         ),
         GoRoute(
           path: '/addmenu',
-          name: ROuteNames.addmenu,
+          name: RouteNames.addmenu,
           pageBuilder: (context, state) {
             return MaterialPage(child: AddMenu());
           },
         ),
         GoRoute(
           path: '/editmenu',
-          name: ROuteNames.editpage,
+          name: RouteNames.editpage,
           pageBuilder: (context, state) {
             final id = state.extra as int;
             final initialNamaMenu = state.extra as String;

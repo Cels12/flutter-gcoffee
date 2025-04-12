@@ -3,11 +3,6 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:gcoffee_r/controller/enterEmailForResetPassword.dart';
-import 'package:gcoffee_r/pages/admin/dashboard.dart';
-import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
-import 'package:gcoffee_r/pages/customer/meja.dart';
-import 'package:gcoffee_r/controller/signup.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:go_router/go_router.dart';
@@ -75,7 +70,7 @@ class _LoginpageState extends State<Loginpage> {
         message = 'Login berhasil!';
         isLoading = false;
       });
-      context.goNamed(ROuteNames.dashboard);
+      context.goNamed(RouteNames.dashboard);
     } else if (emailcontrol.text.trim() == adminEmail ||
         passwordcontrol.text.trim() == adminPassword) {
       // Jika email admin benar tetapi password salah
@@ -152,7 +147,7 @@ class _LoginpageState extends State<Loginpage> {
         // Redirect based on role
         if (mounted) {
           if (role == 'user') {
-            context.goNamed(ROuteNames.meja);
+            context.goNamed(RouteNames.meja);
           }
         }
       }
@@ -196,7 +191,7 @@ class _LoginpageState extends State<Loginpage> {
 
     supabase.auth.onAuthStateChange.listen((data) {
       if (mounted) {
-        context.goNamed(ROuteNames.homepageCust, extra: widget.idMeja);
+        context.goNamed(RouteNames.homepageCust, extra: widget.idMeja);
       }
     });
   }
@@ -322,7 +317,7 @@ class _LoginpageState extends State<Loginpage> {
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          context.goNamed(ROuteNames.recoverpassword);
+                          context.goNamed(RouteNames.recoverpassword);
                         },
                         child: Text(
                           'Lupa Password?',
@@ -362,7 +357,7 @@ class _LoginpageState extends State<Loginpage> {
                   ),
                   TextButton(
                     onPressed: () {
-                      context.goNamed(ROuteNames.signUpScreen);
+                      context.goNamed(RouteNames.signUpScreen);
                     },
                     child: Text.rich(
                       TextSpan(
@@ -434,7 +429,7 @@ class _LoginpageState extends State<Loginpage> {
                               if (data.event == AuthChangeEvent.signedIn) {
                                 if (context.mounted) {
                                   context.goNamed(
-                                    ROuteNames.homepageCust,
+                                    RouteNames.homepageCust,
                                     extra: widget.idMeja,
                                   );
                                 }

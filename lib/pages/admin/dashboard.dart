@@ -837,7 +837,7 @@ class _DashboardState extends State<Dashboard> {
                           final authService = AuthService();
                           await authService.signOut();
                           if (context.mounted) {
-                            context.goNamed(ROuteNames.loginScreen);
+                            context.goNamed(RouteNames.loginScreen);
                           }
                         },
                         child: Text(
@@ -877,7 +877,7 @@ class _DashboardState extends State<Dashboard> {
                     const SizedBox(height: 40),
                     TextButton(
                       onPressed: () {
-                        context.goNamed(ROuteNames.dashboard);
+                        context.goNamed(RouteNames.dashboard);
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 20),
@@ -892,7 +892,7 @@ class _DashboardState extends State<Dashboard> {
                     TextButton(
                       onPressed: () {
                         try {
-                          context.goNamed(ROuteNames.menupage);
+                          context.goNamed(RouteNames.menupage);
                         } catch (e) {
                           debugPrint('Nav error $e');
                         }

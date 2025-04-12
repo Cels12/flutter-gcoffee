@@ -1,6 +1,5 @@
 // pages/signup_page.dart
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/controller/login.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:go_router/go_router.dart';
@@ -45,7 +44,7 @@ class _SignUpPageState extends State<SignUpPage> {
           message: 'Registrasi akun berhasil!',
           Type: ToastificationType.success,
         );
-        context.goNamed(ROuteNames.loginScreen);
+        context.goNamed(RouteNames.loginScreen);
       });
     } else {
       setState(() {
@@ -219,7 +218,7 @@ class _SignUpPageState extends State<SignUpPage> {
                             ),
                   ),
                   TextButton(
-                    onPressed: () => context.goNamed(ROuteNames.loginScreen),
+                    onPressed: () => context.goNamed(RouteNames.loginScreen),
                     child: Text.rich(
                       TextSpan(
                         text: 'Sudah punya akun?',
