@@ -356,7 +356,7 @@ class _AddMenuState extends State<AddMenu> {
                                         ),
                                         const SizedBox(width: 50),
 
-                                        // Tombol Hapus
+                                        // Tombol reset
                                         ElevatedButton(
                                           onPressed: () {},
                                           style: ElevatedButton.styleFrom(

@@ -391,7 +391,13 @@ class _EditMenuState extends State<EditMenu> {
 
                                         // Tombol reset
                                         ElevatedButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            setState(() {
+                                              deskripsiController.dispose();
+                                              namaMenuController.dispose();
+                                              hargaController.dispose();
+                                            });
+                                          },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.red,
                                             shape: RoundedRectangleBorder(
