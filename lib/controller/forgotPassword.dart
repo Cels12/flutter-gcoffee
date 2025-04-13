@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/controller/login.dart';
-import 'package:gcoffee_r/styles/notification_styles.dart';
-import 'package:toastification/toastification.dart';
-import 'auth/auth.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
+
+import 'auth/auth.dart';
 
 class ForgotPassword extends StatefulWidget {
   const ForgotPassword({super.key});

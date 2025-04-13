@@ -113,18 +113,15 @@ class RouteConfig {
           path: '/editmenu',
           name: RouteNames.editpage,
           pageBuilder: (context, state) {
-            final id = state.extra as int;
-            final initialNamaMenu = state.extra as String;
-            final initialHarga = state.extra as String;
-            final initialDesk = state.extra as String;
-            final initialGambar = state.extra as String;
+            final Map<String, dynamic> params =
+                state.extra as Map<String, dynamic>;
             return MaterialPage(
               child: EditMenu(
-                id: id,
-                intialNamaMenu: initialNamaMenu,
-                initialHarga: initialHarga,
-                initialDesk: initialDesk,
-                initialGambar: initialGambar,
+                id: params['id'],
+                intialNamaMenu: params['initialNamaMenu'],
+                initialHarga: params['initialHarga'],
+                initialDesk: params['initialDesk'],
+                initialGambar: params['initialGambar'],
               ),
             );
           },

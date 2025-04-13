@@ -1,7 +1,6 @@
 // ignore_for_file: file_names
 
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/controller/auth/auth.dart';
 import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';
