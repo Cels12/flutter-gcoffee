@@ -444,156 +444,160 @@ class _DashboardState extends State<Dashboard> {
           Positioned(
             top: 150,
             left: 565,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                //search field
-                SizedBox(
-                  width: 250,
-                  child: TextField(
-                    controller: search,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: const Color.fromARGB(40, 217, 217, 217),
-                      prefixIcon: Icon(Icons.search, color: Colors.grey),
-                      border: OutlineInputBorder(
+            child: SizedBox(
+              width: MediaQuery.of(context).size.width * 0.62,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  //search field
+                  SizedBox(
+                    width: 250,
+                    child: TextField(
+                      controller: search,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: const Color.fromARGB(40, 217, 217, 217),
+                        prefixIcon: Icon(Icons.search, color: Colors.grey),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                        label: Text(
+                          'Cari...',
+                          style: TextStyle(
+                            fontFamily: 'Righteous',
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  //dropdown filter status
+                  SizedBox(
+                    width: 165,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(40, 127, 217, 217),
                         borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
                       ),
-                      label: Text(
-                        'Cari...',
-                        style: TextStyle(
-                          fontFamily: 'Righteous',
-                          color: Colors.grey,
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value:
+                              selectedMainFilter == 'Status'
+                                  ? selectedSubFilter
+                                  : 'Semua',
+                          isExpanded: true,
+                          icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+                          style: TextStyle(
+                            fontFamily: 'Oxanium',
+                            color: Colors.grey,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: 'Semua',
+                              child: Text('Status'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Sedang dibuat',
+                              child: Text('Sedang dibuat'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Siap Diantar',
+                              child: Text('Siap Diantar'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Selesai',
+                              child: Text('Selesai'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              selectedMainFilter = 'Status';
+                              selectedSubFilter = value!;
+                              filterPesanan('Status', value);
+                            });
+                          },
                         ),
                       ),
                     ),
                   ),
-                ),
 
-                //dropdown filter
-                SizedBox(
-                  width: 165,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(40, 127, 217, 217),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value:
-                            selectedMainFilter == 'Status'
-                                ? selectedSubFilter
-                                : 'Semua',
-                        isExpanded: true,
-                        icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
-                        style: TextStyle(
-                          fontFamily: 'Oxanium',
-                          color: Colors.grey,
+                  //dropdown filter waktu
+                  SizedBox(
+                    width: 165,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(40, 127, 217, 217),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton<String>(
+                          value:
+                              selectedMainFilter == 'Waktu'
+                                  ? selectedSubFilter
+                                  : 'Semua',
+                          isExpanded: true,
+                          icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+                          style: TextStyle(
+                            fontFamily: 'Oxanium',
+                            color: Colors.grey,
+                          ),
+                          items: [
+                            DropdownMenuItem(
+                              value: 'Semua',
+                              child: Text('Waktu'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Hari Ini',
+                              child: Text('Hari Ini'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Bulan Ini',
+                              child: Text('Bulan Ini'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Bulan Lalu',
+                              child: Text('Bulan Lalu'),
+                            ),
+                          ],
+                          onChanged: (value) {
+                            setState(() {
+                              selectedMainFilter = 'Waktu';
+                              selectedSubFilter = value!;
+                              filterPesanan('Waktu', value);
+                            });
+                          },
                         ),
-                        items: [
-                          DropdownMenuItem(
-                            value: 'Semua',
-                            child: Text('Status'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Sedang dibuat',
-                            child: Text('Sedang dibuat'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Siap Diantar',
-                            child: Text('Siap Diantar'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Selesai',
-                            child: Text('Selesai'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            selectedMainFilter = 'Status';
-                            selectedSubFilter = value!;
-                            filterPesanan('Status', value);
-                          });
-                        },
                       ),
                     ),
                   ),
-                ),
 
-                SizedBox(
-                  width: 165,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 12),
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(40, 127, 217, 217),
-                      borderRadius: BorderRadius.circular(10),
+                  //button download laporan
+                  TextButton(
+                    onPressed: () {
+                      debugPrint('Download laporan');
+                    },
+                    style: TextButton.styleFrom(
+                      backgroundColor: Color.fromARGB(255, 127, 88, 56),
+                      fixedSize: Size(250, 48),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5),
+                      ),
                     ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton<String>(
-                        value:
-                            selectedMainFilter == 'Waktu'
-                                ? selectedSubFilter
-                                : 'Semua',
-                        isExpanded: true,
-                        icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
-                        style: TextStyle(
-                          fontFamily: 'Oxanium',
-                          color: Colors.grey,
-                        ),
-                        items: [
-                          DropdownMenuItem(
-                            value: 'Semua',
-                            child: Text('Waktu'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Hari Ini',
-                            child: Text('Hari Ini'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Bulan Ini',
-                            child: Text('Bulan Ini'),
-                          ),
-                          DropdownMenuItem(
-                            value: 'Bulan Lalu',
-                            child: Text('Bulan Lalu'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          setState(() {
-                            selectedMainFilter = 'Waktu';
-                            selectedSubFilter = value!;
-                            filterPesanan('Waktu', value);
-                          });
-                        },
+                    child: Text(
+                      'Download Laporan',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Oxanium',
+                        fontSize: 16,
                       ),
                     ),
                   ),
-                ),
-
-                //button download laporan
-                TextButton(
-                  onPressed: () {
-                    debugPrint('Download laporan');
-                  },
-                  style: TextButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 127, 88, 56),
-                    fixedSize: Size(250, 48),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                  ),
-                  child: Text(
-                    'Download Laporan',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontFamily: 'Oxanium',
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
@@ -961,8 +965,6 @@ class _DashboardState extends State<Dashboard> {
               icon: Icon(Icons.menu),
             ),
           ),
-
-          // Area di luar sidebar untuk menutup menu saat diklik
         ],
       ),
     );
