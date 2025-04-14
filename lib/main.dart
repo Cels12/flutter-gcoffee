@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';
 import 'package:gcoffee_r/routes/route_config.dart';
 import 'package:provider/provider.dart';
