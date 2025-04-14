@@ -14,7 +14,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 void main() async {
-  await dotenv.load(fileName: ".env");
   runApp(MyApp());
 }
 
@@ -37,6 +36,8 @@ class Loginpage extends StatefulWidget {
 
 class _LoginpageState extends State<Loginpage> {
   final AuthService _auth = AuthService();
+  String ADMIN_EMAIL = 'admin@gmail.com';
+  String ADMIN_PASSWORD = 'adminyangmana?';
   final TextEditingController emailcontrol = TextEditingController();
   final TextEditingController passwordcontrol = TextEditingController();
   final supabase = Supabase.instance.client;
@@ -61,8 +62,8 @@ class _LoginpageState extends State<Loginpage> {
       return;
     }
 
-    final adminEmail = dotenv.env['ADMIN_EMAIL'];
-    final adminPassword = dotenv.env['ADMIN_PASSWORD'];
+    final adminEmail = ADMIN_EMAIL;
+    final adminPassword = ADMIN_PASSWORD;
 
     if (emailcontrol.text.trim() == adminEmail &&
         passwordcontrol.text.trim() == adminPassword) {

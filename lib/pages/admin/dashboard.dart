@@ -318,13 +318,16 @@ class _DashboardState extends State<Dashboard> {
     super.initState();
     fetchPesanan();
     fetchDashboardData();
-    search.addListener(_onSearchChanged);
+    _statusUpdateTimer = Timer.periodic(Duration(minutes: 1), (timer) {
+      checkAndUpdateOrderStatus();
+    });
   }
 
   @override
   void dispose() {
     search.removeListener(_onSearchChanged);
     search.dispose();
+    _statusUpdateTimer?.cancel();
     super.dispose();
   }
 
@@ -442,7 +445,9 @@ class _DashboardState extends State<Dashboard> {
             top: 150,
             left: 565,
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                //search field
                 SizedBox(
                   width: 250,
                   child: TextField(
@@ -465,9 +470,10 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ),
                 ),
-                const SizedBox(width: 20),
+
+                //dropdown filter
                 SizedBox(
-                  width: 250,
+                  width: 165,
                   child: Container(
                     padding: EdgeInsets.symmetric(horizontal: 12),
                     decoration: BoxDecoration(
@@ -476,7 +482,10 @@ class _DashboardState extends State<Dashboard> {
                     ),
                     child: DropdownButtonHideUnderline(
                       child: DropdownButton<String>(
-                        value: selectedMainFilter,
+                        value:
+                            selectedMainFilter == 'Status'
+                                ? selectedSubFilter
+                                : 'Semua',
                         isExpanded: true,
                         icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
                         style: TextStyle(
@@ -486,103 +495,84 @@ class _DashboardState extends State<Dashboard> {
                         items: [
                           DropdownMenuItem(
                             value: 'Semua',
-                            child: Text('Semua'),
+                            child: Text('Status'),
                           ),
                           DropdownMenuItem(
-                            value: 'Status',
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Status'),
-                                PopupMenuButton<String>(
-                                  onSelected: (value) {
-                                    setState(() {
-                                      selectedSubFilter = value;
-                                      filterPesanan('Status', value);
-                                    });
-                                  },
-                                  itemBuilder:
-                                      (context) => [
-                                        PopupMenuItem(
-                                          child: Text('Semua'),
-                                          value: 'Semua',
-                                        ),
-                                        PopupMenuItem(
-                                          child: Text('Sedang dibuat'),
-                                          value: 'Sedang dibuat',
-                                        ),
-                                        PopupMenuItem(
-                                          child: Text('Siap Diantar'),
-                                          value: 'Siap Diantar',
-                                        ),
-                                        PopupMenuItem(
-                                          child: Text('Selesai'),
-                                          value: 'Selesai',
-                                        ),
-                                      ],
-                                  child: Icon(
-                                    Icons.arrow_right,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            value: 'Sedang dibuat',
+                            child: Text('Sedang dibuat'),
                           ),
                           DropdownMenuItem(
-                            value: 'Waktu',
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Waktu'),
-                                PopupMenuButton<String>(
-                                  onSelected: (value) {
-                                    setState(() {
-                                      selectedSubFilter = value;
-                                      filterPesanan('Waktu', value);
-                                    });
-                                  },
-                                  itemBuilder:
-                                      (context) => [
-                                        PopupMenuItem(
-                                          child: Text('Hari Ini'),
-                                          value: 'Hari Ini',
-                                        ),
-                                        PopupMenuItem(
-                                          child: Text('Bulan Ini'),
-                                          value: 'Bulan Ini',
-                                        ),
-                                        PopupMenuItem(
-                                          child: Text('Bulan Lalu'),
-                                          value: 'Bulan Lalu',
-                                        ),
-                                      ],
-                                  child: Icon(
-                                    Icons.arrow_right,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              ],
-                            ),
+                            value: 'Siap Diantar',
+                            child: Text('Siap Diantar'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Selesai',
+                            child: Text('Selesai'),
                           ),
                         ],
                         onChanged: (value) {
-                          if (value == 'Semua') {
-                            setState(() {
-                              selectedMainFilter = value!;
-                              selectedSubFilter = 'Semua';
-                              _pesananList = _originalPesananList;
-                            });
-                          } else {
-                            setState(() {
-                              selectedMainFilter = value!;
-                            });
-                          }
+                          setState(() {
+                            selectedMainFilter = 'Status';
+                            selectedSubFilter = value!;
+                            filterPesanan('Status', value);
+                          });
                         },
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 176),
+
+                SizedBox(
+                  width: 165,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: Color.fromARGB(40, 127, 217, 217),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: DropdownButtonHideUnderline(
+                      child: DropdownButton<String>(
+                        value:
+                            selectedMainFilter == 'Waktu'
+                                ? selectedSubFilter
+                                : 'Semua',
+                        isExpanded: true,
+                        icon: Icon(Icons.arrow_drop_down, color: Colors.grey),
+                        style: TextStyle(
+                          fontFamily: 'Oxanium',
+                          color: Colors.grey,
+                        ),
+                        items: [
+                          DropdownMenuItem(
+                            value: 'Semua',
+                            child: Text('Waktu'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Hari Ini',
+                            child: Text('Hari Ini'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Bulan Ini',
+                            child: Text('Bulan Ini'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'Bulan Lalu',
+                            child: Text('Bulan Lalu'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedMainFilter = 'Waktu';
+                            selectedSubFilter = value!;
+                            filterPesanan('Waktu', value);
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+
+                //button download laporan
                 TextButton(
                   onPressed: () {
                     debugPrint('Download laporan');
@@ -611,252 +601,255 @@ class _DashboardState extends State<Dashboard> {
           Positioned(
             top: 220,
             left: 565,
-            child: SizedBox(
-              width: MediaQuery.of(context).size.width - 565,
-              height: MediaQuery.of(context).size.height - 300,
-              child:
-                  _isLoading
-                      ? Center(child: CircularProgressIndicator())
-                      : SingleChildScrollView(
-                        scrollDirection: Axis.vertical,
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Column(
-                            children: [
-                              DataTable(
-                                sortAscending: true,
-                                columnSpacing: 25,
-                                dataRowMinHeight: 40,
-                                headingRowHeight: 50,
-                                border: TableBorder.all(
-                                  color: const Color.fromARGB(255, 0, 0, 0),
-                                  width: 1,
-                                ),
-                                columns: [
-                                  DataColumn(
-                                    label: Text(
-                                      'ID pemesanan',
-                                      style: getDescBlack(context),
+            child: Column(
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width - 565,
+                  height: MediaQuery.of(context).size.height - 300,
+                  child:
+                      _isLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : SingleChildScrollView(
+                            scrollDirection: Axis.vertical,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Column(
+                                children: [
+                                  DataTable(
+                                    sortAscending: true,
+                                    columnSpacing: 25,
+                                    dataRowMinHeight: 40,
+                                    headingRowHeight: 50,
+                                    border: TableBorder.all(
+                                      color: const Color.fromARGB(255, 0, 0, 0),
+                                      width: 1,
                                     ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'Username',
-                                      style: getDescBlack(context),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'Pesanan',
-                                      style: getDescBlack(context),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'Nomor Meja',
-                                      style: getDescBlack(context),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'Total',
-                                      style: getDescBlack(context),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Text(
-                                      'Status Pemesanan',
-                                      style: getDescBlack(context),
-                                    ),
-                                  ),
-                                  DataColumn(
-                                    label: Padding(
-                                      padding: const EdgeInsets.only(
-                                        left: 100.0,
+                                    columns: [
+                                      DataColumn(
+                                        label: Text(
+                                          'ID pemesanan',
+                                          style: getDescBlack(context),
+                                        ),
                                       ),
-                                      child: Text(
-                                        'Aksi',
-                                        style: getDescBlack(context),
+                                      DataColumn(
+                                        label: Text(
+                                          'Username',
+                                          style: getDescBlack(context),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ],
-                                rows:
-                                    currentData.map((pesanan) {
-                                      return DataRow(
-                                        cells: [
-                                          DataCell(
-                                            Text(
-                                              pesanan['id'].toString(),
-                                              style: getDescBlack(context),
-                                            ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Pesanan',
+                                          style: getDescBlack(context),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Nomor Meja',
+                                          style: getDescBlack(context),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Total',
+                                          style: getDescBlack(context),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Text(
+                                          'Status Pemesanan',
+                                          style: getDescBlack(context),
+                                        ),
+                                      ),
+                                      DataColumn(
+                                        label: Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 100.0,
                                           ),
-                                          DataCell(
-                                            Text(
-                                              pesanan['username'].toString(),
-                                              style: getDescBlack(context),
-                                            ),
+                                          child: Text(
+                                            'Aksi',
+                                            style: getDescBlack(context),
                                           ),
-                                          DataCell(
-                                            SizedBox(
-                                              width: 150,
-                                              child: Tooltip(
-                                                message:
-                                                    pesanan['pesanan']
-                                                        .toString(),
-                                                child: Text(
-                                                  pesanan['pesanan'].toString(),
+                                        ),
+                                      ),
+                                    ],
+                                    rows:
+                                        currentData.map((pesanan) {
+                                          return DataRow(
+                                            cells: [
+                                              DataCell(
+                                                Text(
+                                                  pesanan['id'].toString(),
                                                   style: getDescBlack(context),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 1,
                                                 ),
                                               ),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Text(
-                                              pesanan['nomor_meja'].toString(),
-                                              style: getDescBlack(context),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Text(
-                                              pesanan['total'].toString(),
-                                              style: getDescBlack(context),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Text(
-                                              pesanan['status_pesanan']
-                                                  .toString(),
-                                              style: getDescBlack(context),
-                                            ),
-                                          ),
-                                          DataCell(
-                                            Row(
-                                              children: [
-                                                ElevatedButton(
-                                                  onPressed: () async {
-                                                    await updateStatusAntar(
-                                                      pesanan['id'],
-                                                    );
-                                                    await fetchPesanan();
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                        backgroundColor:
-                                                            Color.fromARGB(
-                                                              255,
-                                                              127,
-                                                              88,
-                                                              56,
-                                                            ),
+                                              DataCell(
+                                                Text(
+                                                  pesanan['username']
+                                                      .toString(),
+                                                  style: getDescBlack(context),
+                                                ),
+                                              ),
+                                              DataCell(
+                                                SizedBox(
+                                                  width: 150,
+                                                  child: Tooltip(
+                                                    message:
+                                                        pesanan['pesanan']
+                                                            .toString(),
+                                                    child: Text(
+                                                      pesanan['pesanan']
+                                                          .toString(),
+                                                      style: getDescBlack(
+                                                        context,
                                                       ),
-                                                  child: Text(
-                                                    'Siap Diantar',
-                                                    style: getButtonWhite(
-                                                      context,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
                                                     ),
                                                   ),
                                                 ),
-                                                const SizedBox(
-                                                  height: 10,
-                                                  width: 5,
+                                              ),
+                                              DataCell(
+                                                Text(
+                                                  pesanan['nomor_meja']
+                                                      .toString(),
+                                                  style: getDescBlack(context),
                                                 ),
-                                                ElevatedButton(
-                                                  onPressed: () async {
-                                                    await updateStatusSelesai(
-                                                      pesanan['id'],
-                                                    );
-                                                    await fetchPesanan();
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                        backgroundColor:
-                                                            Color.fromARGB(
-                                                              255,
-                                                              127,
-                                                              88,
-                                                              56,
-                                                            ),
+                                              ),
+                                              DataCell(
+                                                Text(
+                                                  pesanan['total'].toString(),
+                                                  style: getDescBlack(context),
+                                                ),
+                                              ),
+                                              DataCell(
+                                                Text(
+                                                  pesanan['status_pesanan']
+                                                      .toString(),
+                                                  style: getDescBlack(context),
+                                                ),
+                                              ),
+                                              DataCell(
+                                                Row(
+                                                  children: [
+                                                    ElevatedButton(
+                                                      onPressed: () async {
+                                                        await updateStatusAntar(
+                                                          pesanan['id'],
+                                                        );
+                                                        await fetchPesanan();
+                                                      },
+                                                      style:
+                                                          ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                Color.fromARGB(
+                                                                  255,
+                                                                  127,
+                                                                  88,
+                                                                  56,
+                                                                ),
+                                                          ),
+                                                      child: Text(
+                                                        'Siap Diantar',
+                                                        style: getButtonWhite(
+                                                          context,
+                                                        ),
                                                       ),
-                                                  child: Text(
-                                                    'Selesai',
-                                                    style: getButtonWhite(
-                                                      context,
                                                     ),
-                                                  ),
+                                                    const SizedBox(
+                                                      height: 10,
+                                                      width: 5,
+                                                    ),
+                                                    ElevatedButton(
+                                                      onPressed: () async {
+                                                        await updateStatusSelesai(
+                                                          pesanan['id'],
+                                                        );
+                                                        await fetchPesanan();
+                                                      },
+                                                      style:
+                                                          ElevatedButton.styleFrom(
+                                                            backgroundColor:
+                                                                Color.fromARGB(
+                                                                  255,
+                                                                  127,
+                                                                  88,
+                                                                  56,
+                                                                ),
+                                                          ),
+                                                      child: Text(
+                                                        'Selesai',
+                                                        style: getButtonWhite(
+                                                          context,
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
                                                 ),
-                                              ],
-                                            ),
-                                          ),
-                                        ],
-                                      );
-                                    }).toList(),
-                              ),
-                              // Kontrol pagination
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_back),
-                                    onPressed:
-                                        currentPage > 1
-                                            ? () {
-                                              setState(() {
-                                                currentPage--;
-                                              });
-                                            }
-                                            : null,
-                                  ),
-                                  for (int i = 1; i <= totalPages; i++)
-                                    if (i <= 3 ||
-                                        i == totalPages ||
-                                        (i - currentPage).abs() <= 1)
-                                      Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 4.0,
-                                        ),
-                                        child: TextButton(
-                                          style: TextButton.styleFrom(
-                                            backgroundColor:
-                                                i == currentPage
-                                                    ? Colors.orange
-                                                    : null,
-                                            foregroundColor:
-                                                i == currentPage
-                                                    ? Colors.white
-                                                    : null,
-                                          ),
-                                          onPressed: () {
-                                            setState(() {
-                                              currentPage = i;
-                                            });
-                                          },
-                                          child: Text(i.toString()),
-                                        ),
-                                      )
-                                    else if (i == currentPage - 2 ||
-                                        i == currentPage + 2)
-                                      const Text("..."),
-                                  IconButton(
-                                    icon: const Icon(Icons.arrow_forward),
-                                    onPressed:
-                                        currentPage < totalPages
-                                            ? () {
-                                              setState(() {
-                                                currentPage++;
-                                              });
-                                            }
-                                            : null,
+                                              ),
+                                            ],
+                                          );
+                                        }).toList(),
                                   ),
                                 ],
                               ),
-                            ],
+                            ),
                           ),
-                        ),
-                      ),
+                ),
+                const SizedBox(height: 20),
+                // Kontrol pagination
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back),
+                      onPressed:
+                          currentPage > 1
+                              ? () {
+                                setState(() {
+                                  currentPage--;
+                                });
+                              }
+                              : null,
+                    ),
+                    for (int i = 1; i <= totalPages; i++)
+                      if (i <= 3 ||
+                          i == totalPages ||
+                          (i - currentPage).abs() <= 1)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                          child: TextButton(
+                            style: TextButton.styleFrom(
+                              backgroundColor:
+                                  i == currentPage ? Colors.orange : null,
+                              foregroundColor:
+                                  i == currentPage ? Colors.white : null,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                currentPage = i;
+                              });
+                            },
+                            child: Text(i.toString()),
+                          ),
+                        )
+                      else if (i == currentPage - 2 || i == currentPage + 2)
+                        const Text("..."),
+                    IconButton(
+                      icon: const Icon(Icons.arrow_forward),
+                      onPressed:
+                          currentPage < totalPages
+                              ? () {
+                                setState(() {
+                                  currentPage++;
+                                });
+                              }
+                              : null,
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
 
