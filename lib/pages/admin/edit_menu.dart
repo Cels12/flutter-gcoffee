@@ -6,8 +6,6 @@ import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
-// import 'package:toastification/toastification.dart' as showtoast;
-// import 'package:gcoffee_r/pages/styles/notification_styles.dart';
 
 class EditMenu extends StatefulWidget {
   final int id;
@@ -393,9 +391,9 @@ class _EditMenuState extends State<EditMenu> {
                                         ElevatedButton(
                                           onPressed: () {
                                             setState(() {
-                                              deskripsiController.dispose();
-                                              namaMenuController.dispose();
-                                              hargaController.dispose();
+                                              deskripsiController.clear();
+                                              namaMenuController.clear();
+                                              hargaController.clear();
                                             });
                                           },
                                           style: ElevatedButton.styleFrom(
