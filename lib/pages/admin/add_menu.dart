@@ -358,7 +358,11 @@ class _AddMenuState extends State<AddMenu> {
 
                                         // Tombol reset
                                         ElevatedButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            deskripsiController.clear();
+                                            namaMenuController.clear();
+                                            hargaController.clear();
+                                          },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.red,
                                             shape: RoundedRectangleBorder(
@@ -417,7 +421,7 @@ class _AddMenuState extends State<AddMenu> {
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           child: SvgPicture.asset(
-                            'assets/icons/home.svg',
+                            'assets/icons/Home.svg',
                             width: 40,
                             height: 40,
                           ),
