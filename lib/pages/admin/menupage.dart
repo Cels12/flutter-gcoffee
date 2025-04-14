@@ -33,18 +33,24 @@ class _MenuPageState extends State<MenuPage> {
       await supabase.from('menu').delete().match({'id': id});
 
       if (context.mounted) {
-        ScaffoldMessenger.of(
+        showtoast.showToast(
           context,
-        ).showSnackBar(SnackBar(content: Text('Menu berhasil di hapus')));
+          title: 'Berhasil',
+          message: "Menu berhasil di hapus!",
+          Type: ToastificationType.error,
+        );
       }
     } catch (e) {
       if (kDebugMode) {
         print('error deleting menu $e');
       }
       if (context.mounted) {
-        ScaffoldMessenger.of(
+        showtoast.showToast(
           context,
-        ).showSnackBar(SnackBar(content: Text('Gagal menghapus menu')));
+          title: "Gagal",
+          message: "Gagal menghapus menu : ${e.toString()}",
+          Type: ToastificationType.error,
+        );
       }
     }
   }

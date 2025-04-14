@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';

@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
+import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:toastification/toastification.dart';
 
 class AddMenu extends StatefulWidget {
   const AddMenu({super.key});
@@ -40,8 +42,11 @@ class _AddMenuState extends State<AddMenu> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('gagal memilih gambar: ${e.toString()}')),
+        showToast(
+          context,
+          title: 'Gagal',
+          message: 'Gagal memilih gambar : ${e.toString()}',
+          Type: ToastificationType.error,
         );
       }
     }
@@ -63,15 +68,21 @@ class _AddMenuState extends State<AddMenu> {
       return Supabase.instance.client.storage.from('image').getPublicUrl(path);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Image gagal di upload: ${e.toString()}')),
+        showToast(
+          context,
+          title: 'Gagal',
+          message: 'Image gagal di upload',
+          Type: ToastificationType.error,
         );
         return null;
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(
+          showToast(
             context,
-          ).showSnackBar(SnackBar(content: Text('Image berhasil di upload')));
+            title: 'Berhasil',
+            message: 'Image berhasil di upload',
+            Type: ToastificationType.success,
+          );
         }
       }
     }
@@ -85,10 +96,11 @@ class _AddMenuState extends State<AddMenu> {
     final deskripsiMenu = deskripsiController.text.trim();
 
     if (namaMenu.isEmpty || hargaMenu.isEmpty || deskripsiMenu.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Nama menu, harga, dan deskripsi tidak boleh kosong'),
-        ),
+      showToast(
+        context,
+        title: 'Gagal',
+        message: 'Nama menu, harga, dan deskripsi tidak boleh kosong',
+        Type: ToastificationType.error,
       );
       return;
     }
@@ -107,23 +119,32 @@ class _AddMenuState extends State<AddMenu> {
       });
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal menambahkan menu : ${e.toString()}')),
+        showToast(
+          context,
+          title: 'Gagal',
+          message: 'Gagal menambahkan menu: ${e.toString()}',
+          Type: ToastificationType.error,
         );
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(
+          showToast(
             context,
-          ).showSnackBar(SnackBar(content: Text('Menu berhasil di tambahkan')));
+            title: 'Berhasil',
+            message: 'Berhasil menambahkan menu',
+            Type: ToastificationType.success,
+          );
         }
       }
     }
   }
 
   void showMessage(String message) {
-    ScaffoldMessenger.of(
+    showToast(
       context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+      title: message,
+      message: message,
+      Type: ToastificationType.info,
+    );
   }
 
   bool _isMenuOpen = false;
