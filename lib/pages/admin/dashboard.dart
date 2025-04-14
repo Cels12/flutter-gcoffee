@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
@@ -24,6 +26,7 @@ class _DashboardState extends State<Dashboard> {
   List<Map<String, dynamic>> _originalPesananList = [];
   String selectedMainFilter = 'Semua';
   String selectedSubFilter = 'Semua';
+  Timer? _statusUpdateTimer;
 
   // Default values for card info
   int penjualanHarian = 0;
@@ -261,6 +264,48 @@ class _DashboardState extends State<Dashboard> {
         showToast(
           context,
           title: "Error",
+          message: e.toString(),
+          Type: ToastificationType.error,
+        );
+      }
+    }
+  }
+
+  Future<void> checkAndUpdateOrderStatus() async {
+    try {
+      // Get current timestamp
+      final now = DateTime.now();
+
+      // Get orders that are still in 'Sedang dibuat' status
+      final response = await supabase
+          .from('pesanan')
+          .select()
+          .eq('status_pesanan', 'Sedang dibuat');
+
+      for (var order in response) {
+        // Parse the created_at timestamp
+        final createdAt = DateTime.parse(order['created_at']);
+
+        // Calculate time difference
+        final difference = now.difference(createdAt);
+
+        // If more than 30 minutes have passed
+        if (difference.inMinutes >= 30) {
+          // Update the order status
+          await supabase
+              .from('pesanan')
+              .update({'status_pesanan': 'Siap Diantar'})
+              .eq('id', order['id']);
+
+          // Refresh the orders list
+          await fetchPesanan();
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Error',
           message: e.toString(),
           Type: ToastificationType.error,
         );
