@@ -68,7 +68,7 @@ class RouteConfig {
           path: '/recoverpassword',
           name: RouteNames.recoverpassword,
           pageBuilder: (context, state) {
-            return MaterialPage(child: Enteremailforresetpassword());
+            return MaterialPage(child: EnterEmailForResetPassword());
           },
         ),
         GoRoute(

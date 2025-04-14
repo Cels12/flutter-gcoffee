@@ -354,9 +354,233 @@ class _HomePageCustState extends State<homePageCust> {
     super.dispose();
   }
 
+  double _getCardWidth(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (screenWidth < 600) {
+      // For mobile: make cards take up roughly half the screen width
+      return (screenWidth - 40) / 2; // Account for margins and spacing
+    } else if (screenWidth < 1200) {
+      return (screenWidth - 40) / 2; // For tablets
+    } else {
+      return 315; // For desktop/large screens
+    }
+  }
+
+  int _getMaxCardsPerRow(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    if (screenWidth < 600) {
+      return 2; // Always show 2 cards per row on mobile
+    } else if (screenWidth < 1200) {
+      return 2;
+    } else {
+      return 4;
+    }
+  }
+
+  List<Widget> _buildCards() {
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
+    if (isMobile) {
+      // Mobile layout - use a more direct approach for 2 columns
+      return [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 0.0),
+          child: Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            spacing: 2, // Reduced spacing for mobile
+            runSpacing: 2,
+            children:
+                _filteredMenuList.map((menu) => _buildCard(menu)).toList(),
+          ),
+        ),
+      ];
+    } else {
+      // Original implementation for larger screens
+      final maxPerRow = _getMaxCardsPerRow(context);
+      List<Widget> rows = [];
+
+      for (int i = 0; i < _filteredMenuList.length; i += maxPerRow) {
+        List<Widget> rowChildren =
+            _filteredMenuList
+                .skip(i)
+                .take(maxPerRow)
+                .map(
+                  (menu) => Padding(
+                    padding: const EdgeInsets.all(15.0),
+                    child: _buildCard(menu),
+                  ),
+                )
+                .toList();
+
+        rows.add(
+          Wrap(
+            alignment: WrapAlignment.start,
+            spacing: 2,
+            runSpacing: 2,
+            children: rowChildren,
+          ),
+        );
+      }
+      return rows;
+    }
+  }
+
+  Widget _buildCard(Map<String, dynamic> menu) {
+    double averageRating = _averageRatings[menu['id']] ?? 0.0;
+    int fullStars = averageRating.floor();
+    bool hasHalfStar = (averageRating - fullStars) >= 0.5;
+    final cardWidth = _getCardWidth(context);
+    final imageHeight = cardWidth * 0.7;
+    final isMobile = MediaQuery.of(context).size.width < 600;
+
+    return SizedBox(
+      width: cardWidth,
+      child: Card(
+        elevation: 3,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        child: Padding(
+          padding: EdgeInsets.all(isMobile ? 10 : 15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Stack(
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    width: cardWidth - (isMobile ? 16 : 30),
+                    height: imageHeight,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Image.network(
+                        menu['gambar'],
+                        fit: BoxFit.cover,
+                        errorBuilder:
+                            (context, error, stackTrace) => Icon(
+                              Icons.broken_image,
+                              size: isMobile ? 40 : 50,
+                              color: Colors.grey,
+                            ),
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    top: 10,
+                    right: 10,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color.fromARGB(77, 51, 51, 51),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: IconButton(
+                        onPressed: () => _toggleFavorited(menu['id'], menu),
+                        icon: HeroIcon(
+                          HeroIcons.heart,
+                          style:
+                              (_favoriteStates[menu['id']] ?? false)
+                                  ? HeroIconStyle.solid
+                                  : HeroIconStyle.outline,
+                          size: isMobile ? 16 : 20,
+                          color:
+                              (_favoriteStates[menu['id']] ?? false)
+                                  ? Colors.red
+                                  : Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 15),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: List.generate(
+                  5,
+                  (index) => Icon(
+                    index < fullStars
+                        ? Icons.star
+                        : (index == fullStars && hasHalfStar
+                            ? Icons.star_half
+                            : Icons.star_border),
+                    color:
+                        index < fullStars || (index == fullStars && hasHalfStar)
+                            ? Colors.amber
+                            : Colors.grey,
+                    size: isMobile ? 16 : 20,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                menu['nama_menu'],
+                style: TextStyle(
+                  fontFamily: 'Oxanium',
+                  fontSize: isMobile ? 24 : 30,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 5),
+              Text(
+                menu['deskripsi'],
+                style: TextStyle(
+                  fontFamily: 'Oxanium',
+                  fontSize: isMobile ? 14 : 16,
+                  fontWeight: FontWeight.w700,
+                ),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                formatCurrency(menu['harga']),
+                style: TextStyle(
+                  fontFamily: 'Oxanium',
+                  fontSize: isMobile ? 24 : 30,
+                  fontWeight: FontWeight.w600,
+                  color: Color.fromARGB(255, 84, 47, 17),
+                ),
+              ),
+              const SizedBox(height: 15),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Provider.of<CartProvider>(
+                      context,
+                      listen: false,
+                    ).addToCart(menu);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    backgroundColor: const Color.fromARGB(255, 127, 88, 56),
+                    padding: EdgeInsets.symmetric(vertical: isMobile ? 8 : 12),
+                  ),
+                  child: Text(
+                    'Pesan',
+                    style: TextStyle(
+                      fontFamily: 'Oxanium',
+                      fontSize: isMobile ? 16 : 20,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -385,24 +609,39 @@ class _HomePageCustState extends State<homePageCust> {
             ),
 
             //field cari
-            Positioned(
-              right: 100,
-              top: 20,
-              child: SizedBox(
-                width: 300,
-                child: TextField(
-                  controller: search,
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search, color: Colors.grey),
-                    labelText: 'Cari menu...',
-                    labelStyle: TextStyle(fontFamily: 'Oxanium', fontSize: 16),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+            isMobile
+                ? Positioned(
+                  right: 100,
+                  top: 20,
+                  child: SizedBox(
+                    width: 100,
+                    child: IconButton(
+                      onPressed: () {},
+                      icon: Icon(Icons.search),
+                    ),
+                  ),
+                )
+                : Positioned(
+                  right: 100,
+                  top: 20,
+                  child: SizedBox(
+                    width: 300,
+                    child: TextField(
+                      controller: search,
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.search, color: Colors.grey),
+                        labelText: 'Cari menu...',
+                        labelStyle: TextStyle(
+                          fontFamily: 'Oxanium',
+                          fontSize: 16,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ),
 
             //profile button
             Positioned(
@@ -416,29 +655,35 @@ class _HomePageCustState extends State<homePageCust> {
 
             // Scrollable Content
             Padding(
-              padding: const EdgeInsets.only(
-                top: 80.0,
-              ), // Add padding to avoid overlap
+              padding: const EdgeInsets.only(top: 80.0),
               child:
                   _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : SingleChildScrollView(
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 100),
+                          padding: EdgeInsets.only(
+                            left:
+                                MediaQuery.of(context).size.width < 600
+                                    ? 20
+                                    : 100,
+                            right: 12,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
                                 'Varian Kopi',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: 'Oxanium',
-                                  fontSize: 32,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width < 600
+                                          ? 24
+                                          : 32,
                                   fontWeight: FontWeight.w500,
                                   color: Color.fromARGB(255, 127, 88, 56),
                                 ),
                               ),
-
-                              // Dynamically generate rows of cards
+                              const SizedBox(height: 10),
                               ..._buildCards(),
                             ],
                           ),
@@ -805,187 +1050,6 @@ class _HomePageCustState extends State<homePageCust> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  List<Widget> _buildCards() {
-    int maxPerRow = 4;
-    List<Widget> rows = [];
-
-    for (int i = 0; i < _filteredMenuList.length; i += maxPerRow) {
-      List<Widget> rowChildren =
-          _filteredMenuList
-              .skip(i)
-              .take(maxPerRow)
-              .map(
-                (menu) => Padding(
-                  padding: const EdgeInsets.only(right: 30.0),
-                  child: _buildCard(menu),
-                ),
-              )
-              .toList();
-      rows.add(
-        Padding(
-          padding: const EdgeInsets.only(right: 30.0, top: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: rowChildren,
-          ),
-        ),
-      );
-    }
-    return rows;
-  }
-
-  Widget _buildCard(Map<String, dynamic> menu) {
-    double averageRating = _averageRatings[menu['id']] ?? 0.0;
-    int fullStars = averageRating.floor();
-    bool hasHalfStar = (averageRating - fullStars) >= 0.5;
-
-    return SizedBox(
-      width: 315,
-      height: 565,
-      child: Card(
-        elevation: 3,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Stack(
-                children: [
-                  // Image
-                  Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    width: 350,
-                    height: 280,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Image.network(
-                        menu['gambar'],
-                        fit: BoxFit.cover,
-                        errorBuilder:
-                            (context, error, stackTrace) => const Icon(
-                              Icons.broken_image,
-                              size: 100,
-                              color: Colors.grey,
-                            ),
-                      ),
-                    ),
-                  ),
-
-                  // Favorite Button
-                  Positioned(
-                    top: 10,
-                    right: 10,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: const Color.fromARGB(77, 51, 51, 51),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: IconButton(
-                        onPressed: () {
-                          _toggleFavorited(
-                            menu['id'],
-                            menu,
-                          ); // Pass the menu ID and the menu object
-                        },
-                        icon: HeroIcon(
-                          HeroIcons.heart,
-                          style:
-                              (_favoriteStates[menu['id']] ?? false)
-                                  ? HeroIconStyle.solid
-                                  : HeroIconStyle.outline,
-                          size: 20,
-                          color:
-                              (_favoriteStates[menu['id']] ?? false)
-                                  ? Colors.red
-                                  : Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 15),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(5, (index) {
-                  if (index < fullStars) {
-                    return Icon(Icons.star, color: Colors.amber, size: 20);
-                  } else if (index == fullStars && hasHalfStar) {
-                    return Icon(Icons.star_half, color: Colors.amber, size: 20);
-                  } else {
-                    return Icon(
-                      Icons.star_border,
-                      color: Colors.grey,
-                      size: 20,
-                    );
-                  }
-                }),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                menu['nama_menu'], // Replace with your menu name field
-                style: const TextStyle(
-                  fontFamily: 'Oxanium',
-                  fontSize: 30,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(height: 5),
-              Text(
-                menu['deskripsi'], // Replace with your menu description field
-                style: const TextStyle(
-                  fontFamily: 'Oxanium',
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 15),
-              Text(
-                formatCurrency(menu['harga']),
-                style: const TextStyle(
-                  fontFamily: 'Oxanium',
-                  fontSize: 30,
-                  fontWeight: FontWeight.w600,
-                  color: Color.fromARGB(255, 84, 47, 17),
-                ),
-              ),
-              const SizedBox(height: 15),
-              ElevatedButton(
-                onPressed: () {
-                  Provider.of<CartProvider>(
-                    context,
-                    listen: false,
-                  ).addToCart(menu);
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  backgroundColor: const Color.fromARGB(255, 127, 88, 56),
-                  fixedSize: const Size(300, 40),
-                ),
-                child: const Text(
-                  'Pesan',
-                  style: TextStyle(
-                    fontFamily: 'Oxanium',
-                    fontSize: 20,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );

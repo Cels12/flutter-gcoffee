@@ -337,7 +337,9 @@ class _AddMenuState extends State<AddMenu> {
                                         ElevatedButton(
                                           onPressed: () {
                                             _saveMenu();
-                                            Navigator.pop(context);
+                                            context.goNamed(
+                                              RouteNames.menupage,
+                                            );
                                           },
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.green,

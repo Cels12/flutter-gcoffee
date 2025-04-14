@@ -8,7 +8,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 
 void main() async {
-  await dotenv.load(fileName: ".env");
   runApp(MyApp());
 }
 
