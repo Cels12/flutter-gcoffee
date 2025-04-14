@@ -33,11 +33,18 @@ class _HomePageCustState extends State<homePageCust> {
   bool _isLoading = true;
   bool _isMenuOpen = false;
   bool _isCartOpen = false;
+  bool _isSearchOpen = false;
 
   bool _isProfileOpen = false;
   void _toogleProfile() {
     setState(() {
       _isProfileOpen = !_isProfileOpen;
+    });
+  }
+
+  void _toogleSearch() {
+    setState(() {
+      _isSearchOpen = !_isSearchOpen;
     });
   }
 
@@ -601,7 +608,7 @@ class _HomePageCustState extends State<homePageCust> {
                   'GCoffee',
                   style: TextStyle(
                     color: Color.fromARGB(255, 84, 47, 17),
-                    fontSize: 32,
+                    fontSize: MediaQuery.of(context).size.width < 600 ? 28 : 32,
                     fontFamily: 'Righteous',
                   ),
                 ),
@@ -616,7 +623,9 @@ class _HomePageCustState extends State<homePageCust> {
                   child: SizedBox(
                     width: 100,
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        _toogleSearch();
+                      },
                       icon: Icon(Icons.search),
                     ),
                   ),
@@ -649,7 +658,11 @@ class _HomePageCustState extends State<homePageCust> {
               top: 20,
               child: IconButton(
                 onPressed: _toogleProfile,
-                icon: HeroIcon(HeroIcons.user, size: 40, color: Colors.grey),
+                icon: HeroIcon(
+                  HeroIcons.user,
+                  size: MediaQuery.of(context).size.width < 600 ? 30 : 40,
+                  color: Colors.grey,
+                ),
               ),
             ),
 
@@ -666,7 +679,7 @@ class _HomePageCustState extends State<homePageCust> {
                                 MediaQuery.of(context).size.width < 600
                                     ? 20
                                     : 100,
-                            right: 12,
+                            right: 16,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -774,6 +787,34 @@ class _HomePageCustState extends State<homePageCust> {
                 ),
               ),
             ),
+
+            //search field for mobile
+            isMobile
+                ? AnimatedPositioned(
+                  duration: Duration(microseconds: 300),
+                  top: _isSearchOpen ? 70 : -200,
+                  right: 40,
+                  child: SizedBox(
+                    width: 200,
+                    child: TextField(
+                      controller: search,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Color.fromARGB(210, 255, 255, 255),
+                        prefixIcon: Icon(Icons.search, color: Colors.grey),
+                        labelText: 'Cari menu...',
+                        labelStyle: TextStyle(
+                          fontFamily: 'Oxanium',
+                          fontSize: 16,
+                        ),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                    ),
+                  ),
+                )
+                : SizedBox(),
 
             //cart
             AnimatedPositioned(
@@ -1043,7 +1084,7 @@ class _HomePageCustState extends State<homePageCust> {
               top: 12,
               left: 10,
               child: IconButton(
-                iconSize: 40,
+                iconSize: MediaQuery.of(context).size.width < 600 ? 28 : 40,
                 color: Color.fromARGB(255, 210, 156, 108),
                 onPressed: _toggleMenu,
                 icon: Icon(Icons.menu),
