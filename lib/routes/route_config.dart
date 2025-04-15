@@ -43,14 +43,14 @@ class RouteConfig {
           },
         ),
         GoRoute(
-          path: '/meja',
+          path: '/customer/meja',
           name: RouteNames.meja,
           pageBuilder: (context, state) {
             return MaterialPage(child: MejaInput());
           },
         ),
         GoRoute(
-          path: '/homepage',
+          path: '/customer/homepage',
           name: RouteNames.homepageCust,
           pageBuilder: (context, state) {
             final idMeja = state.extra as String;
@@ -58,7 +58,7 @@ class RouteConfig {
           },
         ),
         GoRoute(
-          path: '/dashboard',
+          path: '/admin/dashboard',
           name: RouteNames.dashboard,
           pageBuilder: (context, state) {
             return MaterialPage(child: Dashboard());
@@ -72,7 +72,7 @@ class RouteConfig {
           },
         ),
         GoRoute(
-          path: '/reviewpage',
+          path: '/customer/reviewpage',
           name: RouteNames.reviewpage,
           pageBuilder: (context, state) {
             final idMeja = state.extra as String;
@@ -80,7 +80,7 @@ class RouteConfig {
           },
         ),
         GoRoute(
-          path: '/favoritepage',
+          path: '/customer/favoritepage',
           name: RouteNames.favoritepage,
           pageBuilder: (context, state) {
             final idMeja = state.extra as String;
@@ -88,7 +88,7 @@ class RouteConfig {
           },
         ),
         GoRoute(
-          path: '/myreview',
+          path: '/customer/myreview',
           name: RouteNames.myreview,
           pageBuilder: (context, state) {
             final idMeja = state.extra as String;
@@ -96,21 +96,21 @@ class RouteConfig {
           },
         ),
         GoRoute(
-          path: '/menupage',
+          path: '/admin/menupage',
           name: RouteNames.menupage,
           pageBuilder: (context, state) {
             return MaterialPage(child: MenuPage());
           },
         ),
         GoRoute(
-          path: '/addmenu',
+          path: '/admin/addmenu',
           name: RouteNames.addmenu,
           pageBuilder: (context, state) {
             return MaterialPage(child: AddMenu());
           },
         ),
         GoRoute(
-          path: '/editmenu',
+          path: '/admin/editmenu',
           name: RouteNames.editpage,
           pageBuilder: (context, state) {
             final Map<String, dynamic> params =

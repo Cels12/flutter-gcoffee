@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/pages/customer/meja.dart';
-import 'package:gcoffee_r/controller/login.dart';
-import 'package:gcoffee_r/controller/signup.dart';
+import 'package:gcoffee_r/routes/route_name.dart';
+import 'package:go_router/go_router.dart';
 
 class Mobilelandingpage extends StatefulWidget {
   Mobilelandingpage({super.key});
@@ -105,11 +104,7 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                         borderRadius: BorderRadius.all(Radius.circular(20)),
                       ),
                       onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => MejaInput()),
-                          (route) => false,
-                        );
+                        context.goNamed(RouteNames.meja);
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(
@@ -154,13 +149,7 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                           style: TextStyle(color: Colors.white),
                         ),
                         onTap: () {
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => MejaInput(),
-                            ),
-                            (route) => false,
-                          );
+                          context.goNamed(RouteNames.meja);
                         },
                       ),
                       ListTile(
@@ -169,12 +158,7 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                           style: TextStyle(color: Colors.white),
                         ),
                         onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => Loginpage(),
-                            ),
-                          );
+                          context.goNamed(RouteNames.loginScreen);
                         },
                       ),
                       ListTile(
@@ -183,12 +167,7 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
                           style: TextStyle(color: Colors.white),
                         ),
                         onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SignUpPage(),
-                            ),
-                          );
+                          context.goNamed(RouteNames.signUpScreen);
                         },
                       ),
                     ],

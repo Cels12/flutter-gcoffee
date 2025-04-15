@@ -367,8 +367,6 @@ class _HomePageCustState extends State<homePageCust> {
     if (screenWidth < 600) {
       // For mobile: make cards take up roughly half the screen width
       return (screenWidth - 40) / 2; // Account for margins and spacing
-    } else if (screenWidth < 1200) {
-      return (screenWidth - 40) / 2; // For tablets
     } else {
       return 315; // For desktop/large screens
     }
@@ -378,8 +376,6 @@ class _HomePageCustState extends State<homePageCust> {
     final screenWidth = MediaQuery.of(context).size.width;
     if (screenWidth < 600) {
       return 2; // Always show 2 cards per row on mobile
-    } else if (screenWidth < 1200) {
-      return 2;
     } else {
       return 4;
     }
