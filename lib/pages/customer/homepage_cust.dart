@@ -679,7 +679,7 @@ class _HomePageCustState extends State<homePageCust> {
                                 MediaQuery.of(context).size.width < 600
                                     ? 20
                                     : 100,
-                            right: 16,
+                            right: 16, //gara gara ini
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
