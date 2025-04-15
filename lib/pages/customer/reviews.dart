@@ -262,6 +262,9 @@ class _ReviewsPageState extends State<ReviewsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isMobile = screenWidth < 600;
     final cartProvider = Provider.of<CartProvider>(context);
 
     return Scaffold(
@@ -283,7 +286,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                   'GCoffee',
                   style: TextStyle(
                     color: Color.fromARGB(255, 84, 47, 17),
-                    fontSize: 32,
+                    fontSize: MediaQuery.of(context).size.width < 600 ? 28 : 32,
                     fontFamily: 'Righteous',
                   ),
                 ),
@@ -292,12 +295,15 @@ class _ReviewsPageState extends State<ReviewsPage> {
 
             //profile button
             Positioned(
-              //left: 1460,
               right: 30,
               top: 20,
               child: IconButton(
                 onPressed: _toogleProfile,
-                icon: HeroIcon(HeroIcons.user, size: 40, color: Colors.grey),
+                icon: HeroIcon(
+                  HeroIcons.user,
+                  size: MediaQuery.of(context).size.width < 600 ? 30 : 40,
+                  color: Colors.grey,
+                ),
               ),
             ),
 
@@ -306,71 +312,84 @@ class _ReviewsPageState extends State<ReviewsPage> {
               padding: const EdgeInsets.only(
                 top: 80.0,
               ), // Add padding to avoid overlap
-              child:
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 100, right: 100),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Reviews',
-                                    style: const TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 32,
-                                      fontWeight: FontWeight.w500,
-                                      color: Color.fromARGB(255, 127, 88, 56),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      context.goNamed(
-                                        RouteNames.myreview,
-                                        extra: widget.idMeja,
-                                      );
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                      fixedSize: Size(150, 48),
-                                      backgroundColor: Color.fromARGB(
-                                        255,
-                                        127,
-                                        88,
-                                        56,
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'ReviewKu',
-                                      style: TextStyle(
-                                        fontFamily: 'Oxanium',
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w500,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                              // Menampilkan cards dalam Column
-                              ..._reviewsList.map(
-                                (review) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 20.0),
-                                  child: _buildEnhancedReviewCard(review),
-                                ),
-                              ),
-                            ],
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 40, right: 40),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Reviews',
+                          style: TextStyle(
+                            fontFamily: 'Oxanium',
+                            fontSize:
+                                MediaQuery.of(context).size.width < 600
+                                    ? 24
+                                    : 32,
+                            fontWeight: FontWeight.w500,
+                            color: Color.fromARGB(255, 127, 88, 56),
                           ),
                         ),
-                      ),
+                        ElevatedButton(
+                          onPressed: () {
+                            context.goNamed(
+                              RouteNames.myreview,
+                              extra: widget.idMeja,
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            fixedSize: Size(
+                              isMobile ? screenWidth * 0.3 : 150,
+                              40,
+                            ),
+                            backgroundColor: Color.fromARGB(255, 127, 88, 56),
+                          ),
+                          child: Text(
+                            'ReviewKu',
+                            style: TextStyle(
+                              fontFamily: 'Oxanium',
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child:
+                        _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : SingleChildScrollView(
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 40,
+                                  right: 40,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    ..._reviewsList.map(
+                                      (review) => Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 20.0,
+                                        ),
+                                        child: _buildEnhancedReviewCard(review),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                  ),
+                ],
+              ),
             ),
 
             //profile dropdown menu
@@ -683,7 +702,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
               top: 12,
               left: 10,
               child: IconButton(
-                iconSize: 40,
+                iconSize: MediaQuery.of(context).size.width < 600 ? 28 : 40,
                 color: Color.fromARGB(255, 210, 156, 108),
                 onPressed: _toggleMenu,
                 icon: Icon(Icons.menu),
@@ -732,149 +751,159 @@ class _ReviewsPageState extends State<ReviewsPage> {
       }
     }
 
-    return Card(
-      color: Colors.white,
-      elevation: 4,
-      margin: EdgeInsets.only(bottom: 20),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // User profile icon
-                CircleAvatar(
-                  backgroundColor: Color.fromARGB(255, 127, 88, 56),
-                  child: Text(
-                    username.isNotEmpty ? username[0].toUpperCase() : 'A',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-
-                SizedBox(width: 12),
-
-                // Username and date
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        username,
-                        style: TextStyle(
-                          fontFamily: 'Oxanium',
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        formattedDate,
-                        style: TextStyle(color: Colors.grey[600], fontSize: 14),
-                      ),
-                    ],
-                  ),
-                ),
-
-                // Menu badge if available
-                if (menuName != 'Menu tidak tersedia')
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                    decoration: BoxDecoration(
-                      color: Color.fromARGB(
-                        255,
-                        210,
-                        156,
-                        108,
-                      ).withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: Color.fromARGB(255, 210, 156, 108),
-                        width: 1,
+    return SizedBox(
+      child: Card(
+        color: Colors.white,
+        elevation: 4,
+        margin: EdgeInsets.only(bottom: 0),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // User profile icon
+                  CircleAvatar(
+                    backgroundColor: Color.fromARGB(255, 127, 88, 56),
+                    child: Text(
+                      username.isNotEmpty ? username[0].toUpperCase() : 'A',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                  ),
+
+                  SizedBox(width: 12),
+
+                  // Username and date
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.coffee,
-                          size: 16,
-                          color: Color.fromARGB(255, 127, 88, 56),
-                        ),
-                        SizedBox(width: 5),
                         Text(
-                          menuName,
+                          username,
                           style: TextStyle(
-                            color: Color.fromARGB(255, 127, 88, 56),
-                            fontWeight: FontWeight.w500,
+                            fontFamily: 'Oxanium',
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        Text(
+                          formattedDate,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 14,
                           ),
                         ),
                       ],
                     ),
                   ),
-              ],
-            ),
 
-            SizedBox(height: 12),
-
-            // Rating stars
-            Row(
-              children: List.generate(5, (index) {
-                return Icon(
-                  Icons.star,
-                  color:
-                      index < (review['rating'] ?? 0)
-                          ? Colors.amber
-                          : Colors.grey[300],
-                  size: 24,
-                );
-              }),
-            ),
-
-            SizedBox(height: 12),
-
-            // Review text
-            Text(
-              review['review'] ?? 'No review text',
-              style: TextStyle(
-                fontFamily: 'Oxanium',
-                fontSize: 16,
-                color: Colors.black87,
-              ),
-            ),
-
-            // If there's a menu image, show it
-            if (menuImage != null && menuImage.toString().isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    menuImage,
-                    height: 200,
-                    width: 220,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        height: 120,
-                        width: double.infinity,
-                        color: Colors.grey[200],
-                        child: Center(
-                          child: Icon(
-                            Icons.image_not_supported,
-                            color: Colors.grey[400],
-                          ),
+                  // Menu badge if available
+                  if (menuName != 'Menu tidak tersedia')
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Color.fromARGB(
+                          255,
+                          210,
+                          156,
+                          108,
+                        ).withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: Color.fromARGB(255, 210, 156, 108),
+                          width: 1,
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.coffee,
+                            size: 16,
+                            color: Color.fromARGB(255, 127, 88, 56),
+                          ),
+                          SizedBox(width: 5),
+                          Text(
+                            menuName,
+                            style: TextStyle(
+                              color: Color.fromARGB(255, 127, 88, 56),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+
+              SizedBox(height: 12),
+
+              // Rating stars
+              Row(
+                children: List.generate(5, (index) {
+                  return Icon(
+                    Icons.star,
+                    color:
+                        index < (review['rating'] ?? 0)
+                            ? Colors.amber
+                            : Colors.grey[300],
+                    size: 24,
+                  );
+                }),
+              ),
+
+              SizedBox(height: 12),
+
+              // Review text
+              Text(
+                review['review'] ?? 'No review text',
+                style: TextStyle(
+                  fontFamily: 'Oxanium',
+                  fontSize: 16,
+                  color: Colors.black87,
                 ),
               ),
-          ],
+
+              // If there's a menu image, show it
+              if (menuImage != null && menuImage.toString().isNotEmpty)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.only(top: 16.0),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Image.network(
+                        menuImage,
+                        height: 200,
+                        width: 220,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            height: 120,
+                            width: double.infinity,
+                            color: Colors.grey[200],
+                            child: Center(
+                              child: Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey[400],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );

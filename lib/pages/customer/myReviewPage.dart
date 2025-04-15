@@ -422,7 +422,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
                   'GCoffee',
                   style: TextStyle(
                     color: Color.fromARGB(255, 84, 47, 17),
-                    fontSize: 32,
+                    fontSize: MediaQuery.of(context).size.width < 600 ? 28 : 32,
                     fontFamily: 'Righteous',
                   ),
                 ),
@@ -431,12 +431,15 @@ class _MyReviewPageState extends State<MyReviewPage> {
 
             //profile button
             Positioned(
-              //left: 1460,
               right: 30,
               top: 20,
               child: IconButton(
                 onPressed: _toogleProfile,
-                icon: HeroIcon(HeroIcons.user, size: 40, color: Colors.grey),
+                icon: HeroIcon(
+                  HeroIcons.user,
+                  size: MediaQuery.of(context).size.width < 600 ? 30 : 40,
+                  color: Colors.grey,
+                ),
               ),
             ),
 
@@ -445,36 +448,58 @@ class _MyReviewPageState extends State<MyReviewPage> {
               padding: const EdgeInsets.only(
                 top: 80.0,
               ), // Add padding to avoid overlap
-              child:
-                  _isLoading
-                      ? const Center(child: CircularProgressIndicator())
-                      : SingleChildScrollView(
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 100),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Review',
-                                style: const TextStyle(
-                                  fontFamily: 'Oxanium',
-                                  fontSize: 32,
-                                  fontWeight: FontWeight.w500,
-                                  color: Color.fromARGB(255, 127, 88, 56),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              // Menampilkan cards dalam Column
-                              ..._reviewList.map(
-                                (review) => Padding(
-                                  padding: const EdgeInsets.only(bottom: 20.0),
-                                  child: _buildCard(review),
-                                ),
-                              ),
-                            ],
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 40, right: 40),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'ReviewKu',
+                          style: TextStyle(
+                            fontFamily: 'Oxanium',
+                            fontSize:
+                                MediaQuery.of(context).size.width < 600
+                                    ? 24
+                                    : 32,
+                            fontWeight: FontWeight.w500,
+                            color: Color.fromARGB(255, 127, 88, 56),
                           ),
                         ),
-                      ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Expanded(
+                    child:
+                        _isLoading
+                            ? const Center(child: CircularProgressIndicator())
+                            : SingleChildScrollView(
+                              child: Padding(
+                                padding: const EdgeInsets.only(
+                                  left: 100,
+                                  right: 20,
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Menampilkan cards dalam Column
+                                    ..._reviewList.map(
+                                      (review) => Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 20.0,
+                                        ),
+                                        child: _buildCard(review),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                  ),
+                ],
+              ),
             ),
             //profile dropdown menu
             AnimatedPositioned(
@@ -787,7 +812,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
               top: 12,
               left: 10,
               child: IconButton(
-                iconSize: 40,
+                iconSize: MediaQuery.of(context).size.width < 600 ? 28 : 40,
                 color: Color.fromARGB(255, 210, 156, 108),
                 onPressed: _toggleMenu,
                 icon: Icon(Icons.menu),
