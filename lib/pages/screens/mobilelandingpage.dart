@@ -16,7 +16,6 @@ class _Mobilelandingpage extends State<Mobilelandingpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
-
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

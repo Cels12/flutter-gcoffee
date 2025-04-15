@@ -201,11 +201,9 @@ class _HomePageCustState extends State<homePageCust> {
       await fetchRatings();
     } catch (e) {
       debugPrint('Error fetching menu: $e');
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      setState(() {
+        _isLoading = false;
+      });
     }
   }
 

@@ -315,6 +315,26 @@ class _MyReviewPageState extends State<MyReviewPage> {
     }
   }
 
+  double _getCardWidth(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    if (screenWidth < 600) {
+      // For mobile: make cards take up roughly half the screen width
+      return (screenWidth - 40) / 2; // Account for margins and spacing
+    } else {
+      return 315; // For desktop/large screens
+    }
+  }
+
+  // int _getMaxCardsPerRow(BuildContext context) {
+  //   final screenWidth = MediaQuery.of(context).size.width;
+  //   if (screenWidth < 600) {
+  //     return 2; // Always show 2 cards per row on mobile
+  //   } else {
+  //     return 4;
+  //   }
+  // }
+
   Future<void> updateReview(int reviewId, String reviewText, int rating) async {
     try {
       await supabase
@@ -401,6 +421,9 @@ class _MyReviewPageState extends State<MyReviewPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    // final screenHeight = MediaQuery.of(context).size.height;
+    final isMobile = screenWidth < 600;
     final cartProvider = Provider.of<CartProvider>(context);
 
     return Scaffold(
@@ -451,7 +474,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
               child: Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 40, right: 40),
+                    padding: EdgeInsets.only(left: isMobile ? 45 : 120),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -478,8 +501,8 @@ class _MyReviewPageState extends State<MyReviewPage> {
                             : SingleChildScrollView(
                               child: Padding(
                                 padding: const EdgeInsets.only(
-                                  left: 100,
-                                  right: 20,
+                                  left: 40,
+                                  right: 40,
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -548,14 +571,17 @@ class _MyReviewPageState extends State<MyReviewPage> {
             AnimatedPositioned(
               duration: Duration(milliseconds: 300),
               top: 0,
-              left: _isCartOpen ? 80 : -600,
+              left:
+                  isMobile
+                      ? (_isCartOpen ? 60 : -600)
+                      : (_isCartOpen ? 80 : -600),
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
                   topRight: Radius.circular(8),
                   bottomRight: Radius.circular(8),
                 ),
                 child: Container(
-                  width: 500,
+                  width: isMobile ? 450 : 500,
                   height: MediaQuery.of(context).size.height,
                   color: Color.fromRGBO(255, 255, 255, 1),
                   child: Stack(
@@ -744,7 +770,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.only(right: 10.0),
+                                    padding: const EdgeInsets.only(right: 25.0),
                                     child: Text(
                                       'Rp. ${cartProvider.getTotalPrice()}',
                                       style: TextStyle(
@@ -801,6 +827,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
                 ),
               ),
             ),
+
             //sidebar
             buildSidebar(
               context: context,
@@ -825,166 +852,327 @@ class _MyReviewPageState extends State<MyReviewPage> {
   }
 
   Widget _buildCard(Map<String, dynamic> review) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final cardWidth = _getCardWidth(context);
+    final imageHeight = cardWidth * 0.9;
+    final isMobile = MediaQuery.of(context).size.width < 600;
     _reviewControllers.putIfAbsent(
       review['menu_id'],
       () => TextEditingController(),
     );
     return SizedBox(
-      width: 1300,
+      width: isMobile ? 500 : 1300,
       child: Card(
         elevation: 3,
         color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         child: Padding(
           padding: const EdgeInsets.all(20),
-          child: Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child:
-                        review['menu_image'] != null &&
-                                review['menu_image'].isNotEmpty
-                            ? Image.network(
-                              review['menu_image'],
-                              fit: BoxFit.cover,
-                              width: 220,
-                              height: 200,
-                            )
-                            : const Placeholder(
-                              fallbackWidth: 220,
-                              fallbackHeight: 200,
-                            ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    review['menu_name'],
-                    style: const TextStyle(
-                      fontFamily: 'Oxanium',
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  Text(
-                    formatCurrency(review['menu_price']),
-                    style: const TextStyle(
-                      fontFamily: 'Oxanium',
-                      fontSize: 24,
-                      fontWeight: FontWeight.w600,
-                      color: Color.fromARGB(255, 84, 47, 17),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Beri rating :',
-                      style: TextStyle(
-                        fontFamily: 'Oxanium',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _buildStarRating(review['menu_id']),
-                    const SizedBox(height: 10),
-                    Text(
-                      'Deskripsikan pengalamanmu :',
-                      style: TextStyle(
-                        fontFamily: 'Oxanium',
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextField(
-                      controller: _reviewControllers[review['menu_id']],
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        hintText: 'Tulis deskripsi review',
-                      ),
-                    ),
-                    const SizedBox(height: 160),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            saveReview(
-                              review['menu_id'],
-                              _reviewControllers[review['menu_id']]?.text ?? '',
-                              _ratings[review['menu_id']] ?? 0,
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.green,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            fixedSize: const Size(120, 40),
-                          ),
-                          child: const Text(
-                            'Simpan',
-                            style: TextStyle(color: Colors.white),
-                          ),
+          child:
+              isMobile
+                  ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: Expanded(
+                          child:
+                              review['menu_image'] != null &&
+                                      review['menu_image'].isNotEmpty
+                                  ? Image.network(
+                                    review['menu_image'],
+                                    fit: BoxFit.cover,
+                                    width: double.infinity,
+                                    height: imageHeight,
+                                  )
+                                  : Placeholder(
+                                    fallbackWidth: double.infinity,
+                                    fallbackHeight: imageHeight,
+                                  ),
                         ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            updateReview(
-                              review['id'],
-                              _reviewControllers[review['menu_id']]?.text ?? '',
-                              _ratings[review['menu_id']] ?? 0,
-                            );
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.brown,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            fixedSize: const Size(120, 40),
-                          ),
-                          child: const Text(
-                            'Edit',
-                            style: TextStyle(color: Colors.white),
-                          ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        review['menu_name'],
+                        style: TextStyle(
+                          fontFamily: 'Oxanium',
+                          fontSize: isMobile ? 24 : 30,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(width: 10),
-                        ElevatedButton(
-                          onPressed: () {
-                            deleteReview(review['id']);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color.fromARGB(
-                              255,
-                              249,
-                              66,
-                              0,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            fixedSize: const Size(120, 40),
-                          ),
-                          child: const Text(
-                            'Hapus',
-                            style: TextStyle(color: Colors.white),
-                          ),
+                      ),
+                      Text(
+                        formatCurrency(review['menu_price']),
+                        style: TextStyle(
+                          fontFamily: 'Oxanium',
+                          fontSize: isMobile ? 20 : 24,
+                          fontWeight: FontWeight.w600,
+                          color: Color.fromARGB(255, 84, 47, 17),
                         ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Beri rating :',
+                        style: TextStyle(
+                          fontFamily: 'Oxanium',
+                          fontWeight: FontWeight.bold,
+                          fontSize: isMobile ? 14 : 18,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      _buildStarRating(review['menu_id']),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Deskripsikan pengalamanmu :',
+                        style: TextStyle(
+                          fontFamily: 'Oxanium',
+                          fontWeight: FontWeight.bold,
+                          fontSize: isMobile ? 14 : 18,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextField(
+                        controller: _reviewControllers[review['menu_id']],
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(),
+                          hintText: 'Tulis deskripsi review',
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              saveReview(
+                                review['menu_id'],
+                                _reviewControllers[review['menu_id']]?.text ??
+                                    '',
+                                _ratings[review['menu_id']] ?? 0,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              fixedSize: Size(screenWidth * 0.2, 40),
+                            ),
+                            child: const Text(
+                              'Simpan',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              updateReview(
+                                review['id'],
+                                _reviewControllers[review['menu_id']]?.text ??
+                                    '',
+                                _ratings[review['menu_id']] ?? 0,
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.brown,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              fixedSize: Size(screenWidth * 0.2, 40),
+                            ),
+                            child: const Text(
+                              'Edit',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ElevatedButton(
+                            onPressed: () {
+                              deleteReview(review['id']);
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color.fromARGB(
+                                255,
+                                249,
+                                66,
+                                0,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              fixedSize: Size(screenWidth * 0.2, 40),
+                            ),
+                            child: const Text(
+                              'Hapus',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                  : Row(
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Expanded(
+                              child:
+                                  review['menu_image'] != null &&
+                                          review['menu_image'].isNotEmpty
+                                      ? Image.network(
+                                        review['menu_image'],
+                                        fit: BoxFit.cover,
+                                        width: double.infinity,
+                                        height: imageHeight,
+                                      )
+                                      : Placeholder(
+                                        fallbackWidth: double.infinity,
+                                        fallbackHeight: imageHeight,
+                                      ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            review['menu_name'],
+                            style: TextStyle(
+                              fontFamily: 'Oxanium',
+                              fontSize: isMobile ? 24 : 30,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            formatCurrency(review['menu_price']),
+                            style: TextStyle(
+                              fontFamily: 'Oxanium',
+                              fontSize: isMobile ? 20 : 24,
+                              fontWeight: FontWeight.w600,
+                              color: Color.fromARGB(255, 84, 47, 17),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Beri rating :',
+                              style: TextStyle(
+                                fontFamily: 'Oxanium',
+                                fontWeight: FontWeight.bold,
+                                fontSize: isMobile ? 14 : 18,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            _buildStarRating(review['menu_id']),
+                            const SizedBox(height: 10),
+                            Text(
+                              'Deskripsikan pengalamanmu :',
+                              style: TextStyle(
+                                fontFamily: 'Oxanium',
+                                fontWeight: FontWeight.bold,
+                                fontSize: isMobile ? 14 : 18,
+                              ),
+                            ),
+                            const SizedBox(height: 10),
+                            TextField(
+                              controller: _reviewControllers[review['menu_id']],
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(),
+                                hintText: 'Tulis deskripsi review',
+                              ),
+                            ),
+                            SizedBox(height: isMobile ? 50 : 160),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(width: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    saveReview(
+                                      review['menu_id'],
+                                      _reviewControllers[review['menu_id']]
+                                              ?.text ??
+                                          '',
+                                      _ratings[review['menu_id']] ?? 0,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.green,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    fixedSize: Size(
+                                      isMobile ? screenWidth * 0.3 : 120,
+                                      40,
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Simpan',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    updateReview(
+                                      review['id'],
+                                      _reviewControllers[review['menu_id']]
+                                              ?.text ??
+                                          '',
+                                      _ratings[review['menu_id']] ?? 0,
+                                    );
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.brown,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    fixedSize: Size(
+                                      isMobile ? screenWidth * 0.3 : 120,
+                                      40,
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Edit',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    deleteReview(review['id']);
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color.fromARGB(
+                                      255,
+                                      249,
+                                      66,
+                                      0,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    fixedSize: Size(
+                                      isMobile ? screenWidth * 0.3 : 120,
+                                      40,
+                                    ),
+                                  ),
+                                  child: const Text(
+                                    'Hapus',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
         ),
       ),
     );
