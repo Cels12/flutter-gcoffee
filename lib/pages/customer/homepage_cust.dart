@@ -816,14 +816,17 @@ class _HomePageCustState extends State<homePageCust> {
             AnimatedPositioned(
               duration: Duration(milliseconds: 300),
               top: 0,
-              left: _isCartOpen ? 80 : -600,
+              left:
+                  isMobile
+                      ? (_isCartOpen ? 60 : -600)
+                      : (_isCartOpen ? 80 : -600),
               child: ClipRRect(
                 borderRadius: BorderRadius.only(
                   topRight: Radius.circular(8),
                   bottomRight: Radius.circular(8),
                 ),
                 child: Container(
-                  width: 500,
+                  width: isMobile ? 450 : 500,
                   height: MediaQuery.of(context).size.height,
                   color: Color.fromRGBO(255, 255, 255, 1),
                   child: Stack(
@@ -1012,7 +1015,7 @@ class _HomePageCustState extends State<homePageCust> {
                                     ),
                                   ),
                                   Padding(
-                                    padding: const EdgeInsets.only(right: 10.0),
+                                    padding: const EdgeInsets.only(right: 25.0),
                                     child: Text(
                                       'Rp. ${cartProvider.getTotalPrice()}',
                                       style: TextStyle(

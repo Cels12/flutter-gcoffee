@@ -2,16 +2,16 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
-import 'package:go_router/go_router.dart';
-import 'package:toastification/toastification.dart';
-import 'auth/auth.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:toastification/toastification.dart';
+
+import 'auth/auth.dart';
 
 void main() async {
   runApp(MyApp());
@@ -206,6 +206,10 @@ class _LoginpageState extends State<Loginpage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isMobile = screenWidth < 600;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -225,8 +229,8 @@ class _LoginpageState extends State<Loginpage> {
         ),
         child: Center(
           child: Container(
-            width: 550,
-            height: 600,
+            width: isMobile ? screenWidth * 0.9 : 550,
+            height: isMobile ? screenHeight * 0.7 : 600,
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -240,7 +244,7 @@ class _LoginpageState extends State<Loginpage> {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.only(top: 25),
+              padding: EdgeInsets.only(top: isMobile ? 15 : 25),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -250,7 +254,7 @@ class _LoginpageState extends State<Loginpage> {
                       'Masukkan detail akun anda',
                       style: TextStyle(
                         fontFamily: 'Oxanium',
-                        fontSize: 20,
+                        fontSize: isMobile ? 15 : 20,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -259,19 +263,22 @@ class _LoginpageState extends State<Loginpage> {
                   Center(
                     child: Text(
                       'Selamat datang kembali!',
-                      style: getTitleBlackOx(context),
+                      style: TextStyle(
+                        fontFamily: 'Righteous',
+                        fontSize: isMobile ? 28 : 36,
+                      ),
                     ),
                   ),
-                  SizedBox(height: 70),
+                  SizedBox(height: isMobile ? 40 : 70),
                   SizedBox(
-                    width: 450,
+                    width: isMobile ? screenWidth * 0.8 : 450,
                     child: TextField(
                       controller: emailcontrol,
                       decoration: InputDecoration(
                         labelText: 'Alamat Email atau Username',
                         labelStyle: TextStyle(
                           fontFamily: 'Oxanium',
-                          fontSize: 16,
+                          fontSize: isMobile ? 14 : 16,
                         ),
                         border: OutlineInputBorder(),
                         errorText:
@@ -281,7 +288,7 @@ class _LoginpageState extends State<Loginpage> {
                   ),
                   SizedBox(height: 20),
                   SizedBox(
-                    width: 450,
+                    width: isMobile ? screenWidth * 0.8 : 450,
                     child: TextField(
                       controller: passwordcontrol,
                       obscureText: true,
@@ -289,7 +296,7 @@ class _LoginpageState extends State<Loginpage> {
                         labelText: 'Password',
                         labelStyle: TextStyle(
                           fontFamily: 'Oxanium',
-                          fontSize: 16,
+                          fontSize: isMobile ? 14 : 16,
                         ),
                         border: OutlineInputBorder(gapPadding: 10),
                         errorText:
@@ -308,12 +315,12 @@ class _LoginpageState extends State<Loginpage> {
                         style: TextStyle(
                           color: Colors.red,
                           fontFamily: 'Oxanium',
-                          fontSize: 14,
+                          fontSize: isMobile ? 12 : 14,
                         ),
                       ),
                     ),
                   Padding(
-                    padding: const EdgeInsets.only(right: 20),
+                    padding: EdgeInsets.only(right: isMobile ? 2 : 20),
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
@@ -325,7 +332,7 @@ class _LoginpageState extends State<Loginpage> {
                           style: TextStyle(
                             color: Color.fromRGBO(0, 0, 0, 0.6),
                             fontFamily: 'Oxanium',
-                            fontSize: 13,
+                            fontSize: isMobile ? 12 : 13,
                             decoration: TextDecoration.underline,
                           ),
                         ),
@@ -337,7 +344,8 @@ class _LoginpageState extends State<Loginpage> {
                     onPressed: isLoading ? null : login,
                     style: TextButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 127, 88, 56),
-                      fixedSize: Size(450, 40),
+                      fixedSize: Size(isMobile ? screenWidth * 0.8 : 450, 40),
+
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),

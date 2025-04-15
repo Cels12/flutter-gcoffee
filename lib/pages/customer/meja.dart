@@ -118,17 +118,6 @@ class _MejaInputState extends State<MejaInput> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         title: Text('GCoffee', style: getTitleWhite(context)),
-        actions:
-            isMobile
-                ? [
-                  IconButton(
-                    icon: Icon(Icons.menu),
-                    onPressed: () {
-                      // Buka drawer atau menu
-                    },
-                  ),
-                ]
-                : null,
       ),
       body: Container(
         decoration: BoxDecoration(

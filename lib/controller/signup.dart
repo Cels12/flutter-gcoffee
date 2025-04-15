@@ -73,6 +73,10 @@ class _SignUpPageState extends State<SignUpPage> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final isMobile = screenWidth < 600;
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -92,8 +96,8 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         child: Center(
           child: Container(
-            width: 550,
-            height: 600,
+            width: isMobile ? screenWidth * 0.9 : 550,
+            height: isMobile ? screenHeight * 0.7 : 600,
             padding: EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: Colors.white,
@@ -107,7 +111,7 @@ class _SignUpPageState extends State<SignUpPage> {
               ],
             ),
             child: Padding(
-              padding: const EdgeInsets.only(top: 25),
+              padding: EdgeInsets.only(top: isMobile ? 15 : 25),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -117,7 +121,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       'Masukkan data diri Anda',
                       style: TextStyle(
                         fontFamily: 'Oxanium',
-                        fontSize: 20,
+                        fontSize: isMobile ? 17 : 20,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -127,24 +131,31 @@ class _SignUpPageState extends State<SignUpPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: const EdgeInsets.only(left: 35.0),
-                        child: Text('Daftar', style: getTitleBlack(context)),
+                        padding: EdgeInsets.only(left: isMobile ? 6 : 35.0),
+                        child: Text(
+                          'Daftar',
+                          style: TextStyle(
+                            fontFamily: 'Oxanium',
+                            fontSize: isMobile ? 25 : 30,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
                     ],
                   ),
 
-                  const SizedBox(height: 70),
+                  SizedBox(height: isMobile ? 40 : 70),
                   SizedBox(
-                    width: 450,
+                    width: isMobile ? screenWidth * 0.8 : 450,
                     child: Column(
                       children: [
                         TextField(
                           controller: emailController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Alamat Email',
                             labelStyle: TextStyle(
                               fontFamily: 'Oxanium',
-                              fontSize: 16,
+                              fontSize: isMobile ? 14 : 16,
                             ),
                             border: OutlineInputBorder(),
                           ),
@@ -152,12 +163,12 @@ class _SignUpPageState extends State<SignUpPage> {
                         const SizedBox(height: 12),
                         TextField(
                           controller: fullNameController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Nama Lengkap',
 
                             labelStyle: TextStyle(
                               fontFamily: 'Oxanium',
-                              fontSize: 16,
+                              fontSize: isMobile ? 14 : 16,
                             ),
                             border: OutlineInputBorder(),
                           ),
@@ -166,12 +177,12 @@ class _SignUpPageState extends State<SignUpPage> {
                         const SizedBox(height: 12),
                         TextField(
                           controller: usernameController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Username',
 
                             labelStyle: TextStyle(
                               fontFamily: 'Oxanium',
-                              fontSize: 16,
+                              fontSize: isMobile ? 14 : 16,
                             ),
                             border: OutlineInputBorder(),
                           ),
@@ -180,11 +191,11 @@ class _SignUpPageState extends State<SignUpPage> {
                         const SizedBox(height: 12),
                         TextField(
                           controller: passwordController,
-                          decoration: const InputDecoration(
+                          decoration: InputDecoration(
                             labelText: 'Password',
                             labelStyle: TextStyle(
                               fontFamily: 'Oxanium',
-                              fontSize: 16,
+                              fontSize: isMobile ? 14 : 16,
                             ),
                             border: OutlineInputBorder(),
                           ),
@@ -198,7 +209,7 @@ class _SignUpPageState extends State<SignUpPage> {
                     onPressed: isLoading ? null : signUp,
                     style: TextButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 127, 88, 56),
-                      fixedSize: Size(450, 40),
+                      fixedSize: Size(isMobile ? screenWidth * 0.8 : 450, 40),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),
@@ -225,7 +236,7 @@ class _SignUpPageState extends State<SignUpPage> {
                         style: TextStyle(
                           color: Color.fromRGBO(0, 0, 0, 0.6),
                           fontFamily: 'Oxanium',
-                          fontSize: 15,
+                          fontSize: isMobile ? 14 : 16,
                         ),
                         children: <TextSpan>[
                           TextSpan(
@@ -234,7 +245,7 @@ class _SignUpPageState extends State<SignUpPage> {
                               decoration: TextDecoration.underline,
                               color: Color.fromRGBO(0, 0, 0, 0.6),
                               fontFamily: 'Oxanium',
-                              fontSize: 15,
+                              fontSize: isMobile ? 14 : 15,
                             ),
                           ),
                         ],
