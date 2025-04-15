@@ -434,7 +434,7 @@ class _HomePageCustState extends State<homePageCust> {
     int fullStars = averageRating.floor();
     bool hasHalfStar = (averageRating - fullStars) >= 0.5;
     final cardWidth = _getCardWidth(context);
-    final imageHeight = cardWidth * 0.7;
+    final imageHeight = cardWidth * 0.9;
     final isMobile = MediaQuery.of(context).size.width < 600;
 
     return SizedBox(
@@ -1072,6 +1072,7 @@ class _HomePageCustState extends State<homePageCust> {
                 ),
               ),
             ),
+
             //sidebar
             buildSidebar(
               context: context,

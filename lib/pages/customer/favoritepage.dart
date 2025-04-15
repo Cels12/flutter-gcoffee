@@ -701,6 +701,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                 ),
               ),
             ),
+
             //sidebar
             buildSidebar(
               context: context,
@@ -800,7 +801,7 @@ class _PageFavoriteState extends State<PageFavorite> {
     int fullStars = averageRating.floor();
     bool hasHalfStar = (averageRating - fullStars) >= 0.5;
     final cardWidth = _getCardWidth(context);
-    final imageHeight = cardWidth * 0.7;
+    final imageHeight = cardWidth * 0.9;
     final isMobile = MediaQuery.of(context).size.width < 600;
 
     return SizedBox(
