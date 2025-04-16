@@ -875,20 +875,17 @@ class _MyReviewPageState extends State<MyReviewPage> {
                     children: [
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
-                        child: Expanded(
+                        child: SizedBox(
+                          width: double.infinity,
+                          height: imageHeight,
                           child:
                               review['menu_image'] != null &&
                                       review['menu_image'].isNotEmpty
                                   ? Image.network(
                                     review['menu_image'],
                                     fit: BoxFit.cover,
-                                    width: double.infinity,
-                                    height: imageHeight,
                                   )
-                                  : Placeholder(
-                                    fallbackWidth: double.infinity,
-                                    fallbackHeight: imageHeight,
-                                  ),
+                                  : const Placeholder(),
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -1017,20 +1014,17 @@ class _MyReviewPageState extends State<MyReviewPage> {
                         children: [
                           ClipRRect(
                             borderRadius: BorderRadius.circular(10),
-                            child: Expanded(
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: imageHeight,
                               child:
                                   review['menu_image'] != null &&
                                           review['menu_image'].isNotEmpty
                                       ? Image.network(
                                         review['menu_image'],
                                         fit: BoxFit.cover,
-                                        width: double.infinity,
-                                        height: imageHeight,
                                       )
-                                      : Placeholder(
-                                        fallbackWidth: double.infinity,
-                                        fallbackHeight: imageHeight,
-                                      ),
+                                      : const Placeholder(),
                             ),
                           ),
                           const SizedBox(height: 10),
