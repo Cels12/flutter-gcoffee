@@ -852,93 +852,95 @@ class _MyReviewPageState extends State<MyReviewPage> {
   }
 
   Widget _buildCard(Map<String, dynamic> review) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = MediaQuery.of(context).size.width < 600;
     final cardWidth = _getCardWidth(context);
     final imageHeight = cardWidth * 0.9;
-    final isMobile = MediaQuery.of(context).size.width < 600;
+
+    // Ensure controller exists for this menu
     _reviewControllers.putIfAbsent(
       review['menu_id'],
       () => TextEditingController(),
     );
-    return SizedBox(
-      width: isMobile ? 500 : 1300,
-      child: Card(
-        elevation: 3,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        child: Padding(
-          padding: const EdgeInsets.all(20),
-          child:
-              isMobile
-                  ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: SizedBox(
-                          width: double.infinity,
-                          height: imageHeight,
-                          child:
-                              review['menu_image'] != null &&
-                                      review['menu_image'].isNotEmpty
-                                  ? Image.network(
-                                    review['menu_image'],
-                                    fit: BoxFit.cover,
-                                  )
-                                  : const Placeholder(),
-                        ),
+
+    return Card(
+      elevation: 3,
+      color: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child:
+            isMobile
+                ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Mobile layout content (unchanged)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        width: double.infinity,
+                        height: imageHeight,
+                        child:
+                            review['menu_image'] != null &&
+                                    review['menu_image'].isNotEmpty
+                                ? Image.network(
+                                  review['menu_image'],
+                                  fit: BoxFit.cover,
+                                )
+                                : const Placeholder(),
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        review['menu_name'],
-                        style: TextStyle(
-                          fontFamily: 'Oxanium',
-                          fontSize: isMobile ? 24 : 30,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      review['menu_name'],
+                      style: TextStyle(
+                        fontFamily: 'Oxanium',
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Text(
-                        formatCurrency(review['menu_price']),
-                        style: TextStyle(
-                          fontFamily: 'Oxanium',
-                          fontSize: isMobile ? 20 : 24,
-                          fontWeight: FontWeight.w600,
-                          color: Color.fromARGB(255, 84, 47, 17),
-                        ),
+                    ),
+                    Text(
+                      formatCurrency(review['menu_price']),
+                      style: TextStyle(
+                        fontFamily: 'Oxanium',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        color: Color.fromARGB(255, 84, 47, 17),
                       ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Beri rating :',
-                        style: TextStyle(
-                          fontFamily: 'Oxanium',
-                          fontWeight: FontWeight.bold,
-                          fontSize: isMobile ? 14 : 18,
-                        ),
+                    ),
+                    const SizedBox(height: 20),
+                    Text(
+                      'Beri rating :',
+                      style: TextStyle(
+                        fontFamily: 'Oxanium',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
                       ),
-                      const SizedBox(height: 8),
-                      _buildStarRating(review['menu_id']),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Deskripsikan pengalamanmu :',
-                        style: TextStyle(
-                          fontFamily: 'Oxanium',
-                          fontWeight: FontWeight.bold,
-                          fontSize: isMobile ? 14 : 18,
-                        ),
+                    ),
+                    const SizedBox(height: 8),
+                    _buildStarRating(review['menu_id']),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Deskripsikan pengalamanmu :',
+                      style: TextStyle(
+                        fontFamily: 'Oxanium',
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
                       ),
-                      const SizedBox(height: 10),
-                      TextField(
-                        controller: _reviewControllers[review['menu_id']],
-                        decoration: InputDecoration(
-                          border: OutlineInputBorder(),
-                          hintText: 'Tulis deskripsi review',
-                        ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: _reviewControllers[review['menu_id']],
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(),
+                        hintText: 'Tulis deskripsi review',
                       ),
-                      const SizedBox(height: 20),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
+                    ),
+                    const SizedBox(height: 20),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: ElevatedButton(
                             onPressed: () {
                               saveReview(
                                 review['menu_id'],
@@ -952,15 +954,16 @@ class _MyReviewPageState extends State<MyReviewPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              fixedSize: Size(screenWidth * 0.2, 40),
                             ),
                             child: const Text(
                               'Simpan',
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          ElevatedButton(
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
                             onPressed: () {
                               updateReview(
                                 review['id'],
@@ -974,15 +977,16 @@ class _MyReviewPageState extends State<MyReviewPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              fixedSize: Size(screenWidth * 0.2, 40),
                             ),
                             child: const Text(
                               'Edit',
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
-                          const SizedBox(width: 10),
-                          ElevatedButton(
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: ElevatedButton(
                             onPressed: () {
                               deleteReview(review['id']);
                             },
@@ -996,58 +1000,66 @@ class _MyReviewPageState extends State<MyReviewPage> {
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              fixedSize: Size(screenWidth * 0.2, 40),
                             ),
                             child: const Text(
                               'Hapus',
                               style: TextStyle(color: Colors.white),
                             ),
                           ),
-                        ],
-                      ),
-                    ],
-                  )
-                  : Row(
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+                // Desktop layout with Row and proper constraints
+                : IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: SizedBox(
-                              width: double.infinity,
-                              height: imageHeight,
-                              child:
-                                  review['menu_image'] != null &&
-                                          review['menu_image'].isNotEmpty
-                                      ? Image.network(
-                                        review['menu_image'],
-                                        fit: BoxFit.cover,
-                                      )
-                                      : const Placeholder(),
+                      // Left side - Image and title
+                      Container(
+                        width: 300, // Fixed width for image column
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Container(
+                                width: 300,
+                                height: 270,
+                                child:
+                                    review['menu_image'] != null &&
+                                            review['menu_image'].isNotEmpty
+                                        ? Image.network(
+                                          review['menu_image'],
+                                          fit: BoxFit.cover,
+                                        )
+                                        : const Placeholder(),
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            review['menu_name'],
-                            style: TextStyle(
-                              fontFamily: 'Oxanium',
-                              fontSize: isMobile ? 24 : 30,
-                              fontWeight: FontWeight.bold,
+                            const SizedBox(height: 10),
+                            Text(
+                              review['menu_name'],
+                              style: TextStyle(
+                                fontFamily: 'Oxanium',
+                                fontSize: 30,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          Text(
-                            formatCurrency(review['menu_price']),
-                            style: TextStyle(
-                              fontFamily: 'Oxanium',
-                              fontSize: isMobile ? 20 : 24,
-                              fontWeight: FontWeight.w600,
-                              color: Color.fromARGB(255, 84, 47, 17),
+                            Text(
+                              formatCurrency(review['menu_price']),
+                              style: TextStyle(
+                                fontFamily: 'Oxanium',
+                                fontSize: 24,
+                                fontWeight: FontWeight.w600,
+                                color: Color.fromARGB(255, 84, 47, 17),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                       const SizedBox(width: 20),
+                      // Right side - Review form
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1057,7 +1069,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
                               style: TextStyle(
                                 fontFamily: 'Oxanium',
                                 fontWeight: FontWeight.bold,
-                                fontSize: isMobile ? 14 : 18,
+                                fontSize: 18,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -1068,7 +1080,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
                               style: TextStyle(
                                 fontFamily: 'Oxanium',
                                 fontWeight: FontWeight.bold,
-                                fontSize: isMobile ? 14 : 18,
+                                fontSize: 18,
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -1078,86 +1090,89 @@ class _MyReviewPageState extends State<MyReviewPage> {
                                 border: OutlineInputBorder(),
                                 hintText: 'Tulis deskripsi review',
                               ),
+                              maxLines: 5,
                             ),
-                            SizedBox(height: isMobile ? 50 : 160),
+                            Spacer(), // Push buttons to bottom
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                const SizedBox(width: 10),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    saveReview(
-                                      review['menu_id'],
-                                      _reviewControllers[review['menu_id']]
-                                              ?.text ??
-                                          '',
-                                      _ratings[review['menu_id']] ?? 0,
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      saveReview(
+                                        review['menu_id'],
+                                        _reviewControllers[review['menu_id']]
+                                                ?.text ??
+                                            '',
+                                        _ratings[review['menu_id']] ?? 0,
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 15,
+                                      ),
                                     ),
-                                    fixedSize: Size(
-                                      isMobile ? screenWidth * 0.3 : 120,
-                                      40,
+                                    child: const Text(
+                                      'Simpan',
+                                      style: TextStyle(color: Colors.white),
                                     ),
-                                  ),
-                                  child: const Text(
-                                    'Simpan',
-                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    updateReview(
-                                      review['id'],
-                                      _reviewControllers[review['menu_id']]
-                                              ?.text ??
-                                          '',
-                                      _ratings[review['menu_id']] ?? 0,
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.brown,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      updateReview(
+                                        review['id'],
+                                        _reviewControllers[review['menu_id']]
+                                                ?.text ??
+                                            '',
+                                        _ratings[review['menu_id']] ?? 0,
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.brown,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 15,
+                                      ),
                                     ),
-                                    fixedSize: Size(
-                                      isMobile ? screenWidth * 0.3 : 120,
-                                      40,
+                                    child: const Text(
+                                      'Edit',
+                                      style: TextStyle(color: Colors.white),
                                     ),
-                                  ),
-                                  child: const Text(
-                                    'Edit',
-                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ),
                                 const SizedBox(width: 10),
-                                ElevatedButton(
-                                  onPressed: () {
-                                    deleteReview(review['id']);
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color.fromARGB(
-                                      255,
-                                      249,
-                                      66,
-                                      0,
+                                Expanded(
+                                  child: ElevatedButton(
+                                    onPressed: () {
+                                      deleteReview(review['id']);
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: const Color.fromARGB(
+                                        255,
+                                        249,
+                                        66,
+                                        0,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: 15,
+                                      ),
                                     ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(10),
+                                    child: const Text(
+                                      'Hapus',
+                                      style: TextStyle(color: Colors.white),
                                     ),
-                                    fixedSize: Size(
-                                      isMobile ? screenWidth * 0.3 : 120,
-                                      40,
-                                    ),
-                                  ),
-                                  child: const Text(
-                                    'Hapus',
-                                    style: TextStyle(color: Colors.white),
                                   ),
                                 ),
                               ],
@@ -1167,7 +1182,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
                       ),
                     ],
                   ),
-        ),
+                ),
       ),
     );
   }
