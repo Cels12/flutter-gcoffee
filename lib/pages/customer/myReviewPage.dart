@@ -474,7 +474,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
               child: Column(
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(left: isMobile ? 45 : 120),
+                    padding: EdgeInsets.only(left: 45),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -852,6 +852,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
   }
 
   Widget _buildCard(Map<String, dynamic> review) {
+    final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = MediaQuery.of(context).size.width < 600;
     final cardWidth = _getCardWidth(context);
     final imageHeight = cardWidth * 0.9;
@@ -1017,14 +1018,14 @@ class _MyReviewPageState extends State<MyReviewPage> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       // Left side - Image and title
-                      Container(
+                      SizedBox(
                         width: 300, // Fixed width for image column
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ClipRRect(
                               borderRadius: BorderRadius.circular(10),
-                              child: Container(
+                              child: SizedBox(
                                 width: 300,
                                 height: 270,
                                 child:
