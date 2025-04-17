@@ -83,13 +83,9 @@ class _MejaInputState extends State<MejaInput> {
         });
 
         if (mounted) {
-          // Pass both values through the route
           context.goNamed(
             RouteNames.homepageCust,
-            extra: {
-              'nomor_meja': response['nomor_meja'].toString(),
-              'id_meja': response['id_meja'],
-            },
+            extra: response['nomor_meja'].toString(),
           );
         }
       } else {

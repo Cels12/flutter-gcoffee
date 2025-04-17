@@ -6,6 +6,7 @@ import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
+import 'package:gcoffee_r/styles/profile.dart';
 import 'package:gcoffee_r/styles/sidebar.dart';
 import 'package:go_router/go_router.dart';
 import 'package:heroicons/heroicons.dart';
@@ -548,46 +549,12 @@ class _MyReviewPageState extends State<MyReviewPage> {
               ),
             ),
             //profile dropdown menu
-            AnimatedPositioned(
-              duration: Duration(microseconds: 300),
-              top: _isProfileOpen ? 80 : -200,
+            //profile dropdown menu
+            buildProfileDropdown(
+              context: context,
+              isProfileOpen: _isProfileOpen,
+              top: 80,
               right: 40,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  width: 200,
-                  height: 100,
-                  color: const Color.fromARGB(255, 210, 156, 108),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.only(top: 12.0),
-                        child: TextButton(
-                          onPressed: () async {
-                            final authService = AuthService();
-                            await authService.signOut();
-
-                            if (context.mounted) {
-                              context.goNamed(RouteNames.loginScreen);
-                            }
-                          },
-                          child: Text(
-                            'Logout',
-                            style: TextStyle(
-                              fontFamily: 'Oxanium',
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
             ),
 
             //cart
