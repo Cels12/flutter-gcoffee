@@ -3,7 +3,7 @@ import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:go_router/go_router.dart';
 
 class Mobilelandingpage extends StatefulWidget {
-  Mobilelandingpage({super.key});
+  const Mobilelandingpage({super.key});
 
   @override
   State<Mobilelandingpage> createState() => _Mobilelandingpage();

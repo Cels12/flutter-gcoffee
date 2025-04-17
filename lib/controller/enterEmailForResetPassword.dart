@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:toastification/toastification.dart';
 
 void main() async {
   runApp(MyApp());
@@ -108,7 +106,7 @@ class _EnterEmailForResetPasswordState
                     ),
                   ),
                   SizedBox(height: isMobile ? 40 : 70),
-                  Container(
+                  SizedBox(
                     width: isMobile ? screenWidth * 0.8 : 450,
                     child: TextField(
                       controller: emailController,

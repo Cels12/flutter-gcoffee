@@ -852,7 +852,6 @@ class _MyReviewPageState extends State<MyReviewPage> {
   }
 
   Widget _buildCard(Map<String, dynamic> review) {
-    final screenWidth = MediaQuery.of(context).size.width;
     final isMobile = MediaQuery.of(context).size.width < 600;
     final cardWidth = _getCardWidth(context);
     final imageHeight = cardWidth * 0.9;
@@ -877,7 +876,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
                     // Mobile layout content (unchanged)
                     ClipRRect(
                       borderRadius: BorderRadius.circular(10),
-                      child: Container(
+                      child: SizedBox(
                         width: double.infinity,
                         height: imageHeight,
                         child:

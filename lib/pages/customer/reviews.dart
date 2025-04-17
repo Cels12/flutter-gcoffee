@@ -263,7 +263,6 @@ class _ReviewsPageState extends State<ReviewsPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
     final isMobile = screenWidth < 600;
     final cartProvider = Provider.of<CartProvider>(context);
 
@@ -820,7 +819,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                           210,
                           156,
                           108,
-                        ).withOpacity(0.2),
+                        ).withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: Color.fromARGB(255, 210, 156, 108),

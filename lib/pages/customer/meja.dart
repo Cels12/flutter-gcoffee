@@ -174,7 +174,7 @@ class _MejaInputState extends State<MejaInput> {
                     ),
                   ),
                   SizedBox(height: isMobile ? 40 : 70),
-                  Container(
+                  SizedBox(
                     width: isMobile ? screenWidth * 0.8 : 450,
                     child: TextField(
                       controller: nomorMejaController,

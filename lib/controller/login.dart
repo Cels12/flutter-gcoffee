@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -36,8 +38,8 @@ class Loginpage extends StatefulWidget {
 
 class _LoginpageState extends State<Loginpage> {
   final AuthService _auth = AuthService();
-  String ADMIN_EMAIL = 'admin@gmail.com';
-  String ADMIN_PASSWORD = 'adminyangmana?';
+  final String ADMIN_EMAIL = 'admin@gmail.com';
+  final String ADMIN_PASSWORD = 'adminyangmana?';
   final TextEditingController emailcontrol = TextEditingController();
   final TextEditingController passwordcontrol = TextEditingController();
   final supabase = Supabase.instance.client;
@@ -447,7 +449,7 @@ class _LoginpageState extends State<Loginpage> {
                           }
                         }
                       } catch (e) {
-                        if (mounted) {
+                        if (context.mounted) {
                           showToast(
                             context,
                             title: 'Login gagal',

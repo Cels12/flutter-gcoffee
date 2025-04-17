@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_final_fields
+
 import 'package:flutter/material.dart';
 import 'package:gcoffee_r/controller/auth/auth.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
@@ -26,7 +28,6 @@ class _PageFavoriteState extends State<PageFavorite> {
   final supabase = Supabase.instance.client;
   List<Map<String, dynamic>> _menuList = [];
   Map<int, double> _averageRatings = {};
-  // ignore: prefer_final_fields
   Map<int, bool> _favoriteStates = {};
   List<Map<String, dynamic>> get cartItems => _menuList;
   bool _isLoading = true;
