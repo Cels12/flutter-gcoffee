@@ -14,8 +14,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:gcoffee_r/controller/auth/auth.dart';
-// import 'package:syncfusion_flutter_datagrid_export/export.dart';
-import 'package:syncfusion_flutter_pdf/pdf.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart' as xlsio;
 import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
@@ -460,175 +458,6 @@ class _DashboardState extends State<Dashboard> {
       }
     }
   }
-
-  Future<void> exportToPDF() async {
-    try {
-      // Create PDF document
-      final PdfDocument document = PdfDocument();
-
-      // Add page with A4 size
-      final PdfPage page = document.pages.add();
-      final Size pageSize = page.getClientSize();
-      final PdfGraphics graphics = page.graphics;
-
-      // Define fonts
-      final PdfFont titleFont = PdfStandardFont(
-        PdfFontFamily.helvetica,
-        20,
-        style: PdfFontStyle.bold,
-      );
-      final PdfFont headerFont = PdfStandardFont(
-        PdfFontFamily.helvetica,
-        12,
-        style: PdfFontStyle.bold,
-      );
-      final PdfFont contentFont = PdfStandardFont(PdfFontFamily.helvetica, 10);
-
-      // Add title
-      graphics.drawString(
-        'Laporan Pesanan GCoffee',
-        titleFont,
-        bounds: Rect.fromLTWH(0, 40, pageSize.width, 30),
-        format: PdfStringFormat(alignment: PdfTextAlignment.center),
-      );
-
-      // Add date
-      String currentDate = DateFormat(
-        'dd/MM/yyyy HH:mm',
-      ).format(DateTime.now());
-      graphics.drawString(
-        'Tanggal: $currentDate',
-        contentFont,
-        bounds: Rect.fromLTWH(50, 80, pageSize.width - 100, 30),
-      );
-
-      // Create PDF grid
-      final PdfGrid grid = PdfGrid();
-      grid.columns.add(count: 6);
-      grid.headers.add(1);
-
-      // Add headers
-      PdfGridRow header = grid.headers[0];
-      header.cells[0].value = 'ID';
-      header.cells[1].value = 'Username';
-      header.cells[2].value = 'Pesanan';
-      header.cells[3].value = 'Nomor Meja';
-      header.cells[4].value = 'Total';
-      header.cells[5].value = 'Status';
-
-      // Add data rows
-      for (var pesanan in _pesananList) {
-        PdfGridRow row = grid.rows.add();
-        row.cells[0].value = pesanan['id'].toString();
-        row.cells[1].value = pesanan['username'].toString();
-        row.cells[2].value = pesanan['pesanan'].toString();
-        row.cells[3].value = pesanan['nomor_meja'].toString();
-        row.cells[4].value = pesanan['total'].toString();
-        row.cells[5].value = pesanan['status_pesanan'].toString();
-      }
-
-      // Style the grid
-      grid.style.cellPadding = PdfPaddings(
-        left: 5,
-        right: 5,
-        top: 5,
-        bottom: 5,
-      );
-      for (int i = 0; i < grid.rows.count; i++) {
-        final row = grid.rows[i];
-        for (int j = 0; j < row.cells.count; j++) {
-          final cell = row.cells[j];
-          cell.style.font = contentFont;
-          if (i == 0) {
-            cell.style.backgroundBrush = PdfSolidBrush(PdfColor(127, 88, 56));
-            cell.style.textBrush = PdfBrushes.white;
-          }
-        }
-      }
-
-      // Set column widths
-      grid.columns[0].width = 40; // ID
-      grid.columns[1].width = 80; // Username
-      grid.columns[2].width = 200; // Pesanan
-      grid.columns[3].width = 60; // Nomor Meja
-      grid.columns[4].width = 60; // Total
-      grid.columns[5].width = 80; // Status
-
-      // Draw grid on page
-      grid.draw(
-        page: page,
-        bounds: Rect.fromLTWH(
-          50,
-          120,
-          pageSize.width - 100,
-          pageSize.height - 180,
-        ),
-      );
-
-      // Save the document
-      final List<int> bytes = await document.save();
-      document.dispose();
-
-      if (_pesananList.isEmpty) {
-        if (mounted) {
-          showToast(
-            context,
-            title: 'Peringatan',
-            message: 'Tidak ada data untuk diekspor',
-            Type: ToastificationType.warning,
-          );
-        }
-        return;
-      }
-
-      if (kIsWeb) {
-        final blob = html.Blob([bytes], 'application/pdf');
-        final url = html.Url.createObjectUrlFromBlob(blob);
-        final anchor =
-            html.AnchorElement(href: url)
-              ..setAttribute('download', 'laporan_pesanan.pdf')
-              ..click();
-        html.Url.revokeObjectUrl(url);
-      } else {
-        final directory = await getApplicationDocumentsDirectory();
-        final file = io.File('${directory.path}/laporan_pesanan.pdf');
-        await file.writeAsBytes(bytes, flush: true);
-
-        // Add delay before opening
-        await Future.delayed(const Duration(milliseconds: 500));
-        final result = await OpenFile.open(file.path);
-
-        if (result.type != ResultType.done) {
-          throw Exception('Failed to open PDF: ${result.message}');
-        }
-      }
-
-      if (mounted) {
-        showToast(
-          context,
-          title: 'Berhasil',
-          message: 'PDF berhasil dibuat dan dibuka',
-          Type: ToastificationType.success,
-        );
-      }
-    } catch (e) {
-      debugPrint('Error generating PDF: $e');
-      if (mounted) {
-        showToast(
-          context,
-          title: 'Error',
-          message: 'Gagal membuat PDF: ${e.toString()}',
-          Type: ToastificationType.error,
-        );
-      }
-    }
-  }
-
-  // Helper method to limit text length
-  // String _limitText(String text, int maxLength) {
-  //   if (text.length <= maxLength) return text;
-  //   return '${text.substring(0, maxLength)}...';
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -1166,24 +995,24 @@ class _DashboardState extends State<Dashboard> {
                         ),
                       ),
                     ),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
-                      child: TextButton(
-                        onPressed: () async {
-                          await exportToPDF();
-                          _toogleDownload();
-                        },
-                        child: Text(
-                          'PDF',
-                          style: TextStyle(
-                            fontFamily: 'Oxanium',
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
+                    // Padding(
+                    //   padding: const EdgeInsets.only(top: 12.0),
+                    //   child: TextButton(
+                    //     onPressed: () async {
+                    //       await exportToPDF();
+                    //       _toogleDownload();
+                    //     },
+                    //     child: Text(
+                    //       'PDF',
+                    //       style: TextStyle(
+                    //         fontFamily: 'Oxanium',
+                    //         fontSize: 16,
+                    //         fontWeight : FontWeight.w500,
+                    //         color: Colors.white,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),

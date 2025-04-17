@@ -5,6 +5,7 @@ import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   runApp(MyApp());
@@ -33,6 +34,20 @@ class _MejaInputState extends State<MejaInput> {
   bool isMejaCorrect = false;
   bool isMejaInputEmpty = false;
 
+  @override
+  void initState() {
+    super.initState();
+    _checkStoredMeja();
+  }
+
+  Future<void> _checkStoredMeja() async {
+    final prefs = await SharedPreferences.getInstance();
+    final storedMeja = prefs.getString('nomor_meja');
+    if (storedMeja != null && mounted) {
+      context.goNamed(RouteNames.homepageCust, extra: storedMeja);
+    }
+  }
+
   Future<void> _checkMeja() async {
     setState(() {
       isLoading = true;
@@ -48,7 +63,6 @@ class _MejaInputState extends State<MejaInput> {
     }
 
     try {
-      // Query the database to check if the input matches any id_meja
       final response =
           await supabase
               .from('meja')
@@ -58,11 +72,16 @@ class _MejaInputState extends State<MejaInput> {
 
       if (response != null &&
           response['id_meja'] == nomorMejaController.text.trim()) {
-        // If the kode meja is valid, navigate to homePageCust with the id_meja
+        // Store both nomor_meja and id_meja
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('nomor_meja', response['nomor_meja'].toString());
+        await prefs.setString('id_meja', response['id_meja']);
+
         setState(() {
           isLoading = false;
           isMejaCorrect = true;
         });
+
         if (mounted) {
           context.goNamed(
             RouteNames.homepageCust,

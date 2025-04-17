@@ -1,0 +1,16 @@
+Ignored :
+failed to load pdf document. ada error ini ketika buka pdf 
+
+TODO: 
+1. Forgot password fungsi
+2. redirect google
+3. set up SMTP
+4. Preserve the meja kode whenever the customer changing screens (NOW, masih belum selesai karena red screen masih ada)
+5. Edit route biar ketika URLnya di ganti ke spesific, jadi gk bisa access kalo belum login
+
+DONE :
+1. 30 minute expiration untuk status pesanan (beres 14 april 2025)
+2. fungsi tombol reset di edit menu, add menu (beres 14 april 2025)
+3. Pemisahan filter jadi 2 (beres 14 april 2025)
+4. forgot password UI (beres 14 april 2025)
+5. responsive (beres 15 april 2025)

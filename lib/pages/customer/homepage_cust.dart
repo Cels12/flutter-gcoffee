@@ -11,6 +11,8 @@ import 'package:gcoffee_r/providers/cart_provider.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gcoffee_r/styles/sidebar.dart';
+import 'package:gcoffee_r/styles/profile.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: camel_case_types
 class homePageCust extends StatefulWidget {
@@ -93,9 +95,12 @@ class _HomePageCustState extends State<homePageCust> {
 
         // Show success message
         if (mounted) {
-          ScaffoldMessenger.of(
+          showToast(
             context,
-          ).showSnackBar(SnackBar(content: Text('Menu added to favorites')));
+            title: 'Berhasil',
+            message: 'Menu di tambahkan ke favorit!',
+            Type: ToastificationType.success,
+          );
         }
       } else {
         // Remove the menu from the favoritemenus table
@@ -107,8 +112,11 @@ class _HomePageCustState extends State<homePageCust> {
 
         // Show success message
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Menu removed from favorites')),
+          showToast(
+            context,
+            title: 'Berhasil',
+            message: 'Menu dihapus dari favorit!',
+            Type: ToastificationType.success,
           );
         }
       }
@@ -119,9 +127,12 @@ class _HomePageCustState extends State<homePageCust> {
           _favoriteStates[menuId] = !(_favoriteStates[menuId] ?? false);
         });
 
-        ScaffoldMessenger.of(
+        showToast(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error updating favorites: $e')));
+          title: 'Error',
+          message: 'Error mengupdate favorit!',
+          Type: ToastificationType.error,
+        );
 
         debugPrint('Error updating favoritemenus: $e');
       }
@@ -213,9 +224,12 @@ class _HomePageCustState extends State<homePageCust> {
     final totalPrice = cartProvider.getTotalPrice();
 
     if (cartItems.isEmpty) {
-      ScaffoldMessenger.of(
+      showToast(
         context,
-      ).showSnackBar(SnackBar(content: Text('Keranjang kosong!')));
+        title: 'Keranjang kosong',
+        message: 'Tambahkan item terlebih dahulu ya!',
+        Type: ToastificationType.info,
+      );
       return;
     }
 
@@ -347,9 +361,38 @@ class _HomePageCustState extends State<homePageCust> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkStoredMeja();
+    });
     fetchMenu();
     _loadFavorites();
     search.addListener(_onSearchChanged);
+  }
+
+  Future<void> _checkStoredMeja() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final storedMeja = prefs.getString('id_meja');
+
+      if (storedMeja == null) {
+        if (mounted) {
+          await prefs.clear(); // Clear all stored preferences
+          context.goNamed(RouteNames.meja);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking stored meja: $e');
+      if (mounted) {
+        context.goNamed(RouteNames.meja);
+      }
+    }
+  }
+
+  // Add method to clear meja when leaving
+  Future<void> clearMeja() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('nomor_meja');
+    await prefs.remove('id_meja');
   }
 
   @override
@@ -647,33 +690,27 @@ class _HomePageCustState extends State<homePageCust> {
                 ),
 
             //profile button
-            Positioned(
-              right: 30,
-              top: 20,
-              child: IconButton(
-                onPressed: _toogleProfile,
-                icon: HeroIcon(
-                  HeroIcons.user,
-                  size: MediaQuery.of(context).size.width < 600 ? 30 : 40,
-                  color: Colors.grey,
-                ),
-              ),
+            buildProfileButton(
+              context: context,
+              onPressed: _toogleProfile,
+              isMobile: MediaQuery.of(context).size.width < 600,
             ),
 
-            // Scrollable Content
+            // Scrollable Content (Menu Cards)
             Padding(
-              padding: const EdgeInsets.only(top: 80.0),
+              padding: const EdgeInsets.only(
+                top: 80.0, // Add padding to avoid overlap with top elements
+                left: 15,
+                right: 15,
+              ),
               child:
                   _isLoading
                       ? const Center(child: CircularProgressIndicator())
                       : SingleChildScrollView(
                         child: Padding(
                           padding: EdgeInsets.only(
-                            left:
-                                MediaQuery.of(context).size.width < 600
-                                    ? 20
-                                    : 100,
-                            right: 16, //gara gara ini
+                            left: isMobile ? 5 : 85,
+                            right: isMobile ? 5 : 0,
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -682,10 +719,7 @@ class _HomePageCustState extends State<homePageCust> {
                                 'Varian Kopi',
                                 style: TextStyle(
                                   fontFamily: 'Oxanium',
-                                  fontSize:
-                                      MediaQuery.of(context).size.width < 600
-                                          ? 24
-                                          : 32,
+                                  fontSize: isMobile ? 24 : 32,
                                   fontWeight: FontWeight.w500,
                                   color: Color.fromARGB(255, 127, 88, 56),
                                 ),
@@ -699,87 +733,11 @@ class _HomePageCustState extends State<homePageCust> {
             ),
 
             //profile dropdown menu
-            AnimatedPositioned(
-              duration: Duration(microseconds: 300),
-              top: _isProfileOpen ? 80 : -200,
+            buildProfileDropdown(
+              context: context,
+              isProfileOpen: _isProfileOpen,
+              top: 80,
               right: 40,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Container(
-                  width: 200,
-                  height: 100,
-                  color: const Color.fromARGB(255, 210, 156, 108),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      supabase.auth.currentUser != null
-                          ? Padding(
-                            padding: const EdgeInsets.only(top: 12.0),
-                            child: TextButton(
-                              onPressed: () async {
-                                final authService = AuthService();
-                                await authService.signOut();
-                                if (context.mounted) {
-                                  context.goNamed(RouteNames.loginScreen);
-                                }
-                              },
-                              child: Text(
-                                'Logout',
-                                style: TextStyle(
-                                  fontFamily: 'Oxanium',
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          )
-                          : Padding(
-                            padding: const EdgeInsets.only(top: 12.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                TextButton(
-                                  onPressed: () async {
-                                    if (context.mounted) {
-                                      context.goNamed(RouteNames.loginScreen);
-                                    }
-                                  },
-                                  child: Text(
-                                    'Login',
-                                    style: TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                TextButton(
-                                  onPressed: () async {
-                                    if (context.mounted) {
-                                      context.goNamed(RouteNames.signUpScreen);
-                                    }
-                                  },
-                                  child: Text(
-                                    'Daftar',
-                                    style: TextStyle(
-                                      fontFamily: 'Oxanium',
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                    ],
-                  ),
-                ),
-              ),
             ),
 
             //search field for mobile
