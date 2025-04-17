@@ -14,3 +14,7 @@ DONE :
 3. Pemisahan filter jadi 2 (beres 14 april 2025)
 4. forgot password UI (beres 14 april 2025)
 5. responsive (beres 15 april 2025)
+6. Responsive di my review page (beres 16 april 2025)
+7. Responsive di review page (16 april 2025)
+8. Profile dropdown jadi reuseable (beres 17 April 2025)
+ 
