@@ -701,7 +701,7 @@ class _HomePageCustState extends State<homePageCust> {
               padding: const EdgeInsets.only(
                 top: 80.0, // Add padding to avoid overlap with top elements
                 left: 15,
-                right: 15,
+                right: 2,
               ),
               child:
                   _isLoading
