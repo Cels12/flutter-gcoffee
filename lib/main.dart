@@ -6,12 +6,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 String supabaseUrl = const String.fromEnvironment(
   'SUPABASE_URL',
-  defaultValue: 'https://nnytkynvgdyodvqwwaaj.supabase.co',
+  defaultValue: '',
 );
 String supabaseKey = const String.fromEnvironment(
   'SUPABASE_KEY',
   defaultValue:
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5ueXRreW52Z2R5b2R2cXd3YWFqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgyMjAwOTEsImV4cCI6MjA1Mzc5NjA5MX0.dWMD219kVXI3imrbWO_qvUJNiH9oxKC-EgR4PEH7s48',
+      '',
 );
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
