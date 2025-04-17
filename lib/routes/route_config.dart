@@ -15,11 +15,32 @@ import 'package:gcoffee_r/pages/customer/reviews.dart';
 import 'package:gcoffee_r/pages/screens/landingpage.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class RouteConfig {
   static GoRouter returnRouter() {
     return GoRouter(
       initialLocation: '/',
+      redirect: (context, state) async {
+        // Don't redirect for these paths
+        if (state.matchedLocation == '/' ||
+            state.matchedLocation == '/login' ||
+            state.matchedLocation == '/signup' ||
+            state.matchedLocation == '/customer/meja') {
+          return null;
+        }
+
+        // Check for stored meja code
+        final prefs = await SharedPreferences.getInstance();
+        final storedMeja = prefs.getString('id_meja');
+
+        // Redirect to meja input if no stored meja code
+        if (storedMeja == null) {
+          return '/customer/meja';
+        }
+
+        return null;
+      },
       routes: [
         GoRoute(
           path: '/',
@@ -53,7 +74,15 @@ class RouteConfig {
           path: '/customer/homepage',
           name: RouteNames.homepageCust,
           pageBuilder: (context, state) {
-            final idMeja = state.extra as String;
+            // Handle both direct navigation and stored meja
+            String idMeja;
+            if (state.extra != null) {
+              idMeja = state.extra as String;
+            } else {
+              final prefs = SharedPreferences.getInstance();
+              idMeja =
+                  prefs.toString(); // This will be handled by the page itself
+            }
             return MaterialPage(child: homePageCust(idMeja: idMeja));
           },
         ),
@@ -127,9 +156,7 @@ class RouteConfig {
           },
         ),
       ],
-      errorPageBuilder: (context, state) {
-        return MaterialPage(child: Errorscreen());
-      },
+      errorBuilder: (context, state) => const Errorscreen(),
     );
   }
 }

@@ -86,9 +86,12 @@ class _PageFavoriteState extends State<PageFavorite> {
 
         // Show success message
         if (mounted) {
-          ScaffoldMessenger.of(
+          showToast(
             context,
-          ).showSnackBar(SnackBar(content: Text('Menu added to favorites')));
+            title: 'Berhasil',
+            message: 'Menu di tambahkan ke favorit!',
+            Type: ToastificationType.success,
+          );
         }
       } else {
         // Remove the menu from the favoritemenus table
@@ -100,10 +103,14 @@ class _PageFavoriteState extends State<PageFavorite> {
 
         // Show success message
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Menu removed from favorites')),
+          showToast(
+            context,
+            title: 'Berhasil',
+            message: 'Menu dihapus dari favorit!',
+            Type: ToastificationType.success,
           );
         }
+        await fetchFavorite();
       }
     } catch (e) {
       // If there's an error, revert the UI change
@@ -112,9 +119,12 @@ class _PageFavoriteState extends State<PageFavorite> {
           _favoriteStates[menuId] = !(_favoriteStates[menuId] ?? false);
         });
 
-        ScaffoldMessenger.of(
+        showToast(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error updating favorites: $e')));
+          title: 'Error',
+          message: 'Error mengupdate favorit!',
+          Type: ToastificationType.error,
+        );
 
         debugPrint('Error updating favoritemenus: $e');
       }
@@ -187,9 +197,12 @@ class _PageFavoriteState extends State<PageFavorite> {
     final totalPrice = cartProvider.getTotalPrice();
 
     if (cartItems.isEmpty) {
-      ScaffoldMessenger.of(
+      showToast(
         context,
-      ).showSnackBar(SnackBar(content: Text('Keranjang kosong!')));
+        title: 'Keranjang kosong!',
+        message: "Tambahkan item terlebih dahulu ya!",
+        Type: ToastificationType.info,
+      );
       return;
     }
 
@@ -847,7 +860,9 @@ class _PageFavoriteState extends State<PageFavorite> {
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: IconButton(
-                        onPressed: () => _toggleFavorited(menu['id'], menu),
+                        onPressed: () async {
+                          _toggleFavorited(menu['id'], menu);
+                        },
                         icon: HeroIcon(
                           HeroIcons.heart,
                           style:

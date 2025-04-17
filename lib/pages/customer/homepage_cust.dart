@@ -11,6 +11,7 @@ import 'package:gcoffee_r/providers/cart_provider.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gcoffee_r/styles/sidebar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: camel_case_types
 class homePageCust extends StatefulWidget {
@@ -93,9 +94,12 @@ class _HomePageCustState extends State<homePageCust> {
 
         // Show success message
         if (mounted) {
-          ScaffoldMessenger.of(
+          showToast(
             context,
-          ).showSnackBar(SnackBar(content: Text('Menu added to favorites')));
+            title: 'Berhasil',
+            message: 'Menu di tambahkan ke favorit!',
+            Type: ToastificationType.success,
+          );
         }
       } else {
         // Remove the menu from the favoritemenus table
@@ -107,8 +111,11 @@ class _HomePageCustState extends State<homePageCust> {
 
         // Show success message
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Menu removed from favorites')),
+          showToast(
+            context,
+            title: 'Berhasil',
+            message: 'Menu dihapus dari favorit!',
+            Type: ToastificationType.success,
           );
         }
       }
@@ -119,9 +126,12 @@ class _HomePageCustState extends State<homePageCust> {
           _favoriteStates[menuId] = !(_favoriteStates[menuId] ?? false);
         });
 
-        ScaffoldMessenger.of(
+        showToast(
           context,
-        ).showSnackBar(SnackBar(content: Text('Error updating favorites: $e')));
+          title: 'Error',
+          message: 'Error mengupdate favorit!',
+          Type: ToastificationType.error,
+        );
 
         debugPrint('Error updating favoritemenus: $e');
       }
@@ -213,9 +223,12 @@ class _HomePageCustState extends State<homePageCust> {
     final totalPrice = cartProvider.getTotalPrice();
 
     if (cartItems.isEmpty) {
-      ScaffoldMessenger.of(
+      showToast(
         context,
-      ).showSnackBar(SnackBar(content: Text('Keranjang kosong!')));
+        title: 'Keranjang kosong',
+        message: 'Tambahkan item terlebih dahulu ya!',
+        Type: ToastificationType.info,
+      );
       return;
     }
 
@@ -347,9 +360,38 @@ class _HomePageCustState extends State<homePageCust> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkStoredMeja();
+    });
     fetchMenu();
     _loadFavorites();
     search.addListener(_onSearchChanged);
+  }
+
+  Future<void> _checkStoredMeja() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final storedMeja = prefs.getString('id_meja');
+
+      if (storedMeja == null) {
+        if (mounted) {
+          await prefs.clear(); // Clear all stored preferences
+          context.goNamed(RouteNames.meja);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking stored meja: $e');
+      if (mounted) {
+        context.goNamed(RouteNames.meja);
+      }
+    }
+  }
+
+  // Add method to clear meja when leaving
+  Future<void> clearMeja() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('nomor_meja');
+    await prefs.remove('id_meja');
   }
 
   @override

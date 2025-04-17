@@ -13,6 +13,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: camel_case_types
 class MyReviewPage extends StatefulWidget {
@@ -386,9 +387,31 @@ class _MyReviewPageState extends State<MyReviewPage> {
     }
   }
 
+  Future<void> _checkStoredMeja() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final storedMeja = prefs.getString('id_meja');
+
+      if (storedMeja == null) {
+        if (mounted) {
+          await prefs.clear(); // Clear all stored preferences
+          context.goNamed(RouteNames.meja);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error checking stored meja: $e');
+      if (mounted) {
+        context.goNamed(RouteNames.meja);
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkStoredMeja();
+    });
     fetchReviews();
   }
 

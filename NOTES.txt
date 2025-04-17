@@ -1,0 +1,30 @@
+fungsi tombol reset di edit menu masih belum ada/belum di buat. OK (hari ini senin 14 April)
+
+Kalau makanannya itu sudah lebih dari 30 menit status pesanannya otomatis jadi siap diantar. OK (hari ini senin 14 April)
+
+pisahin filter jadi 2. OK(hari ini senin 14 April)
+
+kerjain responsive. beres (kemarin tanggal 15 April 2025)
+
+redirect google. 
+
+teks di meja input dibawah selamat datang jadi 2 line aja.
+
+forgot password : 1. UI OK(hari ini senin 14 april)
+		          2. fungsi
+
+set up SMTP
+
+Preserve the meja kode whenever the customer changing screens(jadi perlu masukkin 1 kali aja kodena).
+
+
+Ignored :
+failed to load pdf document. ada error ini ketika buka pdf 
+
+TODO: 
+1. Forgot password fungsi
+2. redirect google
+3. set up SMTP
+4. Preserve the meja kode whenever the customer changing screens (NOW)
+5. Edit route biar ketika URLnya di ganti ke spe
+
