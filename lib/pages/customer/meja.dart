@@ -183,7 +183,7 @@ class _MejaInputState extends State<MejaInput> {
                   SizedBox(height: 5),
                   Center(
                     child: Text(
-                      'Silahkan meminta kode akses ke pelayan atau lihat di nomor meja',
+                      'Silahkan meminta kode akses ke pelayan \n atau lihat di nomor meja',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Oxanium',

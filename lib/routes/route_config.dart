@@ -3,6 +3,7 @@ import 'package:gcoffee_r/controller/enterEmailForResetPassword.dart';
 import 'package:gcoffee_r/controller/errorScreen.dart';
 import 'package:gcoffee_r/controller/login.dart';
 import 'package:gcoffee_r/controller/signup.dart';
+import 'package:gcoffee_r/controller/updatePassword.dart';
 import 'package:gcoffee_r/pages/admin/add_menu.dart';
 import 'package:gcoffee_r/pages/admin/dashboard.dart';
 import 'package:gcoffee_r/pages/admin/edit_menu.dart';
@@ -98,6 +99,13 @@ class RouteConfig {
           name: RouteNames.recoverpassword,
           pageBuilder: (context, state) {
             return MaterialPage(child: EnterEmailForResetPassword());
+          },
+        ),
+        GoRoute(
+          path: '/updatepassword',
+          name: RouteNames.updatepassword,
+          pageBuilder: (context, state) {
+            return MaterialPage(child: ResetPassword());
           },
         ),
         GoRoute(

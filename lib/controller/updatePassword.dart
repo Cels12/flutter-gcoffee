@@ -1,45 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
+import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:toastification/toastification.dart';
 
-void main() async {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class ResetPassword extends StatefulWidget {
+  const ResetPassword({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(home: EnterEmailForResetPassword());
-  }
+  State<ResetPassword> createState() => _ResetPasswordState();
 }
 
-class EnterEmailForResetPassword extends StatefulWidget {
-  const EnterEmailForResetPassword({super.key});
-
-  @override
-  State<EnterEmailForResetPassword> createState() =>
-      _EnterEmailForResetPasswordState();
-}
-
-class _EnterEmailForResetPasswordState
-    extends State<EnterEmailForResetPassword> {
-  final TextEditingController emailController = TextEditingController();
+class _ResetPasswordState extends State<ResetPassword> {
+  final TextEditingController newPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
   final SupabaseClient supabase = Supabase.instance.client;
-  bool isLoading = false;
-  bool isEmailCorrect = false;
-  bool isEmailInputEmpty = false;
-
-  Future<void> _checkEmail() async {}
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    super.dispose();
-  }
+  bool isPasswordEmpty = false;
+  bool isEmailFound = false;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +28,7 @@ class _EnterEmailForResetPasswordState
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text('GCoffee', style: getTitleWhite(context)),
+        title: Text('GCoffee', style: getDescWhite(context)),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -74,7 +51,7 @@ class _EnterEmailForResetPasswordState
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withAlpha(50),
+                  color: Colors.black.withValues(alpha: 50),
                   blurRadius: 5,
                   spreadRadius: 2,
                 ),
@@ -88,17 +65,17 @@ class _EnterEmailForResetPasswordState
                 children: [
                   Center(
                     child: Text(
-                      'Recover password',
+                      'Perbarui Password',
                       style: TextStyle(
                         fontFamily: 'Righteous',
                         fontSize: isMobile ? 28 : 36,
                       ),
                     ),
                   ),
-                  SizedBox(height: 5),
+                  const SizedBox(height: 5),
                   Center(
                     child: Text(
-                      'Silahkan masukkan email',
+                      "Silahkan masukkan passsword baru",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Oxanium',
@@ -111,23 +88,42 @@ class _EnterEmailForResetPasswordState
                   SizedBox(
                     width: isMobile ? screenWidth * 0.8 : 450,
                     child: TextField(
-                      controller: emailController,
+                      controller: newPasswordController,
                       decoration: InputDecoration(
-                        labelText: 'Masukkan Email',
+                        labelText: 'Password baru',
                         labelStyle: TextStyle(
                           fontFamily: 'Oxanium',
                           fontSize: isMobile ? 14 : 16,
                         ),
                         border: OutlineInputBorder(),
                         errorText:
-                            isEmailInputEmpty
-                                ? 'Email tidak boleh kosong'
+                            isPasswordEmpty
+                                ? "Password tidak boleh kosong"
                                 : null,
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
-                  if (isEmailCorrect)
+                  const SizedBox(height: 10),
+                  SizedBox(
+                    width: isMobile ? screenWidth * 0.8 : 450,
+                    child: TextField(
+                      controller: newPasswordController,
+                      decoration: InputDecoration(
+                        labelText: 'Masukkan kembali password baru',
+                        labelStyle: TextStyle(
+                          fontFamily: 'Oxanium',
+                          fontSize: isMobile ? 14 : 16,
+                        ),
+                        border: OutlineInputBorder(),
+                        errorText:
+                            isPasswordEmpty
+                                ? "Password tidak boleh kosong"
+                                : null,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  if (isEmailFound)
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: Text(
@@ -139,37 +135,24 @@ class _EnterEmailForResetPasswordState
                         ),
                       ),
                     ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () {
-                      isLoading ? null : _checkEmail();
-                      showToast(
-                        context,
-                        title: 'Berhasil!',
-                        message: "Silahkan check email mu ya!",
-                        Type: ToastificationType.success,
-                      );
-                    },
-                    style: TextButton.styleFrom(
+                    onPressed: () {},
+                    style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 127, 88, 56),
                       fixedSize: Size(isMobile ? screenWidth * 0.8 : 450, 40),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),
                     ),
-                    child:
-                        isLoading
-                            ? const CircularProgressIndicator(
-                              color: Color.fromARGB(255, 210, 156, 100),
-                            )
-                            : const Text(
-                              'Kirim',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontFamily: 'Oxanium',
-                                fontSize: 16,
-                              ),
-                            ),
+                    child: Text(
+                      'Perbarui',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontFamily: 'Oxanium',
+                        fontSize: 10,
+                      ),
+                    ),
                   ),
                 ],
               ),

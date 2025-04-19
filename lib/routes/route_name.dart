@@ -6,6 +6,7 @@ class RouteNames {
   static const String homepageCust = 'homepagecust';
   static const String dashboard = 'dashboard';
   static const String recoverpassword = 'recoverpassword';
+  static const String updatepassword = 'updatepassword';
   static const String reviewpage = 'reviewpage';
   static const String favoritepage = 'favoritepage';
   static const String myreview = 'myreview';

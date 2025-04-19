@@ -5,8 +5,8 @@ TODO:
 1. Forgot password fungsi
 2. redirect google
 3. set up SMTP
-4. Preserve the meja kode whenever the customer changing screens (NOW, masih belum selesai karena red screen masih ada)
 5. Edit route biar ketika URLnya di ganti ke spesific, jadi gk bisa access kalo belum login
+6. Maybe check notification, kalo kalo ada yang belum diganti ke showToast dan masih scaffold
 
 DONE :
 1. 30 minute expiration untuk status pesanan (beres 14 april 2025)
@@ -17,4 +17,6 @@ DONE :
 6. Responsive di my review page (beres 16 april 2025)
 7. Responsive di review page (16 april 2025)
 8. Profile dropdown jadi reuseable (beres 17 April 2025)
- 
+9. Preserve the meja kode whenever the customer changing screens (beres tanggal 17 April 2025)
+10. Perubahan di input meja deskripsi hint jadi 2 line (beres 19 April 2025)
+11. UI reset password (beres 19 April 2025)

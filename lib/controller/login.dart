@@ -86,73 +86,90 @@ class _LoginpageState extends State<Loginpage> {
       // Check if the input is a username or email
       final input = emailcontrol.text.trim();
       final SupabaseClient supabase = Supabase.instance.client;
-      final response =
-          await supabase
-              .from('profiles')
-              .select('id, roles, email, username')
-              .or('username.eq.$input,email.eq.$input')
-              .single();
+      try {
+        final response =
+            await supabase
+                .from('profiles')
+                .select('id, roles, email, username')
+                .or('username.eq.$input,email.eq.$input')
+                .limit(1)
+                .maybeSingle();
 
-      if (response.isEmpty) {
-        if (mounted) {
-          showToast(
-            context,
-            title: 'Login gagal',
-            message: 'Email, username atau password salah',
-            Type: ToastificationType.error,
-          );
+        if (response == null) {
+          if (mounted) {
+            showToast(
+              context,
+              title: 'Login gagal',
+              message: 'Email, username atau password salah',
+              Type: ToastificationType.error,
+            );
+          }
+
+          setState(() {
+            isLoginFailed = true;
+            isLoading = false;
+          });
+          return;
         }
 
-        setState(() {
-          isLoginFailed = true;
-          isLoading = false;
-        });
-        return;
-      }
+        final role = response['roles'];
+        // ignore: unused_local_variable
+        final email = response['email'];
+        final username = response['username'];
 
-      final role = response['roles'];
-      // ignore: unused_local_variable
-      final email = response['email'];
-      final username = response['username'];
+        // Attempt to log in with the retrieved user ID
+        final hasil = await _auth.signIn(
+          input.contains('@') ? input : response['email'],
+          passwordcontrol.text.trim(),
+        );
 
-      // Attempt to log in with the retrieved user ID
-      final hasil = await _auth.signIn(
-        input.contains('@') ? input : response['email'],
-        passwordcontrol.text.trim(),
-      );
+        if (hasil == null) {
+          if (mounted) {
+            showToast(
+              context,
+              title: 'Login gagal',
+              message: 'Email, username atau password salah',
+              Type: ToastificationType.error,
+            );
+          }
+          setState(() {
+            isLoginFailed = true;
+            isLoading = false;
+          });
+        } else {
+          if (mounted) {
+            showToast(
+              context,
+              title: 'Login berhasil',
+              message: 'Selamat datang! $username',
+              Type: ToastificationType.success,
+            );
+          }
+          setState(() {
+            isLoading = false;
+          });
 
-      if (hasil == null) {
-        if (mounted) {
-          showToast(
-            context,
-            title: 'Login gagal',
-            message: 'Email, username atau password salah',
-            Type: ToastificationType.error,
-          );
-        }
-        setState(() {
-          isLoginFailed = true;
-          isLoading = false;
-        });
-      } else {
-        if (mounted) {
-          showToast(
-            context,
-            title: 'Login berhasil',
-            message: 'Selamat datang! $username',
-            Type: ToastificationType.success,
-          );
-        }
-        setState(() {
-          isLoading = false;
-        });
-
-        // Redirect based on role
-        if (mounted) {
-          if (role == 'user') {
-            context.goNamed(RouteNames.meja);
+          // Redirect based on role
+          if (mounted) {
+            if (role == 'user') {
+              context.goNamed(RouteNames.meja);
+            }
           }
         }
+      } catch (e) {
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Login gagal',
+            message: 'Email, username atau password salah',
+            Type: ToastificationType.error,
+          );
+        }
+
+        setState(() {
+          isLoginFailed = true;
+          isLoading = false;
+        });
       }
     }
   }
@@ -239,7 +256,7 @@ class _LoginpageState extends State<Loginpage> {
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.2),
+                  color: Colors.black.withOpacity(0.2),
                   blurRadius: 5,
                   spreadRadius: 2,
                 ),
@@ -309,18 +326,18 @@ class _LoginpageState extends State<Loginpage> {
                     ),
                   ),
                   SizedBox(height: 10),
-                  if (isLoginFailed)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: Text(
-                        'Email atau Password salah',
-                        style: TextStyle(
-                          color: Colors.red,
-                          fontFamily: 'Oxanium',
-                          fontSize: isMobile ? 12 : 14,
-                        ),
-                      ),
-                    ),
+                  // if (isLoginFailed)
+                  //   Padding(
+                  //     padding: const EdgeInsets.only(bottom: 10),
+                  //     child: Text(
+                  //       'Email atau Password salah',
+                  //       style: TextStyle(
+                  //         color: Colors.red,
+                  //         fontFamily: 'Oxanium',
+                  //         fontSize: isMobile ? 12 : 14,
+                  //       ),
+                  //     ),
+                  //   ),
                   Padding(
                     padding: EdgeInsets.only(right: isMobile ? 2 : 20),
                     child: Align(
