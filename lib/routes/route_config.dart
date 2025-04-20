@@ -27,7 +27,8 @@ class RouteConfig {
         if (state.matchedLocation == '/' ||
             state.matchedLocation == '/login' ||
             state.matchedLocation == '/signup' ||
-            state.matchedLocation == '/customer/meja') {
+            state.matchedLocation == '/customer/meja' ||
+            state.matchedLocation == '/admin/dashboard') {
           return null;
         }
 

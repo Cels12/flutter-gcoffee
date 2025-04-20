@@ -39,7 +39,7 @@ class Loginpage extends StatefulWidget {
 class _LoginpageState extends State<Loginpage> {
   final AuthService _auth = AuthService();
   final String ADMIN_EMAIL = 'admin@gmail.com';
-  final String ADMIN_PASSWORD = 'adminyangmana?';
+  final String ADMIN_PASSWORD = 'admin123';
   final TextEditingController emailcontrol = TextEditingController();
   final TextEditingController passwordcontrol = TextEditingController();
   final supabase = Supabase.instance.client;
@@ -74,6 +74,7 @@ class _LoginpageState extends State<Loginpage> {
         isLoading = false;
       });
       context.goNamed(RouteNames.dashboard);
+      return; // Add this return statement
     } else if (emailcontrol.text.trim() == adminEmail ||
         passwordcontrol.text.trim() == adminPassword) {
       // Jika email admin benar tetapi password salah
@@ -361,10 +362,15 @@ class _LoginpageState extends State<Loginpage> {
                   SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: isLoading ? null : login,
+                    // onPressed: () {
+                    //   Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(builder: (context) => Dashboard()),
+                    //   );
+                    // },
                     style: TextButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 127, 88, 56),
                       fixedSize: Size(isMobile ? screenWidth * 0.8 : 450, 40),
-
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),
