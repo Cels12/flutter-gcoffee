@@ -3,6 +3,7 @@ import 'package:gcoffee_r/providers/cart_provider.dart';
 import 'package:gcoffee_r/routes/route_config.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:toastification/toastification.dart';
 
 String supabaseUrl = const String.fromEnvironment(
   'SUPABASE_URL',
@@ -30,17 +31,27 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [ChangeNotifierProvider(create: (_) => CartProvider())],
-      child: MaterialApp.router(
-        routerConfig: RouteConfig.returnRouter(),
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          primaryColor: Color.fromARGB(255, 210, 156, 100),
-          inputDecorationTheme: InputDecorationTheme(
-            floatingLabelStyle: TextStyle(
-              color: Color.fromARGB(255, 210, 156, 100),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: Color.fromARGB(255, 210, 156, 100)),
+      child: ToastificationWrapper(
+        child: MaterialApp.router(
+          builder: (context, child) {
+            return ToastificationConfigProvider(
+              config: const ToastificationConfig(),
+              child: child!,
+            );
+          },
+          routerConfig: RouteConfig.returnRouter(),
+          debugShowCheckedModeBanner: false,
+          theme: ThemeData(
+            primaryColor: Color.fromARGB(255, 210, 156, 100),
+            inputDecorationTheme: InputDecorationTheme(
+              floatingLabelStyle: TextStyle(
+                color: Color.fromARGB(255, 210, 156, 100),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color.fromARGB(255, 210, 156, 100),
+                ),
+              ),
             ),
           ),
         ),

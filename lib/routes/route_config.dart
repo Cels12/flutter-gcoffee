@@ -17,32 +17,70 @@ import 'package:gcoffee_r/pages/screens/landingpage.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:gcoffee_r/styles/notification_styles.dart';
+import 'package:toastification/toastification.dart';
 
 class RouteConfig {
+  static Future<bool> _isAdmin() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userRole = prefs.getString('user_role');
+    return userRole == 'admin';
+  }
+
+  static Future<String?> _guardedRedirect(
+    BuildContext context,
+    GoRouterState state,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final isAdmin = prefs.getString('user_role') == 'admin';
+
+    // List of admin-only paths
+    final adminPaths = [
+      '/admin/dashboard',
+      '/admin/menupage',
+      '/admin/addmenu',
+      '/admin/editmenu',
+    ];
+
+    // Check if trying to access admin routes
+    if (adminPaths.any((path) => state.matchedLocation.startsWith(path))) {
+      if (!isAdmin) {
+        // Show unauthorized toast
+        if (context.mounted) {
+          showToast(
+            context,
+            title: 'Akses Ditolak',
+            message: 'Anda tidak memiliki akses ke halaman ini',
+            Type: ToastificationType.error,
+          );
+        }
+        return '/login';
+      }
+    }
+
+    // Public paths that don't need any checks
+    if (state.matchedLocation == '/' ||
+        state.matchedLocation == '/login' ||
+        state.matchedLocation == '/signup' ||
+        state.matchedLocation == '/recoverpassword') {
+      return null;
+    }
+
+    // Handle customer routes
+    if (state.matchedLocation.startsWith('/customer')) {
+      final storedMeja = prefs.getString('id_meja');
+      if (storedMeja == null) {
+        return '/customer/meja';
+      }
+    }
+
+    return null;
+  }
+
   static GoRouter returnRouter() {
     return GoRouter(
       initialLocation: '/',
-      redirect: (context, state) async {
-        // Don't redirect for these paths
-        if (state.matchedLocation == '/' ||
-            state.matchedLocation == '/login' ||
-            state.matchedLocation == '/signup' ||
-            state.matchedLocation == '/customer/meja' ||
-            state.matchedLocation == '/admin/dashboard') {
-          return null;
-        }
-
-        // Check for stored meja code
-        final prefs = await SharedPreferences.getInstance();
-        final storedMeja = prefs.getString('id_meja');
-
-        // Redirect to meja input if no stored meja code
-        if (storedMeja == null) {
-          return '/customer/meja';
-        }
-
-        return null;
-      },
+      redirect: _guardedRedirect,
       routes: [
         GoRoute(
           path: '/',

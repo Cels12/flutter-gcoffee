@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'auth/auth.dart';
 
@@ -69,12 +70,25 @@ class _LoginpageState extends State<Loginpage> {
 
     if (emailcontrol.text.trim() == adminEmail &&
         passwordcontrol.text.trim() == adminPassword) {
+      // Set admin role in SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('user_role', 'admin');
+
       setState(() {
         message = 'Login berhasil!';
         isLoading = false;
       });
-      context.goNamed(RouteNames.dashboard);
-      return; // Add this return statement
+
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Login berhasil',
+          message: 'Selamat datang Admin!',
+          Type: ToastificationType.success,
+        );
+        context.goNamed(RouteNames.dashboard);
+      }
+      return;
     } else if (emailcontrol.text.trim() == adminEmail ||
         passwordcontrol.text.trim() == adminPassword) {
       // Jika email admin benar tetapi password salah
@@ -209,12 +223,6 @@ class _LoginpageState extends State<Loginpage> {
       idToken: idToken,
       accessToken: accessToken,
     );
-
-    supabase.auth.onAuthStateChange.listen((data) {
-      if (mounted) {
-        context.goNamed(RouteNames.homepageCust, extra: widget.idMeja);
-      }
-    });
   }
 
   @override
@@ -455,7 +463,7 @@ class _LoginpageState extends State<Loginpage> {
                             redirectTo:
                                 kIsWeb
                                     ? null
-                                    : 'io.supabase.flutterquickstart://login-callback',
+                                    : 'https://gcoffee-r.netlify.app/#/customer/meja',
                           );
 
                           if (response) {

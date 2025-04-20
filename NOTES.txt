@@ -1,10 +1,10 @@
 Ignored :
 failed to load pdf document. ada error ini ketika buka pdf 
+3. set up SMTP
 
 TODO: 
 1. Forgot password fungsi
-2. redirect google
-3. set up SMTP
+2. redirect google (Done?)
 5. Edit route biar ketika URLnya di ganti ke spesific, jadi gk bisa access kalo belum login
 6. Maybe check notification, kalo kalo ada yang belum diganti ke showToast dan masih scaffold
 

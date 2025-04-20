@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart'; // Import kDebugMode
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
@@ -59,6 +60,8 @@ class AuthService {
   //logout
   Future<void> signOut() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('user_role'); // Clear the user role
       await _supabase.auth.signOut();
     } catch (e) {
       if (kDebugMode) {
@@ -70,5 +73,11 @@ class AuthService {
   //check user login
   bool isLoggedIn() {
     return _supabase.auth.currentUser != null;
+  }
+
+  // Add a method to check if user is admin
+  Future<bool> isAdmin() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_role') == 'admin';
   }
 }
