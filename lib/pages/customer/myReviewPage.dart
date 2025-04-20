@@ -393,7 +393,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
       final storedMeja = prefs.getString('id_meja');
 
       if (storedMeja == null) {
-        if (mounted) {
+        if (context.mounted) {
           await prefs.clear(); // Clear all stored preferences
           context.goNamed(RouteNames.meja);
         }

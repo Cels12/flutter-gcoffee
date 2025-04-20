@@ -13,27 +13,79 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: EnterEmailForResetPassword());
+    return MaterialApp(home: CheckEmail());
   }
 }
 
-class EnterEmailForResetPassword extends StatefulWidget {
-  const EnterEmailForResetPassword({super.key});
+class CheckEmail extends StatefulWidget {
+  const CheckEmail({super.key});
 
   @override
-  State<EnterEmailForResetPassword> createState() =>
-      _EnterEmailForResetPasswordState();
+  State<CheckEmail> createState() => _CheckEmailState();
 }
 
-class _EnterEmailForResetPasswordState
-    extends State<EnterEmailForResetPassword> {
+class _CheckEmailState extends State<CheckEmail> {
   final TextEditingController emailController = TextEditingController();
   final SupabaseClient supabase = Supabase.instance.client;
   bool isLoading = false;
   bool isEmailCorrect = false;
   bool isEmailInputEmpty = false;
 
-  Future<void> _checkEmail() async {}
+  Future<void> _checkEmail() async {
+    setState(() {
+      isLoading = true;
+      isEmailInputEmpty = emailController.text.isEmpty;
+    });
+
+    if (!isEmailInputEmpty) {
+      try {
+        // Cek apakah email terdaftar di database
+        final response =
+            await supabase
+                .from('profiles')
+                .select()
+                .eq('email', emailController.text)
+                .single();
+
+        if (response != null) {
+          // Kirim email reset password jika email ditemukan
+          await supabase.auth.resetPasswordForEmail(
+            emailController.text,
+            redirectTo: 'https://gcoffee-r.netlify.app/#/resetpassword',
+          );
+
+          if (mounted) {
+            showToast(
+              context,
+              title: 'Berhasil!',
+              message: "Silahkan check email mu ya!",
+              Type: ToastificationType.success,
+            );
+          }
+        } else {
+          setState(() {
+            isEmailCorrect = true;
+          });
+        }
+      } catch (error) {
+        setState(() {
+          isEmailCorrect = true;
+        });
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Gagal!',
+            message: "Email tidak ditemukan",
+            Type: ToastificationType.error,
+          );
+        }
+      }
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   void dispose() {
@@ -141,14 +193,10 @@ class _EnterEmailForResetPasswordState
                     ),
                   SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () {
-                      isLoading ? null : _checkEmail();
-                      showToast(
-                        context,
-                        title: 'Berhasil!',
-                        message: "Silahkan check email mu ya!",
-                        Type: ToastificationType.success,
-                      );
+                    onPressed: () async {
+                      if (!isLoading) {
+                        await _checkEmail();
+                      }
                     },
                     style: TextButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 127, 88, 56),

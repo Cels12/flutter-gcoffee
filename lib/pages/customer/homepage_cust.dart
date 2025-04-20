@@ -375,7 +375,7 @@ class _HomePageCustState extends State<homePageCust> {
       final storedMeja = prefs.getString('id_meja');
 
       if (storedMeja == null) {
-        if (mounted) {
+        if (context.mounted) {
           await prefs.clear(); // Clear all stored preferences
           context.goNamed(RouteNames.meja);
         }

@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_auth_ui/supabase_auth_ui.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:toastification/toastification.dart';
+import 'package:gcoffee_r/routes/route_name.dart';
 
 class ResetPassword extends StatefulWidget {
   const ResetPassword({super.key});
@@ -18,6 +22,87 @@ class _ResetPasswordState extends State<ResetPassword> {
   bool isPasswordEmpty = false;
   bool isEmailFound = false;
 
+  Future<void> updatePassword() async {
+    setState(() {
+      isPasswordEmpty =
+          newPasswordController.text.isEmpty ||
+          confirmPasswordController.text.isEmpty;
+    });
+
+    if (!isPasswordEmpty) {
+      if (newPasswordController.text == confirmPasswordController.text) {
+        try {
+          await supabase.auth.updateUser(
+            UserAttributes(password: newPasswordController.text),
+          );
+          if (mounted) {
+            showToast(
+              context,
+              title: 'Berhasil',
+              message: 'Password berhasil diperbarui',
+              Type: ToastificationType.success,
+            );
+
+            context.goNamed(RouteNames.loginScreen);
+          }
+        } catch (error) {
+          if (mounted) {
+            showToast(
+              context,
+              title: 'Gagal!',
+              message: 'Gagal memperbarui password',
+              Type: ToastificationType.error,
+            );
+          }
+        }
+      }
+    } else {
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Peringantan!',
+          message: 'Password tidak sama!',
+          Type: ToastificationType.warning,
+        );
+      }
+    }
+  }
+
+  Future<void> _recoverSessionFromUrl() async {
+    final uri = Uri.base;
+    final accessToken = uri.queryParameters['access_token'];
+    final type = uri.queryParameters['type'];
+
+    if (accessToken != null && type == 'recovery') {
+      try {
+        final response = await supabase.auth.recoverSession(accessToken);
+        if (response.user != null) {
+          print('User authenticated for password reset');
+        } else {
+          showToast(
+            context,
+            title: 'Error',
+            message: 'Link reset tidak valid',
+            Type: ToastificationType.error,
+          );
+        }
+      } catch (e) {
+        showToast(
+          context,
+          title: 'Error',
+          message: 'Gagal autentikasi: $e',
+          Type: ToastificationType.error,
+        );
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _recoverSessionFromUrl();
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -28,7 +113,7 @@ class _ResetPasswordState extends State<ResetPassword> {
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
-        title: Text('GCoffee', style: getDescWhite(context)),
+        title: Text('GCoffee', style: getTitleWhite(context)),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -137,7 +222,9 @@ class _ResetPasswordState extends State<ResetPassword> {
                     ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      updatePassword();
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 127, 88, 56),
                       fixedSize: Size(isMobile ? screenWidth * 0.8 : 450, 40),

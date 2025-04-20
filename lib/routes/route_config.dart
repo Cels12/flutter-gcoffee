@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/controller/enterEmailForResetPassword.dart';
+import 'package:gcoffee_r/controller/checkEmail.dart';
 import 'package:gcoffee_r/controller/errorScreen.dart';
 import 'package:gcoffee_r/controller/login.dart';
 import 'package:gcoffee_r/controller/signup.dart';
@@ -21,12 +21,6 @@ import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:toastification/toastification.dart';
 
 class RouteConfig {
-  static Future<bool> _isAdmin() async {
-    final prefs = await SharedPreferences.getInstance();
-    final userRole = prefs.getString('user_role');
-    return userRole == 'admin';
-  }
-
   static Future<String?> _guardedRedirect(
     BuildContext context,
     GoRouterState state,
@@ -135,13 +129,13 @@ class RouteConfig {
         ),
         GoRoute(
           path: '/recoverpassword',
-          name: RouteNames.recoverpassword,
+          name: RouteNames.checkemail,
           pageBuilder: (context, state) {
-            return MaterialPage(child: EnterEmailForResetPassword());
+            return MaterialPage(child: CheckEmail());
           },
         ),
         GoRoute(
-          path: '/updatepassword',
+          path: '/resetpassword',
           name: RouteNames.updatepassword,
           pageBuilder: (context, state) {
             return MaterialPage(child: ResetPassword());

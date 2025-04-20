@@ -190,39 +190,94 @@ class _LoginpageState extends State<Loginpage> {
   }
 
   Future<void> _nativeGoogleSignIn() async {
-    ///
-    /// Web Client ID that you registered with Google Cloud.
     const webClientId =
         '530147739278-2uqg0pg89n1hald6n0qhrheh75q7stdn.apps.googleusercontent.com';
-
-    ///
-    /// iOS Client ID that you registered with Google Cloud.
     const iosClientId = 'my-ios.apps.googleusercontent.com';
-
-    // Google sign in on Android will work without providing the Android
-    // Client ID registered on Google Cloud.
 
     final GoogleSignIn googleSignIn = GoogleSignIn(
       clientId: iosClientId,
       serverClientId: webClientId,
     );
-    final googleUser = await googleSignIn.signIn();
-    final googleAuth = await googleUser!.authentication;
-    final accessToken = googleAuth.accessToken;
-    final idToken = googleAuth.idToken;
 
-    if (accessToken == null) {
-      throw 'No Access Token found.';
-    }
-    if (idToken == null) {
-      throw 'No ID Token found.';
-    }
+    try {
+      final googleUser = await googleSignIn.signIn();
+      final googleAuth = await googleUser!.authentication;
+      final accessToken = googleAuth.accessToken;
+      final idToken = googleAuth.idToken;
 
-    await supabase.auth.signInWithIdToken(
-      provider: OAuthProvider.google,
-      idToken: idToken,
-      accessToken: accessToken,
-    );
+      if (accessToken == null) {
+        throw 'No Access Token found.';
+      }
+      if (idToken == null) {
+        throw 'No ID Token found.';
+      }
+
+      final authResponse = await supabase.auth.signInWithIdToken(
+        provider: OAuthProvider.google,
+        idToken: idToken,
+        accessToken: accessToken,
+      );
+
+      if (authResponse.user != null) {
+        // Generate username dari display name
+        String displayName =
+            authResponse.user!.userMetadata?['full_name'] ?? '';
+        String generatedUsername = displayName.toLowerCase().replaceAll(
+          ' ',
+          '_',
+        );
+
+        // Cek apakah username sudah ada
+        int counter = 0;
+        String finalUsername = generatedUsername;
+        bool usernameExists;
+
+        do {
+          final response =
+              await supabase
+                  .from('profiles')
+                  .select()
+                  .eq('username', finalUsername)
+                  .maybeSingle();
+
+          usernameExists = response != null;
+          if (usernameExists) {
+            counter++;
+            finalUsername = '${generatedUsername}_$counter';
+          }
+        } while (usernameExists);
+
+        // Tambahkan user ke tabel profiles
+        await supabase.from('profiles').upsert({
+          'id': authResponse.user!.id,
+          'email': authResponse.user!.email,
+          'username': finalUsername,
+          'full_name': displayName,
+          'roles': 'user',
+          'updated_at': DateTime.now().toIso8601String(),
+        });
+
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Login berhasil',
+            message: 'Selamat datang ${displayName}!',
+            Type: ToastificationType.success,
+          );
+
+          context.goNamed(RouteNames.meja);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Login gagal',
+          message: e.toString(),
+          Type: ToastificationType.error,
+        );
+      }
+    }
   }
 
   @override
@@ -265,7 +320,7 @@ class _LoginpageState extends State<Loginpage> {
               borderRadius: BorderRadius.circular(10),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.2),
+                  color: Colors.black.withValues(alpha: 0.2),
                   blurRadius: 5,
                   spreadRadius: 2,
                 ),
@@ -335,25 +390,13 @@ class _LoginpageState extends State<Loginpage> {
                     ),
                   ),
                   SizedBox(height: 10),
-                  // if (isLoginFailed)
-                  //   Padding(
-                  //     padding: const EdgeInsets.only(bottom: 10),
-                  //     child: Text(
-                  //       'Email atau Password salah',
-                  //       style: TextStyle(
-                  //         color: Colors.red,
-                  //         fontFamily: 'Oxanium',
-                  //         fontSize: isMobile ? 12 : 14,
-                  //       ),
-                  //     ),
-                  //   ),
                   Padding(
                     padding: EdgeInsets.only(right: isMobile ? 2 : 20),
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
-                          context.goNamed(RouteNames.recoverpassword);
+                          context.goNamed(RouteNames.checkemail);
                         },
                         child: Text(
                           'Lupa Password?',
@@ -370,12 +413,6 @@ class _LoginpageState extends State<Loginpage> {
                   SizedBox(height: 10),
                   ElevatedButton(
                     onPressed: isLoading ? null : login,
-                    // onPressed: () {
-                    //   Navigator.push(
-                    //     context,
-                    //     MaterialPageRoute(builder: (context) => Dashboard()),
-                    //   );
-                    // },
                     style: TextButton.styleFrom(
                       backgroundColor: Color.fromARGB(255, 127, 88, 56),
                       fixedSize: Size(isMobile ? screenWidth * 0.8 : 450, 40),
@@ -454,10 +491,10 @@ class _LoginpageState extends State<Loginpage> {
                   const SizedBox(height: 10),
                   ElevatedButton.icon(
                     onPressed: () async {
-                      try {
-                        if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
-                          await _nativeGoogleSignIn();
-                        } else {
+                      if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+                        await _nativeGoogleSignIn();
+                      } else {
+                        try {
                           final response = await supabase.auth.signInWithOAuth(
                             OAuthProvider.google,
                             redirectTo:
@@ -467,26 +504,67 @@ class _LoginpageState extends State<Loginpage> {
                           );
 
                           if (response) {
-                            supabase.auth.onAuthStateChange.listen((data) {
-                              if (data.event == AuthChangeEvent.signedIn) {
+                            supabase.auth.onAuthStateChange.listen((
+                              data,
+                            ) async {
+                              if (data.event == AuthChangeEvent.signedIn &&
+                                  data.session != null) {
+                                final user = data.session!.user;
+
+                                // Generate username dari display name
+                                String displayName =
+                                    user.userMetadata?['full_name'] ?? '';
+                                String generatedUsername = displayName
+                                    .toLowerCase()
+                                    .replaceAll(' ', '_');
+
+                                // Cek dan generate unique username
+                                int counter = 0;
+                                String finalUsername = generatedUsername;
+                                bool usernameExists;
+
+                                do {
+                                  final response =
+                                      await supabase
+                                          .from('profiles')
+                                          .select()
+                                          .eq('username', finalUsername)
+                                          .maybeSingle();
+
+                                  usernameExists = response != null;
+                                  if (usernameExists) {
+                                    counter++;
+                                    finalUsername =
+                                        '${generatedUsername}_$counter';
+                                  }
+                                } while (usernameExists);
+
+                                // Tambahkan user ke tabel profiles
+                                await supabase.from('profiles').upsert({
+                                  'id': user.id,
+                                  'email': user.email,
+                                  'username': finalUsername,
+                                  'full_name': displayName,
+                                  'roles': 'user',
+                                  'updated_at':
+                                      DateTime.now().toIso8601String(),
+                                });
+
                                 if (context.mounted) {
-                                  context.goNamed(
-                                    RouteNames.homepageCust,
-                                    extra: widget.idMeja,
-                                  );
+                                  context.goNamed(RouteNames.meja);
                                 }
                               }
                             });
                           }
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          showToast(
-                            context,
-                            title: 'Login gagal',
-                            message: e.toString(),
-                            Type: ToastificationType.error,
-                          );
+                        } catch (e) {
+                          if (context.mounted) {
+                            showToast(
+                              context,
+                              title: 'Login gagal',
+                              message: e.toString(),
+                              Type: ToastificationType.error,
+                            );
+                          }
                         }
                       }
                     },

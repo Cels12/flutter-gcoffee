@@ -5,7 +5,7 @@ class RouteNames {
   static const String meja = 'meja';
   static const String homepageCust = 'homepagecust';
   static const String dashboard = 'dashboard';
-  static const String recoverpassword = 'recoverpassword';
+  static const String checkemail = 'checkemail';
   static const String updatepassword = 'updatepassword';
   static const String reviewpage = 'reviewpage';
   static const String favoritepage = 'favoritepage';
