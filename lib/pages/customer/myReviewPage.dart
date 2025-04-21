@@ -393,15 +393,27 @@ class _MyReviewPageState extends State<MyReviewPage> {
       final storedMeja = prefs.getString('id_meja');
 
       if (storedMeja == null) {
-        if (context.mounted) {
-          await prefs.clear(); // Clear all stored preferences
-          context.goNamed(RouteNames.meja);
+        if (mounted) {
+          await prefs.clear();
+          context.go('/customer/meja');
         }
+        return;
       }
+
+      if (widget.idMeja.isEmpty) {
+        if (mounted) {
+          // Gunakan stored meja jika parameter idMeja kosong
+          context.go('/customer/myreview/$storedMeja');
+        }
+        return;
+      }
+
+      // Update stored meja dengan nilai terbaru
+      await prefs.setString('id_meja', widget.idMeja);
     } catch (e) {
       debugPrint('Error checking stored meja: $e');
       if (mounted) {
-        context.goNamed(RouteNames.meja);
+        context.go('/customer/meja');
       }
     }
   }
@@ -409,10 +421,10 @@ class _MyReviewPageState extends State<MyReviewPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkStoredMeja();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _checkStoredMeja();
+      await fetchReviews();
     });
-    fetchReviews();
   }
 
   // ignore: prefer_final_fields

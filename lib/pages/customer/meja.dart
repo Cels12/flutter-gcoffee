@@ -42,9 +42,9 @@ class _MejaInputState extends State<MejaInput> {
 
   Future<void> _checkStoredMeja() async {
     final prefs = await SharedPreferences.getInstance();
-    final storedMeja = prefs.getString('nomor_meja');
+    final storedMeja = prefs.getString('id_meja');
     if (storedMeja != null && mounted) {
-      context.goNamed(RouteNames.homepageCust, extra: storedMeja);
+      context.go('/customer/homepage', extra: storedMeja);
     }
   }
 
@@ -66,7 +66,7 @@ class _MejaInputState extends State<MejaInput> {
       final response =
           await supabase
               .from('meja')
-              .select('*')
+              .select('id_meja, nomor_meja')
               .ilike('id_meja', nomorMejaController.text.trim())
               .maybeSingle();
 
@@ -82,14 +82,20 @@ class _MejaInputState extends State<MejaInput> {
           isMejaCorrect = true;
         });
 
+        // Debug log
+        debugPrint('Stored id_meja: ${response['id_meja']}');
+        debugPrint('Stored nomor_meja: ${response['nomor_meja']}');
+
         if (mounted) {
-          context.goNamed(
-            RouteNames.homepageCust,
-            extra: response['nomor_meja'].toString(),
-          );
+          await Future.delayed(Duration(milliseconds: 100));
+          final idMeja = response['id_meja'];
+          if (idMeja != null && idMeja.toString().isNotEmpty) {
+            context.go('/customer/homepage/$idMeja');
+          } else {
+            throw Exception('ID Meja tidak valid');
+          }
         }
       } else {
-        // If no match is found
         setState(() {
           isLoading = false;
           isMejaCorrect = false;
@@ -104,7 +110,6 @@ class _MejaInputState extends State<MejaInput> {
         }
       }
     } catch (e) {
-      // Handle errors (e.g., database connection issues)
       setState(() {
         isLoading = false;
         isMejaCorrect = false;

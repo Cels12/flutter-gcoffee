@@ -35,7 +35,7 @@ Widget buildSidebar({
               message: 'Home',
               child: TextButton(
                 onPressed: () {
-                  context.goNamed(RouteNames.homepageCust, extra: idMeja);
+                  context.go('/customer/homepage/$idMeja');
                 },
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
@@ -69,7 +69,7 @@ Widget buildSidebar({
                 onPressed: () {
                   final supabase = Supabase.instance.client;
                   if (supabase.auth.currentUser != null) {
-                    context.goNamed(RouteNames.favoritepage, extra: idMeja);
+                    context.go('/customer/favoritepage/$idMeja');
                   } else {
                     showToast(
                       context,
@@ -97,7 +97,7 @@ Widget buildSidebar({
                 onPressed: () {
                   final supabase = Supabase.instance.client;
                   if (supabase.auth.currentUser != null) {
-                    context.goNamed(RouteNames.reviewpage, extra: idMeja);
+                    context.go('/customer/reviewpage/$idMeja');
                   } else {
                     showToast(
                       context,

@@ -63,8 +63,18 @@ class RouteConfig {
     // Handle customer routes
     if (state.matchedLocation.startsWith('/customer')) {
       final storedMeja = prefs.getString('id_meja');
-      if (storedMeja == null) {
+
+      // Jika mencoba mengakses halaman customer tanpa idMeja
+      if (storedMeja == null &&
+          !state.matchedLocation.startsWith('/customer/meja')) {
         return '/customer/meja';
+      }
+
+      // Jika ada stored meja tapi mencoba akses tanpa parameter
+      if (storedMeja != null &&
+          state.pathParameters['idMeja'] == null &&
+          !state.matchedLocation.startsWith('/customer/meja')) {
+        return state.matchedLocation + '/$storedMeja';
       }
     }
 
@@ -105,18 +115,16 @@ class RouteConfig {
           },
         ),
         GoRoute(
-          path: '/customer/homepage',
+          path: '/customer/homepage/:idMeja',
           name: RouteNames.homepageCust,
           pageBuilder: (context, state) {
-            // Handle both direct navigation and stored meja
-            String idMeja;
-            if (state.extra != null) {
-              idMeja = state.extra as String;
-            } else {
-              final prefs = SharedPreferences.getInstance();
-              idMeja =
-                  prefs.toString(); // This will be handled by the page itself
+            final idMeja = state.pathParameters['idMeja'];
+
+            // Jika tidak ada idMeja, redirect ke halaman meja
+            if (idMeja == null || idMeja.isEmpty) {
+              return MaterialPage(child: MejaInput());
             }
+
             return MaterialPage(child: homePageCust(idMeja: idMeja));
           },
         ),
@@ -142,26 +150,26 @@ class RouteConfig {
           },
         ),
         GoRoute(
-          path: '/customer/reviewpage',
+          path: '/customer/reviewpage/:idMeja',
           name: RouteNames.reviewpage,
           pageBuilder: (context, state) {
-            final idMeja = state.extra as String;
+            final idMeja = state.pathParameters['idMeja'] ?? '';
             return MaterialPage(child: ReviewsPage(idMeja: idMeja));
           },
         ),
         GoRoute(
-          path: '/customer/favoritepage',
+          path: '/customer/favoritepage/:idMeja',
           name: RouteNames.favoritepage,
           pageBuilder: (context, state) {
-            final idMeja = state.extra as String;
+            final idMeja = state.pathParameters['idMeja'] ?? '';
             return MaterialPage(child: PageFavorite(idMeja: idMeja));
           },
         ),
         GoRoute(
-          path: '/customer/myreview',
+          path: '/customer/myreview/:idMeja',
           name: RouteNames.myreview,
           pageBuilder: (context, state) {
-            final idMeja = state.extra as String;
+            final idMeja = state.pathParameters['idMeja'] ?? '';
             return MaterialPage(child: MyReviewPage(idMeja: idMeja));
           },
         ),

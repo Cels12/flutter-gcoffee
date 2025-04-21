@@ -167,6 +167,7 @@ class _LoginpageState extends State<Loginpage> {
           // Redirect based on role
           if (mounted) {
             if (role == 'user') {
+              // Redirect ke halaman meja untuk input nomor meja
               context.goNamed(RouteNames.meja);
             }
           }

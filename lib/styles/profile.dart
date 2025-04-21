@@ -42,7 +42,7 @@ Widget buildProfileDropdown({
                       await authService.signOut();
 
                       if (context.mounted) {
-                        context.goNamed(RouteNames.meja);
+                        context.goNamed(RouteNames.loginScreen);
                       }
                     },
                     child: const Text(

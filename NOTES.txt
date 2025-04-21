@@ -3,11 +3,10 @@ failed to load pdf document. ada error ini ketika buka pdf
 3. set up SMTP
 
 TODO: 
-1. Forgot password fungsi
-2. redirect google (Done?)
+2. redirect google
 6. Maybe check notification, kalo kalo ada yang belum diganti ke showToast dan masih scaffold
 7. Buat ketika Login dengan google maka otomatis ada kaya username di table profiles database.
-8. Di ganti aja tombol pesan textnya jadi Masukkan keranjang.
+8. Ketika refresh di favoritepage.dart, reviews.dart, MyReviewPage.dart, masih di bisa login dan tidak ada null 
 
 DONE :
 1. 30 minute expiration untuk status pesanan (beres 14 april 2025)
@@ -22,3 +21,5 @@ DONE :
 10. Perubahan di input meja deskripsi hint jadi 2 line (beres 19 April 2025)
 11. UI reset password (beres 19 April 2025)
 12. Edit route biar ketika URLnya di ganti ke spesific, jadi gk bisa access kalo belum login (beres 20 April 2025)
+13. Forgot password fungsi (beres 20 April 2025)
+14. Di ganti aja tombol pesan textnya jadi Masukkan keranjang.(21 April 2025)

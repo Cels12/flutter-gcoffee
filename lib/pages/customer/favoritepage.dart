@@ -14,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:toastification/toastification.dart';
 import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 // ignore: camel_case_types
 class PageFavorite extends StatefulWidget {
@@ -324,8 +325,42 @@ class _PageFavoriteState extends State<PageFavorite> {
   @override
   void initState() {
     super.initState();
-    fetchFavorite(); // Mengganti fetchMenu() dengan fetchFavorite()
-    _loadFavorites();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _checkStoredMeja();
+      await fetchFavorite();
+      await _loadFavorites();
+    });
+  }
+
+  Future<void> _checkStoredMeja() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final storedMeja = prefs.getString('id_meja');
+
+      if (storedMeja == null) {
+        if (mounted) {
+          await prefs.clear();
+          context.go('/customer/meja');
+        }
+        return;
+      }
+
+      if (widget.idMeja.isEmpty) {
+        if (mounted) {
+          // Gunakan stored meja jika parameter idMeja kosong
+          context.go('/customer/myreview/$storedMeja');
+        }
+        return;
+      }
+
+      // Update stored meja dengan nilai terbaru
+      await prefs.setString('id_meja', widget.idMeja);
+    } catch (e) {
+      debugPrint('Error checking stored meja: $e');
+      if (mounted) {
+        context.go('/customer/meja');
+      }
+    }
   }
 
   @override

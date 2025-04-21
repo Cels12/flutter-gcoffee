@@ -606,10 +606,10 @@ class _HomePageCustState extends State<homePageCust> {
                     padding: EdgeInsets.symmetric(vertical: isMobile ? 8 : 12),
                   ),
                   child: Text(
-                    'Pesan',
+                    'Tambahkan ke keranjang',
                     style: TextStyle(
                       fontFamily: 'Oxanium',
-                      fontSize: isMobile ? 16 : 20,
+                      fontSize: isMobile ? 14 : 20,
                       color: Colors.white,
                     ),
                   ),
