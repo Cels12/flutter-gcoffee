@@ -291,7 +291,7 @@ class _LoginpageState extends State<Loginpage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final isMobile = screenWidth < 600;
+    final isMobile = screenWidth < 1200;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -389,7 +389,7 @@ class _LoginpageState extends State<Loginpage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: isMobile ? 3 : 10),
                   Padding(
                     padding: EdgeInsets.only(right: isMobile ? 2 : 20),
                     child: Align(
@@ -410,7 +410,7 @@ class _LoginpageState extends State<Loginpage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: isMobile ? 3 : 10),
                   ElevatedButton(
                     onPressed: isLoading ? null : login,
                     style: TextButton.styleFrom(
@@ -460,7 +460,7 @@ class _LoginpageState extends State<Loginpage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  SizedBox(height: isMobile ? 10 : 20),
                   Center(
                     child: SizedBox(
                       width: 445,

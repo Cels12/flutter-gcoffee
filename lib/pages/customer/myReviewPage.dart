@@ -319,7 +319,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
   double _getCardWidth(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    if (screenWidth < 600) {
+    if (screenWidth < 1200) {
       // For mobile: make cards take up roughly half the screen width
       return (screenWidth - 40) / 2; // Account for margins and spacing
     } else {
@@ -329,7 +329,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
 
   // int _getMaxCardsPerRow(BuildContext context) {
   //   final screenWidth = MediaQuery.of(context).size.width;
-  //   if (screenWidth < 600) {
+  //   if (screenWidth < 1200) {
   //     return 2; // Always show 2 cards per row on mobile
   //   } else {
   //     return 4;
@@ -446,7 +446,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     // final screenHeight = MediaQuery.of(context).size.height;
-    final isMobile = screenWidth < 600;
+    final isMobile = screenWidth < 1200;
     final cartProvider = Provider.of<CartProvider>(context);
 
     return Scaffold(
@@ -468,7 +468,8 @@ class _MyReviewPageState extends State<MyReviewPage> {
                   'GCoffee',
                   style: TextStyle(
                     color: Color.fromARGB(255, 84, 47, 17),
-                    fontSize: MediaQuery.of(context).size.width < 600 ? 28 : 32,
+                    fontSize:
+                        MediaQuery.of(context).size.width < 1200 ? 28 : 32,
                     fontFamily: 'Righteous',
                   ),
                 ),
@@ -483,7 +484,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
                 onPressed: _toogleProfile,
                 icon: HeroIcon(
                   HeroIcons.user,
-                  size: MediaQuery.of(context).size.width < 600 ? 30 : 40,
+                  size: MediaQuery.of(context).size.width < 1200 ? 30 : 40,
                   color: Colors.grey,
                 ),
               ),
@@ -506,7 +507,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
                           style: TextStyle(
                             fontFamily: 'Oxanium',
                             fontSize:
-                                MediaQuery.of(context).size.width < 600
+                                MediaQuery.of(context).size.width < 1200
                                     ? 24
                                     : 32,
                             fontWeight: FontWeight.w500,
@@ -828,7 +829,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
               top: 12,
               left: 10,
               child: IconButton(
-                iconSize: MediaQuery.of(context).size.width < 600 ? 28 : 40,
+                iconSize: MediaQuery.of(context).size.width < 1200 ? 28 : 40,
                 color: Color.fromARGB(255, 210, 156, 108),
                 onPressed: _toggleMenu,
                 icon: Icon(Icons.menu),
@@ -841,7 +842,7 @@ class _MyReviewPageState extends State<MyReviewPage> {
   }
 
   Widget _buildCard(Map<String, dynamic> review) {
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = MediaQuery.of(context).size.width < 1200;
     final cardWidth = _getCardWidth(context);
     final imageHeight = cardWidth * 0.9;
 

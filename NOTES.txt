@@ -7,6 +7,7 @@ TODO:
 2. redirect google (Done?)
 6. Maybe check notification, kalo kalo ada yang belum diganti ke showToast dan masih scaffold
 7. Buat ketika Login dengan google maka otomatis ada kaya username di table profiles database.
+8. Di ganti aja tombol pesan textnya jadi Masukkan keranjang.
 
 DONE :
 1. 30 minute expiration untuk status pesanan (beres 14 april 2025)

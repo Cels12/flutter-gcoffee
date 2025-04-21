@@ -324,6 +324,7 @@ class _HomePageCustState extends State<homePageCust> {
           Type: ToastificationType.error,
         );
       }
+      debugPrint(e.toString());
     }
   }
 
@@ -405,7 +406,7 @@ class _HomePageCustState extends State<homePageCust> {
   double _getCardWidth(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    if (screenWidth < 600) {
+    if (screenWidth < 1200) {
       // For mobile: make cards take up roughly half the screen width
       return (screenWidth - 40) / 2; // Account for margins and spacing
     } else {
@@ -415,7 +416,7 @@ class _HomePageCustState extends State<homePageCust> {
 
   int _getMaxCardsPerRow(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth < 600) {
+    if (screenWidth < 1200) {
       return 2; // Always show 2 cards per row on mobile
     } else {
       return 4;
@@ -423,7 +424,7 @@ class _HomePageCustState extends State<homePageCust> {
   }
 
   List<Widget> _buildCards() {
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = MediaQuery.of(context).size.width < 1200;
 
     if (isMobile) {
       // Mobile layout - use a more direct approach for 2 columns
@@ -476,7 +477,7 @@ class _HomePageCustState extends State<homePageCust> {
     bool hasHalfStar = (averageRating - fullStars) >= 0.5;
     final cardWidth = _getCardWidth(context);
     final imageHeight = cardWidth * 0.9;
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = MediaQuery.of(context).size.width < 1200;
 
     return SizedBox(
       width: cardWidth,
@@ -624,7 +625,7 @@ class _HomePageCustState extends State<homePageCust> {
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = MediaQuery.of(context).size.width < 1200;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -645,7 +646,8 @@ class _HomePageCustState extends State<homePageCust> {
                   'GCoffee',
                   style: TextStyle(
                     color: Color.fromARGB(255, 84, 47, 17),
-                    fontSize: MediaQuery.of(context).size.width < 600 ? 28 : 32,
+                    fontSize:
+                        MediaQuery.of(context).size.width < 1200 ? 28 : 32,
                     fontFamily: 'Righteous',
                   ),
                 ),
@@ -693,7 +695,7 @@ class _HomePageCustState extends State<homePageCust> {
             buildProfileButton(
               context: context,
               onPressed: _toogleProfile,
-              isMobile: MediaQuery.of(context).size.width < 600,
+              isMobile: MediaQuery.of(context).size.width < 1200,
             ),
 
             // Scrollable Content (Menu Cards)
@@ -1040,7 +1042,7 @@ class _HomePageCustState extends State<homePageCust> {
               top: 12,
               left: 10,
               child: IconButton(
-                iconSize: MediaQuery.of(context).size.width < 600 ? 28 : 40,
+                iconSize: MediaQuery.of(context).size.width < 1200 ? 28 : 40,
                 color: Color.fromARGB(255, 210, 156, 108),
                 onPressed: _toggleMenu,
                 icon: Icon(Icons.menu),

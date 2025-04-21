@@ -287,7 +287,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final isMobile = screenWidth < 600;
+    final isMobile = screenWidth < 1200;
     final cartProvider = Provider.of<CartProvider>(context);
 
     return Scaffold(
@@ -309,7 +309,8 @@ class _ReviewsPageState extends State<ReviewsPage> {
                   'GCoffee',
                   style: TextStyle(
                     color: Color.fromARGB(255, 84, 47, 17),
-                    fontSize: MediaQuery.of(context).size.width < 600 ? 28 : 32,
+                    fontSize:
+                        MediaQuery.of(context).size.width < 1200 ? 28 : 32,
                     fontFamily: 'Righteous',
                   ),
                 ),
@@ -324,7 +325,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                 onPressed: _toogleProfile,
                 icon: HeroIcon(
                   HeroIcons.user,
-                  size: MediaQuery.of(context).size.width < 600 ? 30 : 40,
+                  size: MediaQuery.of(context).size.width < 1200 ? 30 : 40,
                   color: Colors.grey,
                 ),
               ),
@@ -347,7 +348,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
                           style: TextStyle(
                             fontFamily: 'Oxanium',
                             fontSize:
-                                MediaQuery.of(context).size.width < 600
+                                MediaQuery.of(context).size.width < 1200
                                     ? 24
                                     : 32,
                             fontWeight: FontWeight.w500,
@@ -695,7 +696,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
               top: 12,
               left: 10,
               child: IconButton(
-                iconSize: MediaQuery.of(context).size.width < 600 ? 28 : 40,
+                iconSize: MediaQuery.of(context).size.width < 1200 ? 28 : 40,
                 color: Color.fromARGB(255, 210, 156, 108),
                 onPressed: _toggleMenu,
                 icon: Icon(Icons.menu),

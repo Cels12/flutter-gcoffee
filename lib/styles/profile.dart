@@ -29,7 +29,7 @@ Widget buildProfileDropdown({
           children: [
             supabase.auth.currentUser != null
                 ? Padding(
-                  padding: const EdgeInsets.only(top: 12.0),
+                  padding: const EdgeInsets.only(top: 5.0),
                   child: TextButton(
                     onPressed: () async {
                       // Reset nomor meja/kode meja
@@ -57,7 +57,7 @@ Widget buildProfileDropdown({
                   ),
                 )
                 : Padding(
-                  padding: const EdgeInsets.only(top: 12.0),
+                  padding: const EdgeInsets.only(top: 5.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -77,7 +77,7 @@ Widget buildProfileDropdown({
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+
                       TextButton(
                         onPressed: () async {
                           if (context.mounted) {

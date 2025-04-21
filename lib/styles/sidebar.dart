@@ -23,7 +23,7 @@ Widget buildSidebar({
         bottomRight: Radius.circular(8),
       ),
       child: Container(
-        width: MediaQuery.of(context).size.width < 600 ? 70 : 80,
+        width: MediaQuery.of(context).size.width < 1200 ? 70 : 80,
         height: MediaQuery.of(context).size.height,
         color: Color.fromARGB(255, 84, 47, 17),
         child: Column(
@@ -41,8 +41,8 @@ Widget buildSidebar({
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: SvgPicture.asset(
                     'assets/icons/home.svg',
-                    width: MediaQuery.of(context).size.width < 600 ? 30 : 40,
-                    height: MediaQuery.of(context).size.width < 600 ? 30 : 40,
+                    width: MediaQuery.of(context).size.width < 1200 ? 30 : 40,
+                    height: MediaQuery.of(context).size.width < 1200 ? 30 : 40,
                   ),
                 ),
               ),
@@ -56,7 +56,7 @@ Widget buildSidebar({
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: HeroIcon(
                     HeroIcons.shoppingCart,
-                    size: MediaQuery.of(context).size.width < 600 ? 30 : 40,
+                    size: MediaQuery.of(context).size.width < 1200 ? 30 : 40,
                     color: Colors.white,
                   ),
                 ),
@@ -84,7 +84,7 @@ Widget buildSidebar({
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: HeroIcon(
                     HeroIcons.heart,
-                    size: MediaQuery.of(context).size.width < 600 ? 30 : 40,
+                    size: MediaQuery.of(context).size.width < 1200 ? 30 : 40,
                     color: Colors.white,
                   ),
                 ),
@@ -112,7 +112,7 @@ Widget buildSidebar({
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: Icon(
                     Icons.reviews_outlined,
-                    size: MediaQuery.of(context).size.width < 600 ? 30 : 40,
+                    size: MediaQuery.of(context).size.width < 1200 ? 30 : 40,
                     color: Colors.white,
                   ),
                 ),

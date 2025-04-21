@@ -331,7 +331,7 @@ class _PageFavoriteState extends State<PageFavorite> {
   @override
   Widget build(BuildContext context) {
     final cartProvider = Provider.of<CartProvider>(context);
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = MediaQuery.of(context).size.width < 1200;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -352,7 +352,8 @@ class _PageFavoriteState extends State<PageFavorite> {
                   'GCoffee',
                   style: TextStyle(
                     color: Color.fromARGB(255, 84, 47, 17),
-                    fontSize: MediaQuery.of(context).size.width < 600 ? 28 : 32,
+                    fontSize:
+                        MediaQuery.of(context).size.width < 1200 ? 28 : 32,
                     fontFamily: 'Righteous',
                   ),
                 ),
@@ -367,7 +368,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                 onPressed: _toogleProfile,
                 icon: HeroIcon(
                   HeroIcons.user,
-                  size: MediaQuery.of(context).size.width < 600 ? 30 : 40,
+                  size: MediaQuery.of(context).size.width < 1200 ? 30 : 40,
                   color: Colors.grey,
                 ),
               ),
@@ -385,7 +386,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                         child: Padding(
                           padding: EdgeInsets.only(
                             left:
-                                MediaQuery.of(context).size.width < 600
+                                MediaQuery.of(context).size.width < 1200
                                     ? 20
                                     : 100,
                             right: 15,
@@ -398,7 +399,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                                 style: TextStyle(
                                   fontFamily: 'Oxanium',
                                   fontSize:
-                                      MediaQuery.of(context).size.width < 600
+                                      MediaQuery.of(context).size.width < 1200
                                           ? 24
                                           : 32,
                                   fontWeight: FontWeight.w500,
@@ -695,7 +696,7 @@ class _PageFavoriteState extends State<PageFavorite> {
               top: 12,
               left: 10,
               child: IconButton(
-                iconSize: MediaQuery.of(context).size.width < 600 ? 28 : 40,
+                iconSize: MediaQuery.of(context).size.width < 1200 ? 28 : 40,
                 color: Color.fromARGB(255, 210, 156, 108),
                 onPressed: _toggleMenu,
                 icon: Icon(Icons.menu),
@@ -711,7 +712,7 @@ class _PageFavoriteState extends State<PageFavorite> {
   double _getCardWidth(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
 
-    if (screenWidth < 600) {
+    if (screenWidth < 1200) {
       // Untuk mobile: kartu mengambil sekitar setengah lebar layar
       return (screenWidth - 40) / 2; // Memperhitungkan margin dan spacing
     } else {
@@ -722,7 +723,7 @@ class _PageFavoriteState extends State<PageFavorite> {
   // Tambahkan method untuk menentukan jumlah kartu per baris
   int _getMaxCardsPerRow(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    if (screenWidth < 600) {
+    if (screenWidth < 1200) {
       return 2; // Selalu tampilkan 2 kartu per baris di mobile
     } else {
       return 4;
@@ -731,7 +732,7 @@ class _PageFavoriteState extends State<PageFavorite> {
 
   // Ubah method _buildCards()
   List<Widget> _buildCards() {
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = MediaQuery.of(context).size.width < 1200;
 
     if (isMobile) {
       // Layout mobile - gunakan pendekatan yang lebih langsung untuk 2 kolom
@@ -784,7 +785,7 @@ class _PageFavoriteState extends State<PageFavorite> {
     bool hasHalfStar = (averageRating - fullStars) >= 0.5;
     final cardWidth = _getCardWidth(context);
     final imageHeight = cardWidth * 0.9;
-    final isMobile = MediaQuery.of(context).size.width < 600;
+    final isMobile = MediaQuery.of(context).size.width < 1200;
 
     return SizedBox(
       width: cardWidth,
