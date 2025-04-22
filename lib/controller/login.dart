@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -13,6 +14,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'auth/auth.dart';
 
@@ -496,73 +498,220 @@ class _LoginpageState extends State<Loginpage> {
                         await _nativeGoogleSignIn();
                       } else {
                         try {
+                          if (mounted) {
+                            showToast(
+                              context,
+                              title: 'Info',
+                              message: 'Memulai proses login Google...',
+                              Type: ToastificationType.info,
+                            );
+                          }
+
                           final response = await supabase.auth.signInWithOAuth(
                             OAuthProvider.google,
                             redirectTo:
                                 kIsWeb
-                                    ? null
+                                    ? 'https://gcoffee-r.netlify.app/#/customer/meja'
                                     : 'https://gcoffee-r.netlify.app/#/customer/meja',
+                            authScreenLaunchMode: LaunchMode.inAppWebView,
                           );
 
-                          if (response) {
-                            supabase.auth.onAuthStateChange.listen((
-                              data,
-                            ) async {
+                          if (!response) {
+                            if (mounted) {
+                              showToast(
+                                context,
+                                title: 'Login Gagal',
+                                message: 'Gagal memulai proses OAuth Google',
+                                Type: ToastificationType.error,
+                              );
+                            }
+                            return;
+                          }
+
+                          if (mounted) {
+                            showToast(
+                              context,
+                              title: 'Info',
+                              message: 'Menunggu autentikasi Google...',
+                              Type: ToastificationType.info,
+                            );
+                          }
+
+                          // Tunggu dan dengarkan perubahan auth state
+                          late final StreamSubscription<AuthState> subscription;
+
+                          subscription = supabase.auth.onAuthStateChange.listen(
+                            (data) async {
                               if (data.event == AuthChangeEvent.signedIn &&
                                   data.session != null) {
+                                subscription.cancel();
+
                                 final user = data.session!.user;
+                                if (mounted) {
+                                  showToast(
+                                    context,
+                                    title: 'Info',
+                                    message:
+                                        'Login berhasil sebagai: ${user.email}',
+                                    Type: ToastificationType.success,
+                                  );
+                                }
 
-                                // Generate username dari display name
-                                String displayName =
-                                    user.userMetadata?['full_name'] ?? '';
-                                String generatedUsername = displayName
-                                    .toLowerCase()
-                                    .replaceAll(' ', '_');
+                                try {
+                                  if (mounted) {
+                                    showToast(
+                                      context,
+                                      title: 'Info',
+                                      message: 'Memeriksa profil user...',
+                                      Type: ToastificationType.info,
+                                    );
+                                  }
 
-                                // Cek dan generate unique username
-                                int counter = 0;
-                                String finalUsername = generatedUsername;
-                                bool usernameExists;
-
-                                do {
-                                  final response =
+                                  final existingProfile =
                                       await supabase
                                           .from('profiles')
                                           .select()
-                                          .eq('username', finalUsername)
+                                          .eq('id', user.id)
                                           .maybeSingle();
 
-                                  usernameExists = response != null;
-                                  if (usernameExists) {
-                                    counter++;
-                                    finalUsername =
-                                        '${generatedUsername}_$counter';
+                                  if (existingProfile == null) {
+                                    if (mounted) {
+                                      showToast(
+                                        context,
+                                        title: 'Info',
+                                        message: 'Membuat profil baru...',
+                                        Type: ToastificationType.info,
+                                      );
+                                    }
+
+                                    String displayName =
+                                        user.userMetadata?['full_name'] ?? '';
+                                    if (displayName.isEmpty) {
+                                      displayName =
+                                          user.email?.split('@')[0] ?? 'User';
+                                    }
+
+                                    String baseUsername = displayName
+                                        .toLowerCase()
+                                        .replaceAll(RegExp(r'[^a-z0-9]'), '_')
+                                        .replaceAll(RegExp(r'_+'), '_')
+                                        .replaceAll(RegExp(r'^_|_$'), '');
+
+                                    String finalUsername = baseUsername;
+                                    int counter = 0;
+
+                                    while (true) {
+                                      final usernameCheck =
+                                          await supabase
+                                              .from('profiles')
+                                              .select()
+                                              .eq('username', finalUsername)
+                                              .maybeSingle();
+
+                                      if (usernameCheck == null) break;
+
+                                      counter++;
+                                      finalUsername = '${baseUsername}$counter';
+                                    }
+
+                                    await supabase.from('profiles').insert({
+                                      'id': user.id,
+                                      'email': user.email,
+                                      'username': finalUsername,
+                                      'full_name': displayName,
+                                      'roles': 'user',
+                                      'updated_at':
+                                          DateTime.now().toIso8601String(),
+                                    });
+
+                                    if (mounted) {
+                                      showToast(
+                                        context,
+                                        title: 'Sukses',
+                                        message:
+                                            'Profil berhasil dibuat untuk $displayName',
+                                        Type: ToastificationType.success,
+                                      );
+                                    }
                                   }
-                                } while (usernameExists);
 
-                                // Tambahkan user ke tabel profiles
-                                await supabase.from('profiles').upsert({
-                                  'id': user.id,
-                                  'email': user.email,
-                                  'username': finalUsername,
-                                  'full_name': displayName,
-                                  'roles': 'user',
-                                  'updated_at':
-                                      DateTime.now().toIso8601String(),
-                                });
+                                  // Tambahkan delay singkat sebelum navigasi
+                                  await Future.delayed(
+                                    Duration(milliseconds: 500),
+                                  );
 
-                                if (context.mounted) {
-                                  context.goNamed(RouteNames.meja);
+                                  if (mounted) {
+                                    showToast(
+                                      context,
+                                      title: 'Info',
+                                      message: 'Mengalihkan ke halaman meja...',
+                                      Type: ToastificationType.info,
+                                    );
+
+                                    // Coba kedua cara navigasi
+                                    try {
+                                      context.go('/customer/meja');
+                                    } catch (navError) {
+                                      showToast(
+                                        context,
+                                        title: 'Error Navigasi',
+                                        message:
+                                            'Error: $navError, mencoba cara lain...',
+                                        Type: ToastificationType.warning,
+                                      );
+
+                                      try {
+                                        context.goNamed(RouteNames.meja);
+                                      } catch (navError2) {
+                                        showToast(
+                                          context,
+                                          title: 'Error Navigasi',
+                                          message: 'Gagal navigasi: $navError2',
+                                          Type: ToastificationType.error,
+                                        );
+                                      }
+                                    }
+                                  }
+                                } catch (e) {
+                                  if (mounted) {
+                                    showToast(
+                                      context,
+                                      title: 'Error',
+                                      message:
+                                          'Error saat memproses profil: $e',
+                                      Type: ToastificationType.error,
+                                    );
+                                  }
+                                }
+                              } else if (data.event ==
+                                  AuthChangeEvent.signedOut) {
+                                if (mounted) {
+                                  showToast(
+                                    context,
+                                    title: 'Info',
+                                    message: 'User signed out',
+                                    Type: ToastificationType.warning,
+                                  );
                                 }
                               }
-                            });
-                          }
+                            },
+                            onError: (error) {
+                              if (mounted) {
+                                showToast(
+                                  context,
+                                  title: 'Error Auth State',
+                                  message: 'Error: $error',
+                                  Type: ToastificationType.error,
+                                );
+                              }
+                            },
+                          );
                         } catch (e) {
-                          if (context.mounted) {
+                          if (mounted) {
                             showToast(
                               context,
-                              title: 'Login gagal',
-                              message: e.toString(),
+                              title: 'Error Login',
+                              message: 'Error saat proses login: $e',
                               Type: ToastificationType.error,
                             );
                           }

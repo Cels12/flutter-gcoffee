@@ -234,6 +234,16 @@ class _HomePageCustState extends State<homePageCust> {
     }
 
     try {
+      // Ambil nomor_meja dari database berdasarkan id_meja
+      final mejaResponse =
+          await supabase
+              .from('meja')
+              .select('nomor_meja')
+              .eq('id_meja', widget.idMeja)
+              .single();
+
+      final nomorMeja = mejaResponse['nomor_meja'];
+
       // Ambil current user dari Supabase
       final currentUser = supabase.auth.currentUser;
       String username = 'guest';
@@ -285,7 +295,7 @@ class _HomePageCustState extends State<homePageCust> {
                 'user_id': userId, // Tambahkan user_id ke pesanan
                 'username': username,
                 'pesanan': cartItems.map((item) => item['name']).join(', '),
-                'nomor_meja': widget.idMeja,
+                'nomor_meja': nomorMeja,
                 'total': totalPrice,
                 'status_pesanan': 'Sedang dibuat',
                 'tipe_pesanan': orderType,

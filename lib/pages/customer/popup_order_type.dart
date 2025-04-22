@@ -40,7 +40,11 @@ class _PopUpOrderTypeState extends State<PopUpOrderType> {
 
                 Text(
                   'Minum disini atau take away?',
-                  style: getTitleWhiteOx(context),
+                  style: TextStyle(
+                    color: Color.fromRGBO(255, 255, 255, 1),
+                    fontFamily: 'Righteous',
+                    fontSize: 20,
+                  ),
                 ),
                 SizedBox(height: 40),
                 Row(
