@@ -33,7 +33,7 @@ class _HomePageCustState extends State<homePageCust> {
   List<Map<String, dynamic>> _filteredMenuList = [];
   final TextEditingController search = TextEditingController();
   bool _isLoading = true;
-  bool _isMenuOpen = false;
+  bool _isMenuOpen = true;
   bool _isCartOpen = false;
   bool _isSearchOpen = false;
 
@@ -294,7 +294,9 @@ class _HomePageCustState extends State<homePageCust> {
               .insert({
                 'user_id': userId, // Tambahkan user_id ke pesanan
                 'username': username,
-                'pesanan': cartItems.map((item) => item['name']).join(', '),
+                'pesanan': cartItems
+                    .map((item) => item['nama_menu'] ?? 'Menu')
+                    .join(', '),
                 'nomor_meja': nomorMeja,
                 'total': totalPrice,
                 'status_pesanan': 'Sedang dibuat',
@@ -533,7 +535,7 @@ class _HomePageCustState extends State<homePageCust> {
                       child: IconButton(
                         onPressed: () => _toggleFavorited(menu['id'], menu),
                         icon: HeroIcon(
-                          HeroIcons.heart,
+                          HeroIcons.bookmark,
                           style:
                               (_favoriteStates[menu['id']] ?? false)
                                   ? HeroIconStyle.solid
@@ -541,7 +543,7 @@ class _HomePageCustState extends State<homePageCust> {
                           size: isMobile ? 16 : 20,
                           color:
                               (_favoriteStates[menu['id']] ?? false)
-                                  ? Colors.red
+                                  ? Color.fromARGB(198, 201, 101, 2)
                                   : Colors.white,
                         ),
                       ),
@@ -603,10 +605,28 @@ class _HomePageCustState extends State<homePageCust> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    Provider.of<CartProvider>(
+                    bool addedSuccessfully = Provider.of<CartProvider>(
                       context,
                       listen: false,
                     ).addToCart(menu);
+
+                    if (addedSuccessfully) {
+                      showToast(
+                        context,
+                        title: 'Berhasil!',
+                        message:
+                            "${menu['nama_menu']} ditambahkan ke keranjang",
+                        Type: ToastificationType.success,
+                      );
+                    } else {
+                      showToast(
+                        context,
+                        title: 'Info',
+                        message:
+                            '${menu['nama_menu']} sudah ada di keranjang, kamu menambahkan jumlah ${menu['nama_menu']} ke keranjang',
+                        Type: ToastificationType.info,
+                      );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     shape: RoundedRectangleBorder(
@@ -619,7 +639,7 @@ class _HomePageCustState extends State<homePageCust> {
                     'Tambahkan ke keranjang',
                     style: TextStyle(
                       fontFamily: 'Oxanium',
-                      fontSize: isMobile ? 14 : 20,
+                      fontSize: isMobile ? 12 : 20,
                       color: Colors.white,
                     ),
                   ),
@@ -845,6 +865,9 @@ class _HomePageCustState extends State<homePageCust> {
                                 itemCount: cartProvider.cartItems.length,
                                 itemBuilder: (context, index) {
                                   final item = cartProvider.cartItems[index];
+                                  debugPrint(
+                                    'Menampilkan item ke keranjang $item',
+                                  );
                                   return Padding(
                                     padding: const EdgeInsets.symmetric(
                                       horizontal: 15.0,
@@ -858,7 +881,8 @@ class _HomePageCustState extends State<homePageCust> {
                                         Expanded(
                                           flex: 3,
                                           child: Text(
-                                            item['name'], // Display the name of the item
+                                            item['nama_menu'].toString() ??
+                                                'Nama Tidak Tersedia',
                                             style: const TextStyle(
                                               fontFamily: 'Oxanium',
                                               fontSize: 20,

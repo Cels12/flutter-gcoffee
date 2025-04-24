@@ -1,12 +1,23 @@
 Ignored :
 failed to load pdf document. ada error ini ketika buka pdf 
 3. set up SMTP
+7. Buat ketika Login dengan google maka otomatis ada kaya username di table profiles database. (ignored)
+6. Maybe check notification, kalo kalo ada yang belum diganti ke showToast dan masih scaffold 
 
 TODO: 
-2. redirect google
-6. Maybe check notification, kalo kalo ada yang belum diganti ke showToast dan masih scaffold
-7. Buat ketika Login dengan google maka otomatis ada kaya username di table profiles database.
-8. Ketika refresh di favoritepage.dart, reviews.dart, MyReviewPage.dart, masih di bisa login dan tidak ada null 
+
+Revision :
+1. Yang report, item item yang akan di exportnya itu benerin (nama menunya, tanggal pembelian, harga barang ketika di transaksikan, total penjualan hari itu(total item dan total pendapatan))
+2. Tampilkan halaman review untuk akun admin
+3. Keamanan datanya di perkuat, kasusnya itu misal ada mantan kasir inget email dan password buat admin berarti dia masih bisa login sebagai admin.
+6. Perbaiki my review karena ada double entry (user_id itu ada duplikat jadi dihapus contstraintnya atau cari pendekatan lain)
+7. Perbaiki activity diagramnya, alurnya lebih diperjelas
+9. Tambahkan UI add kode meja, jadi si adminnya bisa nambahin kode meja.
+10. Stok ? 
+11. SOP mending ketik aja biar lebih yakin/ada record
+13. Filter tahun di dashboard?
+14. Mungkin di tambahin pop up detail menu karena kan si deskripsi menunya kepotong.
+15. Ketika ada user yang login itu user A login, nah user B juga masih bisa login.
 
 DONE :
 1. 30 minute expiration untuk status pesanan (beres 14 april 2025)
@@ -23,3 +34,10 @@ DONE :
 12. Edit route biar ketika URLnya di ganti ke spesific, jadi gk bisa access kalo belum login (beres 20 April 2025)
 13. Forgot password fungsi (beres 20 April 2025)
 14. Di ganti aja tombol pesan textnya jadi Masukkan keranjang.(21 April 2025)
+15. Ketika refresh di favoritepage.dart, reviews.dart, MyReviewPage.dart, masih di bisa login dan tidak ada null (beres 21 April 2025)
+16. redirect google (beres 21 april 2025)
+17. Si sidebarnya di jadiin terus menerus muncul aja lah gausah pake animation(disembunyiin) [solusinya jadi ketika costumer pertama kali masuk website, sidebarnya udah kebuka jadinya tinggal di tutup aja] (beres 23 April 2025)
+18. Tambahin notif ketika menunya di tambahkan ke cart. (beres 23 April 2025)
+19. Button Tambahkan ke keranjang kurang paddingnya. [Solusinya di kurangi font sizenya] (beres tanggal 23 April 2025)
+20. Ganti ikon heart, jadi ke icon simpan kaya di IG [Jadi icon bookmark] (beres 24 April 2025)
+21. Button style di samakan aja, misal nih Download laporan itu circularnya 10, nah yang di bawah juga harus ikut. (beres 24 April 2025)

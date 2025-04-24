@@ -4,6 +4,9 @@ import 'package:gcoffee_r/routes/route_config.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_html/html.dart' as html;
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 String supabaseUrl = const String.fromEnvironment(
   'SUPABASE_URL',
@@ -21,6 +24,16 @@ Future<void> main() async {
     anonKey: supabaseKey,
     debug: true,
   );
+
+  // Add beforeunload event listener for web
+  if (kIsWeb) {
+    html.window.onUnload.listen((event) async {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('id_meja');
+      await prefs.remove('nomor_meja');
+    });
+  }
+
   runApp(const MyApp());
 }
 

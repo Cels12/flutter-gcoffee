@@ -5,21 +5,22 @@ class CartProvider with ChangeNotifier {
 
   List<Map<String, dynamic>> get cartItems => _cartItems;
 
-  void addToCart(Map<String, dynamic> item) {
-    final existingIndex = _cartItems.indexWhere(
+  bool addToCart(Map<String, dynamic> item) {
+    debugPrint('Mencoba menambahkan item ke keranjang $item');
+    int existingIndex = _cartItems.indexWhere(
       (cartItem) => cartItem['id'] == item['id'],
     );
     if (existingIndex != -1) {
       _cartItems[existingIndex]['quantity'] += 1;
+      debugPrint("Item sudah ada di keranjang.");
+      return false;
     } else {
-      _cartItems.add({
-        'id': item['id'],
-        'name': item['nama_menu'],
-        'harga': item['harga'],
-        'quantity': 1,
-      });
+      item['quantity'] = 1;
+      _cartItems.add(item);
+      notifyListeners();
+      debugPrint("Item berhasil ditambahkan: ${item['nama_menu']}");
+      return true;
     }
-    notifyListeners();
   }
 
   void removeFromCart(int index) {

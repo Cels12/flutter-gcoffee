@@ -106,6 +106,7 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       _pesananList =
           _originalPesananList.where((pesanan) {
+            final id = pesanan['id'].toString().toLowerCase();
             final username = pesanan['username'].toString().toLowerCase();
             final pesananItems = pesanan['pesanan'].toString().toLowerCase();
             final nomorMeja = pesanan['nomor_meja'].toString().toLowerCase();
@@ -114,7 +115,8 @@ class _DashboardState extends State<Dashboard> {
             return username.contains(query) ||
                 pesananItems.contains(query) ||
                 nomorMeja.contains(query) ||
-                status.contains(query);
+                status.contains(query) ||
+                id.contains(query);
           }).toList();
     });
   }
@@ -331,6 +333,7 @@ class _DashboardState extends State<Dashboard> {
     _statusUpdateTimer = Timer.periodic(Duration(minutes: 1), (timer) {
       checkAndUpdateOrderStatus();
     });
+    search.addListener(_onSearchChanged);
   }
 
   @override
@@ -849,16 +852,21 @@ class _DashboardState extends State<Dashboard> {
                                                         );
                                                         await fetchPesanan();
                                                       },
-                                                      style:
-                                                          ElevatedButton.styleFrom(
-                                                            backgroundColor:
-                                                                Color.fromARGB(
-                                                                  255,
-                                                                  127,
-                                                                  88,
-                                                                  56,
-                                                                ),
-                                                          ),
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            Color.fromARGB(
+                                                              255,
+                                                              127,
+                                                              88,
+                                                              56,
+                                                            ),
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                5,
+                                                              ),
+                                                        ),
+                                                      ),
                                                       child: Text(
                                                         'Siap Diantar',
                                                         style: getButtonWhite(
@@ -877,16 +885,21 @@ class _DashboardState extends State<Dashboard> {
                                                         );
                                                         await fetchPesanan();
                                                       },
-                                                      style:
-                                                          ElevatedButton.styleFrom(
-                                                            backgroundColor:
-                                                                Color.fromARGB(
-                                                                  255,
-                                                                  127,
-                                                                  88,
-                                                                  56,
-                                                                ),
-                                                          ),
+                                                      style: ElevatedButton.styleFrom(
+                                                        backgroundColor:
+                                                            Color.fromARGB(
+                                                              255,
+                                                              127,
+                                                              88,
+                                                              56,
+                                                            ),
+                                                        shape: RoundedRectangleBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                5,
+                                                              ),
+                                                        ),
+                                                      ),
                                                       child: Text(
                                                         'Selesai',
                                                         style: getButtonWhite(

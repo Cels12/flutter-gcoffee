@@ -868,7 +868,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                           _toggleFavorited(menu['id'], menu);
                         },
                         icon: HeroIcon(
-                          HeroIcons.heart,
+                          HeroIcons.bookmark,
                           style:
                               (_favoriteStates[menu['id']] ?? false)
                                   ? HeroIconStyle.solid
@@ -876,7 +876,7 @@ class _PageFavoriteState extends State<PageFavorite> {
                           size: isMobile ? 16 : 20,
                           color:
                               (_favoriteStates[menu['id']] ?? false)
-                                  ? Colors.red
+                                  ? const Color.fromARGB(198, 201, 101, 2)
                                   : Colors.white,
                         ),
                       ),

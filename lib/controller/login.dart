@@ -335,7 +335,7 @@ class _LoginpageState extends State<Loginpage> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(right: 200),
+                    padding: EdgeInsets.only(right: isMobile ? 90 : 200),
                     child: Text(
                       'Masukkan detail akun anda',
                       style: TextStyle(
@@ -351,7 +351,7 @@ class _LoginpageState extends State<Loginpage> {
                       'Selamat datang kembali!',
                       style: TextStyle(
                         fontFamily: 'Righteous',
-                        fontSize: isMobile ? 28 : 36,
+                        fontSize: isMobile ? 24 : 36,
                       ),
                     ),
                   ),
