@@ -457,7 +457,6 @@ class _MyReviewPageState extends State<MyReviewPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    // final screenHeight = MediaQuery.of(context).size.height;
     final isMobile = screenWidth < 1200;
     final cartProvider = Provider.of<CartProvider>(context);
 
@@ -560,7 +559,6 @@ class _MyReviewPageState extends State<MyReviewPage> {
                 ],
               ),
             ),
-            //profile dropdown menu
             //profile dropdown menu
             buildProfileDropdown(
               context: context,

@@ -7,13 +7,11 @@ failed to load pdf document. ada error ini ketika buka pdf
 TODO: 
 
 Revision :
-3. Keamanan datanya di perkuat, kasusnya itu misal ada mantan kasir inget email dan password buat admin berarti dia masih bisa login sebagai admin.
-7. Perbaiki activity diagramnya, alurnya lebih diperjelas
-10. Stok ? 
-11. SOP mending ketik aja biar lebih yakin/ada record
+7. Perbaiki activity diagramnya, alurnya lebih diperjelas.
+10. Stok ?
+11. SOP mending ketik aja biar lebih yakin/ada record.
 14. Mungkin di tambahin pop up detail menu karena kan si deskripsi menunya kepotong.
-15. Ketika ada user yang login itu user A login, nah user B juga masih bisa login.
-16. Perbaiki fungsi edit sama hapus di my review page
+16. Perbaiki fungsi edit sama hapus di my review page.
 
 DONE :
 1. 30 minute expiration untuk status pesanan (beres 14 april 2025)
@@ -45,3 +43,4 @@ DONE :
 27. Perbaikan di sign up (beres 25 April 2025)
 28. Button ubah status pesanannya masih bisa ditekan walaupun si statusnya misal udah selesai.  (beres 25 April 2025)
 29. Yang report, item item yang akan di exportnya itu benerin (nama menunya, tanggal pembelian, harga barang ketika di transaksikan, total penjualan hari itu(total item terjual dan total pendapatan)) (beres 25 April 2025)
+30. Keamanan datanya di perkuat, kasusnya itu misal ada mantan kasir inget email dan password buat admin berarti dia masih bisa login sebagai admin. (beres 25 April 2025)
