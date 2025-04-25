@@ -38,22 +38,31 @@ class AuthService {
       final userId = response.user?.id;
 
       if (userId != null) {
-        // Insert fullName into the profiles table
-        await _supabase.from('profiles').insert({
-          'id': userId,
-          'full_name': fullName,
-          'username': username,
-          'email': email,
-          'roles': 'user',
-        });
+        try {
+          // Insert fullName into the profiles table
+          await _supabase.from('profiles').insert({
+            'id': userId,
+            'full_name': fullName,
+            'username': username,
+            'email': email,
+            'roles': 'user',
+          });
+          return userId; // Only return userId if both auth and profile creation succeed
+        } catch (dbError) {
+          // If profile creation fails, delete the auth user
+          if (kDebugMode) {
+            print('Profile creation failed: ${dbError.toString()}');
+          }
+          await _supabase.auth.admin.deleteUser(userId);
+          return null;
+        }
       }
-
-      return userId; // Return user ID on successful sign-up
+      return null; // Return null if user creation failed
     } catch (e) {
       if (kDebugMode) {
         print('sign up failed: ${e.toString()}');
       }
-      return e.toString();
+      return null; // Return null instead of error string
     }
   }
 

@@ -57,6 +57,7 @@ class _ReviewsAdminState extends State<ReviewsAdmin> {
           ''')
           .order('created_at', ascending: false);
 
+      //process the review data
       List<Map<String, dynamic>> processedReviews = [];
       Map<String, dynamic> userData = {};
       Map<String, dynamic> menuData = {};
@@ -64,10 +65,11 @@ class _ReviewsAdminState extends State<ReviewsAdmin> {
       for (var item in response) {
         if (item['user_id'] != null) {
           String userId = item['user_id']['id'];
-          menuData[userId.toString()] = item['user_id'];
+          userData[userId] = item['user_id'];
         }
+
         if (item['menu_id'] != null) {
-          String menuId = item['menu_id']['id'];
+          int menuId = item['menu_id']['id'];
           menuData[menuId.toString()] = item['menu_id'];
         }
         processedReviews.add(item);
@@ -81,19 +83,25 @@ class _ReviewsAdminState extends State<ReviewsAdmin> {
         });
       }
     } catch (e) {
-      debugPrint('Error fetching reviews : $e');
+      debugPrint('Error fetching reviews $e');
       if (mounted) {
         setState(() {
           _isLoading = false;
         });
         showToast(
           context,
-          title: 'Gagal',
-          message: "Terjadi kesalahan saat memuat data review",
+          title: 'Gagal memuat alasan',
+          message: 'Terjadi kesalahan saat memuat data review',
           Type: ToastificationType.error,
         );
       }
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAllReviews();
   }
 
   @override
@@ -300,11 +308,11 @@ class _ReviewsAdminState extends State<ReviewsAdmin> {
                       ),
                       decoration: BoxDecoration(
                         color: Color.fromARGB(
-                          255,
+                          51, // 0.2 * 255 = 51 for alpha
                           210,
                           156,
                           108,
-                        ).withValues(alpha: 0.2),
+                        ),
                         borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: Color.fromARGB(255, 210, 156, 108),

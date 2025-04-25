@@ -517,7 +517,7 @@ class _LoginpageState extends State<Loginpage> {
                           );
 
                           if (!response) {
-                            if (mounted) {
+                            if (context.mounted) {
                               showToast(
                                 context,
                                 title: 'Login Gagal',
@@ -528,7 +528,7 @@ class _LoginpageState extends State<Loginpage> {
                             return;
                           }
 
-                          if (mounted) {
+                          if (context.mounted) {
                             showToast(
                               context,
                               title: 'Info',
@@ -547,7 +547,7 @@ class _LoginpageState extends State<Loginpage> {
                                 subscription.cancel();
 
                                 final user = data.session!.user;
-                                if (mounted) {
+                                if (context.mounted) {
                                   showToast(
                                     context,
                                     title: 'Info',
@@ -558,7 +558,7 @@ class _LoginpageState extends State<Loginpage> {
                                 }
 
                                 try {
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     showToast(
                                       context,
                                       title: 'Info',
@@ -575,7 +575,7 @@ class _LoginpageState extends State<Loginpage> {
                                           .maybeSingle();
 
                                   if (existingProfile == null) {
-                                    if (mounted) {
+                                    if (context.mounted) {
                                       showToast(
                                         context,
                                         title: 'Info',
@@ -624,7 +624,7 @@ class _LoginpageState extends State<Loginpage> {
                                           DateTime.now().toIso8601String(),
                                     });
 
-                                    if (mounted) {
+                                    if (context.mounted) {
                                       showToast(
                                         context,
                                         title: 'Sukses',
@@ -640,7 +640,7 @@ class _LoginpageState extends State<Loginpage> {
                                     Duration(milliseconds: 500),
                                   );
 
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     showToast(
                                       context,
                                       title: 'Info',
@@ -673,7 +673,7 @@ class _LoginpageState extends State<Loginpage> {
                                     }
                                   }
                                 } catch (e) {
-                                  if (mounted) {
+                                  if (context.mounted) {
                                     showToast(
                                       context,
                                       title: 'Error',
@@ -685,7 +685,7 @@ class _LoginpageState extends State<Loginpage> {
                                 }
                               } else if (data.event ==
                                   AuthChangeEvent.signedOut) {
-                                if (mounted) {
+                                if (context.mounted) {
                                   showToast(
                                     context,
                                     title: 'Info',
@@ -696,7 +696,7 @@ class _LoginpageState extends State<Loginpage> {
                               }
                             },
                             onError: (error) {
-                              if (mounted) {
+                              if (context.mounted) {
                                 showToast(
                                   context,
                                   title: 'Error Auth State',
@@ -707,7 +707,7 @@ class _LoginpageState extends State<Loginpage> {
                             },
                           );
                         } catch (e) {
-                          if (mounted) {
+                          if (context.mounted) {
                             showToast(
                               context,
                               title: 'Error Login',

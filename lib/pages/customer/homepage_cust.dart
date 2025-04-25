@@ -633,13 +633,13 @@ class _HomePageCustState extends State<homePageCust> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     backgroundColor: const Color.fromARGB(255, 127, 88, 56),
-                    padding: EdgeInsets.symmetric(vertical: isMobile ? 8 : 12),
+                    padding: EdgeInsets.all(isMobile ? 8 : 12),
                   ),
                   child: Text(
                     'Tambahkan ke keranjang',
                     style: TextStyle(
                       fontFamily: 'Oxanium',
-                      fontSize: isMobile ? 12 : 20,
+                      fontSize: isMobile ? 10 : 20,
                       color: Colors.white,
                     ),
                   ),

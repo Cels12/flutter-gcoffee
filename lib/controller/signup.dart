@@ -27,17 +27,17 @@ class _SignUpPageState extends State<SignUpPage> {
   Future<void> signUp() async {
     setState(() => isLoading = true);
 
-    final result = await _authService.signUp(
+    final userId = await _authService.signUp(
       emailController.text.trim(),
       passwordController.text.trim(),
-      usernameController.text.trim(),
       fullNameController.text.trim(),
+      usernameController.text.trim(),
     );
 
-    if (result != null) {
-      setState(() {
-        message = result;
-        isLoading = false;
+    setState(() => isLoading = false);
+
+    if (userId != null) {
+      if (mounted) {
         showToast(
           context,
           title: 'Berhasil!',
@@ -45,17 +45,14 @@ class _SignUpPageState extends State<SignUpPage> {
           Type: ToastificationType.success,
         );
         context.goNamed(RouteNames.loginScreen);
-      });
+      }
     } else {
-      setState(() {
-        message = "Registrasi gagal!";
-        isLoading = false;
-      });
       if (mounted) {
         showToast(
           context,
           title: 'Gagal',
-          message: 'Registrasi akun gagal, mohon menunggu sebelum mencoba lagi',
+          message:
+              'Registrasi akun gagal, mohon periksa data Anda dan coba lagi',
           Type: ToastificationType.error,
         );
       }

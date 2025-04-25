@@ -20,8 +20,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:open_file/open_file.dart';
 import 'package:universal_html/html.dart' as html;
 import 'package:flutter/foundation.dart' show kIsWeb;
-// import 'package:path/path.dart';
-// import 'package:file/file.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -275,20 +273,50 @@ class _DashboardState extends State<Dashboard> {
   // Fungsi untuk mengganti status pesanan ke siap diantar
   Future<void> updateStatusAntar(int pesananId) async {
     try {
-      // Update status untuk pesanan dengan ID spesifik
-      await supabase
-          .from('pesanan')
-          .update({'status_pesanan': 'Siap Diantar'})
-          .eq('id', pesananId);
+      // Get current status first
+      final response =
+          await supabase
+              .from('pesanan')
+              .select('status_pesanan')
+              .eq('id', pesananId)
+              .single();
 
-      if (mounted) {
-        showToast(
-          context,
-          title: 'Berhasil',
-          message:
-              'Berhasil mengubah status pesanan menjadi siap diantar, mohon beri tahu waitress untuk mengatarkan pesanan',
-          Type: ToastificationType.success,
-        );
+      final currentStatus = response['status_pesanan'] as String;
+
+      if (currentStatus == 'Sedang dibuat') {
+        // Update status untuk pesanan dengan ID spesifik
+        await supabase
+            .from('pesanan')
+            .update({'status_pesanan': 'Siap Diantar'})
+            .eq('id', pesananId);
+
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Berhasil',
+            message:
+                'Berhasil mengubah status pesanan menjadi siap diantar, mohon beri tahu waitress untuk mengatarkan pesanan',
+            Type: ToastificationType.success,
+          );
+        }
+      } else if (currentStatus == 'Siap Diantar') {
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Warning!',
+            message: 'Status pesanan sudah Siap Diantar!',
+            Type: ToastificationType.info,
+          );
+        }
+      } else {
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Warning!',
+            message: 'Status pesanan tidak dapat diubah lagi!',
+            Type: ToastificationType.warning,
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -305,19 +333,40 @@ class _DashboardState extends State<Dashboard> {
   // Fungsi untuk mengganti status pesanan ke selesai
   Future<void> updateStatusSelesai(int pesananId) async {
     try {
-      // Update status untuk pesanan dengan ID spesifik
-      await supabase
-          .from('pesanan')
-          .update({'status_pesanan': 'Selesai'})
-          .eq('id', pesananId);
+      // Get current status first
+      final response =
+          await supabase
+              .from('pesanan')
+              .select('status_pesanan')
+              .eq('id', pesananId)
+              .single();
 
-      if (mounted) {
-        showToast(
-          context,
-          title: 'Berhasil',
-          message: 'Berhasil mengubah status pesanan menjadi Selesai',
-          Type: ToastificationType.success,
-        );
+      final currentStatus = response['status_pesanan'] as String;
+
+      if (currentStatus == 'Selesai') {
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Warning!',
+            message: 'Status pesanan sudah selesai!',
+            Type: ToastificationType.warning,
+          );
+        }
+      } else {
+        // Update status untuk pesanan dengan ID spesifik
+        await supabase
+            .from('pesanan')
+            .update({'status_pesanan': 'Selesai'})
+            .eq('id', pesananId);
+
+        if (mounted) {
+          showToast(
+            context,
+            title: 'Berhasil',
+            message: 'Berhasil mengubah status pesanan menjadi Selesai',
+            Type: ToastificationType.success,
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -423,54 +472,105 @@ class _DashboardState extends State<Dashboard> {
 
   Future<void> exportToExcel() async {
     try {
-      // Buat workbook baru
+      // Create a new workbook
       final xlsio.Workbook workbook = xlsio.Workbook();
       final xlsio.Worksheet sheet = workbook.worksheets[0];
 
-      // Tambahkan header
-      sheet.getRangeByIndex(1, 1).setText('ID Pemesanan');
-      sheet.getRangeByIndex(1, 2).setText('Username');
-      sheet.getRangeByIndex(1, 3).setText('Pesanan');
-      sheet.getRangeByIndex(1, 4).setText('Nomor Meja');
-      sheet.getRangeByIndex(1, 5).setText('Total');
-      sheet.getRangeByIndex(1, 6).setText('Status Pemesanan');
+      // Add headers
+      sheet.getRangeByIndex(1, 1).setText('Menu');
+      sheet.getRangeByIndex(1, 2).setText('Tanggal Pembelian');
+      sheet.getRangeByIndex(1, 3).setText('Harga');
+      sheet.getRangeByIndex(1, 4).setText('Total Penjualan (Item)');
+      sheet.getRangeByIndex(1, 5).setText('Total Pendapatan');
 
-      // Tambahkan data
-      for (var i = 0; i < _pesananList.length; i++) {
-        final pesanan = _pesananList[i];
-        sheet.getRangeByIndex(i + 2, 1).setText(pesanan['id'].toString());
-        sheet.getRangeByIndex(i + 2, 2).setText(pesanan['username'].toString());
-        sheet.getRangeByIndex(i + 2, 3).setText(pesanan['pesanan'].toString());
-        sheet
-            .getRangeByIndex(i + 2, 4)
-            .setText(pesanan['nomor_meja'].toString());
-        sheet.getRangeByIndex(i + 2, 5).setText(pesanan['total'].toString());
-        sheet
-            .getRangeByIndex(i + 2, 6)
-            .setText(pesanan['status_pesanan'].toString());
+      // Group orders by date
+      Map<String, List<Map<String, dynamic>>> ordersByDate = {};
+      Map<String, int> dailyItemCount = {};
+      Map<String, double> dailyRevenue = {};
+
+      for (var order in _pesananList) {
+        String date = DateFormat(
+          'yyyy-MM-dd',
+        ).format(DateTime.parse(order['created_at']));
+
+        if (!ordersByDate.containsKey(date)) {
+          ordersByDate[date] = [];
+          dailyItemCount[date] = 0;
+          dailyRevenue[date] = 0;
+        }
+
+        ordersByDate[date]!.add(order);
+
+        // Parse pesanan string to get individual items
+        String pesananStr = order['pesanan'].toString();
+        List<String> items =
+            pesananStr.split(',').map((e) => e.trim()).toList();
+        dailyItemCount[date] = dailyItemCount[date]! + items.length;
+        dailyRevenue[date] =
+            dailyRevenue[date]! + (order['total'] as num).toDouble();
       }
+
+      // Write data rows
+      int rowIndex = 2;
+      ordersByDate.forEach((date, orders) {
+        for (var order in orders) {
+          String pesananStr = order['pesanan'].toString();
+          List<String> items =
+              pesananStr.split(',').map((e) => e.trim()).toList();
+
+          for (var item in items) {
+            // Write individual menu items
+            sheet.getRangeByIndex(rowIndex, 1).setText(item);
+            sheet
+                .getRangeByIndex(rowIndex, 2)
+                .setText(
+                  DateFormat(
+                    'dd/MM/yyyy HH:mm',
+                  ).format(DateTime.parse(order['created_at'])),
+                );
+            // For simplicity, dividing total by number of items. You may want to adjust this based on your actual price structure
+            double pricePerItem =
+                (order['total'] as num).toDouble() / items.length;
+            sheet.getRangeByIndex(rowIndex, 3).setNumber(pricePerItem);
+            sheet
+                .getRangeByIndex(rowIndex, 4)
+                .setNumber(dailyItemCount[date]!.toDouble());
+            sheet.getRangeByIndex(rowIndex, 5).setNumber(dailyRevenue[date]!);
+            rowIndex++;
+          }
+        }
+        // Add a separator line between dates
+        sheet.getRangeByIndex(rowIndex, 1, rowIndex, 5).cellStyle.backColor =
+            '#E0E0E0';
+        rowIndex++;
+      });
 
       // Format header
       final xlsio.Style headerStyle = workbook.styles.add('headerStyle');
       headerStyle.backColor = '#4472C4';
       headerStyle.fontColor = '#FFFFFF';
       headerStyle.bold = true;
-      sheet.getRangeByIndex(1, 1, 1, 6).cellStyle = headerStyle;
+      sheet.getRangeByIndex(1, 1, 1, 5).cellStyle = headerStyle;
 
-      // Auto fit kolom
-      sheet.autoFitColumn(1);
-      sheet.autoFitColumn(2);
-      sheet.autoFitColumn(3);
-      sheet.autoFitColumn(4);
-      sheet.autoFitColumn(5);
-      sheet.autoFitColumn(6);
+      // Auto fit columns
+      sheet.autoFitColumn(1); // Menu
+      sheet.autoFitColumn(2); // Tanggal
+      sheet.autoFitColumn(3); // Harga
+      sheet.autoFitColumn(4); // Total Items
+      sheet.autoFitColumn(5); // Total Pendapatan
 
-      // Simpan file
+      // Format currency columns
+      final xlsio.Style currencyStyle = workbook.styles.add('currencyStyle');
+      currencyStyle.numberFormat = 'Rp#,##0';
+      sheet.getRangeByIndex(2, 3, rowIndex - 1, 3).cellStyle = currencyStyle;
+      sheet.getRangeByIndex(2, 5, rowIndex - 1, 5).cellStyle = currencyStyle;
+
+      // Save file
       final List<int> bytes = workbook.saveAsStream();
       workbook.dispose();
 
       if (kIsWeb) {
-        // Untuk web
+        // For web
         final blob = html.Blob([
           bytes,
         ], 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -481,13 +581,11 @@ class _DashboardState extends State<Dashboard> {
               ..click();
         html.Url.revokeObjectUrl(url);
       } else {
-        // Untuk mobile
+        // For mobile
         final directory = await getApplicationDocumentsDirectory();
         final file = io.File('${directory.path}/laporan_pesanan.xlsx');
         await file.writeAsBytes(bytes, flush: true);
-        Future.delayed(Duration(milliseconds: 500), () {
-          OpenFile.open(file.path);
-        });
+        await OpenFile.open(file.path);
       }
 
       if (mounted) {

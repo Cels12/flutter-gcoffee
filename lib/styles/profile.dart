@@ -21,7 +21,7 @@ Widget buildProfileDropdown({
       borderRadius: BorderRadius.circular(8),
       child: Container(
         width: 200,
-        height: 100,
+        height: supabase.auth.currentUser != null ? 50 : 90,
         color: const Color.fromARGB(255, 210, 156, 108),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -77,7 +77,6 @@ Widget buildProfileDropdown({
                           ),
                         ),
                       ),
-
                       TextButton(
                         onPressed: () async {
                           if (context.mounted) {
