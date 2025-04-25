@@ -76,31 +76,52 @@ class _PageFavoriteState extends State<PageFavorite> {
     });
 
     try {
-      if (_favoriteStates[menuId] == true) {
-        // Add the menu to the favoritemenus table
-        await supabase.from('favoritemenus').insert({
-          'user_id': supabase.auth.currentUser!.id, // Current user's ID
-          'menu_id': menuId, // Menu ID
-          'menu_name': menu['nama_menu'], // Menu name
-          'menu_price': menu['harga'], // Menu price
-          'menu_image': menu['gambar'], // Menu image URL
-        });
+      final userId = supabase.auth.currentUser!.id;
+      final isCurrentlyFavorited = _favoriteStates[menuId] ?? false;
 
-        // Show success message
-        if (mounted) {
-          showToast(
-            context,
-            title: 'Berhasil',
-            message: 'Menu di tambahkan ke favorit!',
-            Type: ToastificationType.success,
-          );
+      if (isCurrentlyFavorited) {
+        // Check if favorite already exists in the database before inserting
+        final existingFavorite =
+            await supabase
+                .from('favoritemenus')
+                .select('id')
+                .eq('user_id', userId)
+                .eq('menu_id', menuId)
+                .maybeSingle(); // Use maybeSingle to get one or null
+
+        if (existingFavorite == null) {
+          // Only insert if it doesn't exist
+          await supabase.from('favoritemenus').insert({
+            'user_id': userId,
+            'menu_id': menuId,
+            'menu_name': menu['nama_menu'],
+            'menu_price': menu['harga'],
+            'menu_image': menu['gambar'],
+          });
+
+          // Show success message only after successful insertion
+          if (mounted) {
+            showToast(
+              context,
+              title: 'Berhasil',
+              message: 'Menu ditambahkan ke favorit!',
+              Type: ToastificationType.success,
+            );
+          }
+        } else {
+          // Optional: Handle the case where UI state is true but DB entry exists
+          // This might indicate a sync issue, but for now, we just prevent the duplicate insert error.
+          // You could potentially show a different message or just sync the state.
+          debugPrint('Favorite already exists in DB, skipping insert.');
+          // Ensure UI state matches DB state if needed (though it should align after _loadFavorites)
+          // setState(() { _favoriteStates[menuId] = true; });
         }
       } else {
         // Remove the menu from the favoritemenus table
         await supabase
             .from('favoritemenus')
             .delete()
-            .eq('user_id', supabase.auth.currentUser!.id)
+            .eq('user_id', userId)
             .eq('menu_id', menuId);
 
         // Show success message
@@ -111,8 +132,9 @@ class _PageFavoriteState extends State<PageFavorite> {
             message: 'Menu dihapus dari favorit!',
             Type: ToastificationType.success,
           );
+          // No need to call fetchFavorite here if you rely on _loadFavorites
+          // await fetchFavorite(); // Consider if this fetch is still necessary after deletion
         }
-        await fetchFavorite();
       }
     } catch (e) {
       // If there's an error, revert the UI change

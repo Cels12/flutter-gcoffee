@@ -6,6 +6,7 @@ import 'dart:io' as io;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gcoffee_r/routes/route_name.dart';
+import 'package:gcoffee_r/styles/sidebarAdmin.dart';
 import 'package:gcoffee_r/styles/textstyles.dart';
 import 'package:go_router/go_router.dart';
 import 'package:heroicons/heroicons.dart';
@@ -42,6 +43,7 @@ class _DashboardState extends State<Dashboard> {
   int penjualanHarian = 0;
   int penjualanBulanan = 0;
   int jumlahMenu = 0;
+  int pendapatanBulanan = 0;
 
   Future<void> filterPesanan(String mainFilter, String subFilter) async {
     try {
@@ -51,6 +53,8 @@ class _DashboardState extends State<Dashboard> {
       final lastMonth = DateFormat(
         'yyyy-MM',
       ).format(DateTime(now.year, now.month - 1));
+      final thisYear = DateFormat('yyyy').format(now);
+      final lastYear = DateFormat('yyyy').format(DateTime(now.year - 1));
 
       var query = supabase.from('pesanan').select();
 
@@ -70,10 +74,27 @@ class _DashboardState extends State<Dashboard> {
             query = query
                 .gte('created_at', '$lastMonth-01')
                 .lt('created_at', '$thisMonth-01');
+          case 'Tahun Ini':
+            query = query.gte('created_at', '$thisYear-01-01');
+          case 'Tahun Lalu':
+            query = query
+                .gte('created_at', '$lastYear-01-01')
+                .lt('created_at', '$thisYear-01-01');
             break;
         }
       }
       final response = await query.order('created_at', ascending: false);
+
+      if (mounted) {
+        if (response.isEmpty) {
+          showToast(
+            context,
+            title: 'Data kosong',
+            message: 'Tidak ada data untuk periode yang dipilih',
+            Type: ToastificationType.info,
+          );
+        }
+      }
 
       if (mounted) {
         setState(() {
@@ -187,10 +208,37 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
+  Future<int> getPendapatanBulanan() async {
+    try {
+      final bulanIni = DateFormat('yyyy-MM').format(DateTime.now());
+      final response = await supabase
+          .from('pesanan')
+          .select('total')
+          .eq('status_pesanan', 'Selesai')
+          .gte('created_at', '$bulanIni-01');
+      double totalPendapatan = 0;
+      for (var item in response) {
+        totalPendapatan += item['total'];
+      }
+      return totalPendapatan.toInt();
+    } catch (e) {
+      if (mounted) {
+        showToast(
+          context,
+          title: 'Error',
+          message: e.toString(),
+          Type: ToastificationType.error,
+        );
+      }
+    }
+    return 0;
+  }
+
   Future<void> fetchDashboardData() async {
     await getDataHarian();
     await getDataBulanan();
     await getDataMenu();
+    await getPendapatanBulanan();
   }
 
   Future<void> fetchPesanan() async {
@@ -491,7 +539,7 @@ class _DashboardState extends State<Dashboard> {
 
           // Cards Information
           Positioned(
-            top: 80,
+            top: 40,
             left: 110,
             child: Column(
               children: [
@@ -524,10 +572,21 @@ class _DashboardState extends State<Dashboard> {
                   "Jumlah Menu",
                   SvgPicture.asset(
                     'assets/icons/Coffee_cup.svg',
-                    width: 200,
-                    height: 200,
+                    width: 50,
+                    height: 50,
                   ),
                   getDataMenu(),
+                ),
+                const SizedBox(height: 10),
+                // Card for menu count
+                _buildCard(
+                  "Pendapatan Total Bulan Ini",
+                  HeroIcon(
+                    HeroIcons.currencyDollar,
+                    size: 70,
+                    color: Colors.grey,
+                  ),
+                  getPendapatanBulanan(),
                 ),
               ],
             ),
@@ -669,6 +728,14 @@ class _DashboardState extends State<Dashboard> {
                             DropdownMenuItem(
                               value: 'Bulan Lalu',
                               child: Text('Bulan Lalu'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Tahun Ini',
+                              child: Text('Tahun Ini'),
+                            ),
+                            DropdownMenuItem(
+                              value: 'Tahun Lalu',
+                              child: Text('Tahun Lalu'),
                             ),
                           ],
                           onChanged: (value) {
@@ -878,6 +945,7 @@ class _DashboardState extends State<Dashboard> {
                                                       height: 10,
                                                       width: 5,
                                                     ),
+                                                    const SizedBox(width: 15),
                                                     ElevatedButton(
                                                       onPressed: () async {
                                                         await updateStatusSelesai(
@@ -887,12 +955,7 @@ class _DashboardState extends State<Dashboard> {
                                                       },
                                                       style: ElevatedButton.styleFrom(
                                                         backgroundColor:
-                                                            Color.fromARGB(
-                                                              255,
-                                                              127,
-                                                              88,
-                                                              56,
-                                                            ),
+                                                            Colors.green,
                                                         shape: RoundedRectangleBorder(
                                                           borderRadius:
                                                               BorderRadius.circular(
@@ -1040,15 +1103,15 @@ class _DashboardState extends State<Dashboard> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
               child: Container(
-                width: 200,
-                height: 100,
-                color: const Color.fromARGB(255, 210, 156, 108),
+                width: 120,
+                height: 50,
+                color: Colors.red,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 12.0),
+                      padding: const EdgeInsets.only(top: 5.5, left: 5),
                       child: TextButton(
                         onPressed: () async {
                           final authService = AuthService();
@@ -1061,7 +1124,7 @@ class _DashboardState extends State<Dashboard> {
                           'Logout',
                           style: TextStyle(
                             fontFamily: 'Oxanium',
-                            fontSize: 16,
+                            fontSize: 24,
                             fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
@@ -1075,59 +1138,7 @@ class _DashboardState extends State<Dashboard> {
           ),
 
           // Sidebar
-          AnimatedPositioned(
-            duration: Duration(milliseconds: 300),
-            top: 0,
-            left: _isMenuOpen ? 0 : -200,
-            child: ClipRRect(
-              borderRadius: BorderRadius.only(
-                topRight: Radius.circular(8),
-                bottomRight: Radius.circular(8),
-              ),
-              child: Container(
-                width: 80,
-                height: MediaQuery.of(context).size.height,
-                color: Color.fromARGB(255, 84, 47, 17),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 40),
-                    TextButton(
-                      onPressed: () {
-                        context.goNamed(RouteNames.dashboard);
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: SvgPicture.asset(
-                          'assets/icons/home.svg',
-                          width: 40,
-                          height: 40,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    TextButton(
-                      onPressed: () {
-                        try {
-                          context.goNamed(RouteNames.menupage);
-                        } catch (e) {
-                          debugPrint('Nav error $e');
-                        }
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Icon(
-                          Icons.add_circle_outline_outlined,
-                          size: 40,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
+          buildSidebarAdmin(context: context, isMenuOpen: _isMenuOpen),
 
           //sidebar menu icon
           Positioned(
@@ -1148,7 +1159,7 @@ class _DashboardState extends State<Dashboard> {
   Widget _buildCard(String title, Widget iconWidget, Future<int> futureData) {
     return SizedBox(
       width: 430,
-      height: 220,
+      height: 170,
       child: Card(
         elevation: 3,
         color: Colors.white,

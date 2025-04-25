@@ -1,10 +1,8 @@
 // ignore_for_file: unused_field, prefer_final_fields
 
 import 'package:flutter/material.dart';
-import 'package:gcoffee_r/controller/auth/auth.dart';
 import 'package:gcoffee_r/pages/customer/popup_order_type.dart';
 import 'package:gcoffee_r/providers/cart_provider.dart';
-import 'package:gcoffee_r/routes/route_name.dart';
 import 'package:gcoffee_r/styles/notification_styles.dart';
 import 'package:gcoffee_r/styles/profile.dart';
 import 'package:gcoffee_r/styles/sidebar.dart';
@@ -28,7 +26,6 @@ class ReviewsPage extends StatefulWidget {
 // Remove CartProvider class here and continue with _ReviewsPageState
 class _ReviewsPageState extends State<ReviewsPage> {
   final supabase = Supabase.instance.client;
-  Map<int, bool> _favoriteStates = {};
   Map<String, dynamic> _reviewUserData = {};
   Map<String, dynamic> _reviewMenuData = {};
   bool _isLoading = true;
@@ -228,33 +225,6 @@ class _ReviewsPageState extends State<ReviewsPage> {
     }
   }
 
-  Future<void> _loadFavorites() async {
-    final authService = AuthService();
-
-    if (authService.isLoggedIn()) {
-      try {
-        // Fetch all favorites for the current user
-        final response = await supabase
-            .from('favoritemenus')
-            .select('menu_id')
-            .eq('user_id', supabase.auth.currentUser!.id);
-
-        // Create a map of menu IDs to favorite status
-        if (mounted) {
-          setState(() {
-            for (var item in response) {
-              // Make sure to use the correct type for the menu_id
-              int menuId = item['menu_id'];
-              _favoriteStates[menuId] = true;
-            }
-          });
-        }
-      } catch (e) {
-        debugPrint('Error loading favorites: $e');
-      }
-    }
-  }
-
   Future<void> _checkStoredMeja() async {
     try {
       final prefs = await SharedPreferences.getInstance();
@@ -292,7 +262,6 @@ class _ReviewsPageState extends State<ReviewsPage> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _checkStoredMeja();
       await fetchAllReviews();
-      await _loadFavorites();
     });
   }
 
@@ -433,7 +402,7 @@ class _ReviewsPageState extends State<ReviewsPage> {
               right: 40,
             ),
 
-            //cart
+            //cart sidebar
             AnimatedPositioned(
               duration: Duration(milliseconds: 300),
               top: 0,

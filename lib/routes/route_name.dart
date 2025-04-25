@@ -13,4 +13,6 @@ class RouteNames {
   static const String menupage = 'menupage';
   static const String addmenu = 'addmenu';
   static const String editpage = 'editmenu';
+  static const String addmeja = 'addmeja';
+  static const String reviewpageadmin = 'reviewpageadmin';
 }

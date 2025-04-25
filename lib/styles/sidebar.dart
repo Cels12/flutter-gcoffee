@@ -83,7 +83,7 @@ Widget buildSidebar({
                 child: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   child: HeroIcon(
-                    HeroIcons.heart,
+                    HeroIcons.bookmark,
                     size: MediaQuery.of(context).size.width < 1200 ? 30 : 40,
                     color: Colors.white,
                   ),

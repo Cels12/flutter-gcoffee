@@ -42,10 +42,7 @@ Icon _getToastIcon(ToastificationType type) {
     case ToastificationType.error:
       return Icon(Icons.error, color: Colors.white);
     case ToastificationType.warning:
-      return Icon(
-        Icons.warning,
-        color: const Color.fromARGB(255, 132, 132, 132),
-      );
+      return Icon(Icons.warning, color: Colors.white);
     case ToastificationType.info:
     default:
       return Icon(Icons.info, color: Colors.white);

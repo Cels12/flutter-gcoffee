@@ -4,10 +4,12 @@ import 'package:gcoffee_r/controller/errorScreen.dart';
 import 'package:gcoffee_r/controller/login.dart';
 import 'package:gcoffee_r/controller/signup.dart';
 import 'package:gcoffee_r/controller/updatePassword.dart';
+import 'package:gcoffee_r/pages/admin/add_meja.dart';
 import 'package:gcoffee_r/pages/admin/add_menu.dart';
 import 'package:gcoffee_r/pages/admin/dashboard.dart';
 import 'package:gcoffee_r/pages/admin/edit_menu.dart';
 import 'package:gcoffee_r/pages/admin/menupage.dart';
+import 'package:gcoffee_r/pages/admin/reviews_admin.dart';
 import 'package:gcoffee_r/pages/customer/MyReviewPage.dart';
 import 'package:gcoffee_r/pages/customer/favoritepage.dart';
 import 'package:gcoffee_r/pages/customer/homepage_cust.dart';
@@ -34,6 +36,7 @@ class RouteConfig {
       '/admin/menupage',
       '/admin/addmenu',
       '/admin/editmenu',
+      'admin/addmeja',
     ];
 
     // Check if trying to access admin routes
@@ -185,6 +188,20 @@ class RouteConfig {
           name: RouteNames.addmenu,
           pageBuilder: (context, state) {
             return MaterialPage(child: AddMenu());
+          },
+        ),
+        GoRoute(
+          path: '/admin/addmeja',
+          name: RouteNames.addmeja,
+          pageBuilder: (context, state) {
+            return MaterialPage(child: AddMeja());
+          },
+        ),
+        GoRoute(
+          path: '/admin/review',
+          name: RouteNames.reviewpageadmin,
+          pageBuilder: (context, state) {
+            return MaterialPage(child: ReviewsAdmin());
           },
         ),
         GoRoute(
